@@ -1,0 +1,21 @@
+load("@rules_go//go:def.bzl", "go_test")
+
+# gazelle:ignore
+
+go_test(
+    name = "system_test",
+    srcs = [
+        "helpers_test.go",
+        "mtls_test.go",
+        "sclient_test.go",
+        "tls_test.go",
+    ],
+    gotags = ["integration"],
+    tags = ["integration"],
+    deps = [
+        "//internal/cli",
+        "//internal/store",
+        "@com_github_testcontainers_testcontainers_go//:go_default_library",
+        "@com_github_testcontainers_testcontainers_go//wait:go_default_library",
+    ],
+)

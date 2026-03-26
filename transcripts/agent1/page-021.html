@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code transcript - page 21</title>
+    <style>
+:root { --bg-color: #f5f5f5; --card-bg: #ffffff; --user-bg: #e3f2fd; --user-border: #1976d2; --assistant-bg: #f5f5f5; --assistant-border: #9e9e9e; --thinking-bg: #fff8e1; --thinking-border: #ffc107; --thinking-text: #666; --tool-bg: #f3e5f5; --tool-border: #9c27b0; --tool-result-bg: #e8f5e9; --tool-error-bg: #ffebee; --text-color: #212121; --text-muted: #757575; --code-bg: #263238; --code-text: #aed581; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 16px; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 24px; padding-bottom: 8px; border-bottom: 2px solid var(--user-border); }
+.header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 2px solid var(--user-border); padding-bottom: 8px; margin-bottom: 24px; }
+.header-row h1 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; flex: 1; min-width: 200px; }
+.message { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.message.user { background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.message.assistant { background: var(--card-bg); border-left: 4px solid var(--assistant-border); }
+.message.tool-reply { background: #fff8e1; border-left: 4px solid #ff9800; }
+.tool-reply .role-label { color: #e65100; }
+.tool-reply .tool-result { background: transparent; padding: 0; margin: 0; }
+.tool-reply .tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.message-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.role-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.user .role-label { color: var(--user-border); }
+time { color: var(--text-muted); font-size: 0.8rem; }
+.timestamp-link { color: inherit; text-decoration: none; }
+.timestamp-link:hover { text-decoration: underline; }
+.message:target { animation: highlight 2s ease-out; }
+@keyframes highlight { 0% { background-color: rgba(25, 118, 210, 0.2); } 100% { background-color: transparent; } }
+.message-content { padding: 16px; }
+.message-content p { margin: 0 0 12px 0; }
+.message-content p:last-child { margin-bottom: 0; }
+.thinking { background: var(--thinking-bg); border: 1px solid var(--thinking-border); border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 0.9rem; color: var(--thinking-text); }
+.thinking-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #f57c00; margin-bottom: 8px; }
+.thinking p { margin: 8px 0; }
+.assistant-text { margin: 8px 0; }
+.tool-use { background: var(--tool-bg); border: 1px solid var(--tool-border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-header { font-weight: 600; color: var(--tool-border); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.tool-icon { font-size: 1.1rem; }
+.tool-description { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
+.tool-result { background: var(--tool-result-bg); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-result.tool-error { background: var(--tool-error-bg); }
+.file-tool { border-radius: 8px; padding: 12px; margin: 12px 0; }
+.write-tool { background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%); border: 1px solid #4caf50; }
+.edit-tool { background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); border: 1px solid #ff9800; }
+.file-tool-header { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.write-header { color: #2e7d32; }
+.edit-header { color: #e65100; }
+.file-tool-icon { font-size: 1rem; }
+.file-tool-path { font-family: monospace; background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 4px; }
+.file-tool-fullpath { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; word-break: break-all; }
+.file-content { margin: 0; }
+.edit-section { display: flex; margin: 4px 0; border-radius: 4px; overflow: hidden; }
+.edit-label { padding: 8px 12px; font-weight: bold; font-family: monospace; display: flex; align-items: flex-start; }
+.edit-old { background: #fce4ec; }
+.edit-old .edit-label { color: #b71c1c; background: #f8bbd9; }
+.edit-old .edit-content { color: #880e4f; }
+.edit-new { background: #e8f5e9; }
+.edit-new .edit-label { color: #1b5e20; background: #a5d6a7; }
+.edit-new .edit-content { color: #1b5e20; }
+.edit-content { margin: 0; flex: 1; background: transparent; font-size: 0.85rem; }
+.edit-replace-all { font-size: 0.75rem; font-weight: normal; color: var(--text-muted); }
+.write-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #e6f4ea); }
+.edit-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff0e5); }
+.todo-list { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border: 1px solid #81c784; border-radius: 8px; padding: 12px; margin: 12px 0; }
+.todo-header { font-weight: 600; color: #2e7d32; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.todo-items { list-style: none; margin: 0; padding: 0; }
+.todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 0.9rem; }
+.todo-item:last-child { border-bottom: none; }
+.todo-icon { flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; }
+.todo-completed .todo-icon { color: #2e7d32; background: rgba(46, 125, 50, 0.15); }
+.todo-completed .todo-content { color: #558b2f; text-decoration: line-through; }
+.todo-in-progress .todo-icon { color: #f57c00; background: rgba(245, 124, 0, 0.15); }
+.todo-in-progress .todo-content { color: #e65100; font-weight: 500; }
+.todo-pending .todo-icon { color: #757575; background: rgba(0,0,0,0.05); }
+.todo-pending .todo-content { color: #616161; }
+pre { background: var(--code-bg); color: var(--code-text); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; margin: 8px 0; white-space: pre-wrap; word-wrap: break-word; }
+pre.json { color: #e0e0e0; }
+code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre code { background: none; padding: 0; }
+.user-content { margin: 0; }
+.truncatable { position: relative; }
+.truncatable.truncated .truncatable-content { max-height: 200px; overflow: hidden; }
+.truncatable.truncated::after { content: ''; position: absolute; bottom: 32px; left: 0; right: 0; height: 60px; background: linear-gradient(to bottom, transparent, var(--card-bg)); pointer-events: none; }
+.message.user .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--user-bg)); }
+.message.tool-reply .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.tool-use .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-bg)); }
+.tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-result-bg)); }
+.expand-btn { display: none; width: 100%; padding: 8px 16px; margin-top: 4px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+.expand-btn:hover { background: rgba(0,0,0,0.1); }
+.truncatable.truncated .expand-btn, .truncatable.expanded .expand-btn { display: block; }
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; flex-wrap: wrap; }
+.pagination a, .pagination span { padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
+.pagination a { background: var(--card-bg); color: var(--user-border); border: 1px solid var(--user-border); }
+.pagination a:hover { background: var(--user-bg); }
+.pagination .current { background: var(--user-border); color: white; }
+.pagination .disabled { color: var(--text-muted); border: 1px solid #ddd; }
+.pagination .index-link { background: var(--user-border); color: white; }
+details.continuation { margin-bottom: 16px; }
+details.continuation summary { cursor: pointer; padding: 12px 16px; background: var(--user-bg); border-left: 4px solid var(--user-border); border-radius: 12px; font-weight: 500; color: var(--text-muted); }
+details.continuation summary:hover { background: rgba(25, 118, 210, 0.15); }
+details.continuation[open] summary { border-radius: 12px 12px 0 0; margin-bottom: 0; }
+.index-item { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.index-item a { display: block; text-decoration: none; color: inherit; }
+.index-item a:hover { background: rgba(25, 118, 210, 0.1); }
+.index-item-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.index-item-number { font-weight: 600; color: var(--user-border); }
+.index-item-content { padding: 16px; }
+.index-item-stats { padding: 8px 16px 12px 32px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid rgba(0,0,0,0.06); }
+.index-item-commit { margin-top: 6px; padding: 4px 8px; background: #fff3e0; border-radius: 4px; font-size: 0.85rem; color: #e65100; }
+.index-item-commit code { background: rgba(0,0,0,0.08); padding: 1px 4px; border-radius: 3px; font-size: 0.8rem; margin-right: 6px; }
+.commit-card { margin: 8px 0; padding: 10px 14px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 6px; }
+.commit-card a { text-decoration: none; color: #5d4037; display: block; }
+.commit-card a:hover { color: #e65100; }
+.commit-card-hash { font-family: monospace; color: #e65100; font-weight: 600; margin-right: 8px; }
+.index-commit { margin-bottom: 12px; padding: 10px 16px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.index-commit a { display: block; text-decoration: none; color: inherit; }
+.index-commit a:hover { background: rgba(255, 152, 0, 0.1); margin: -10px -16px; padding: 10px 16px; border-radius: 8px; }
+.index-commit-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
+.index-commit-hash { font-family: monospace; color: #e65100; font-weight: 600; }
+.index-commit-msg { color: #5d4037; }
+.index-item-long-text { margin-top: 8px; padding: 12px; background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--assistant-border); }
+.index-item-long-text .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--card-bg)); }
+.index-item-long-text-content { color: var(--text-color); }
+#search-box { display: none; align-items: center; gap: 8px; }
+#search-box input { padding: 6px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; width: 180px; }
+#search-box button, #modal-search-btn, #modal-close-btn { background: var(--user-border); color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#search-box button:hover, #modal-search-btn:hover { background: #1565c0; }
+#modal-close-btn { background: var(--text-muted); margin-left: 8px; }
+#modal-close-btn:hover { background: #616161; }
+#search-modal[open] { border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); padding: 0; width: 90vw; max-width: 900px; height: 80vh; max-height: 80vh; display: flex; flex-direction: column; }
+#search-modal::backdrop { background: rgba(0,0,0,0.5); }
+.search-modal-header { display: flex; align-items: center; gap: 8px; padding: 16px; border-bottom: 1px solid var(--assistant-border); background: var(--bg-color); border-radius: 12px 12px 0 0; }
+.search-modal-header input { flex: 1; padding: 8px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; }
+#search-status { padding: 8px 16px; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+#search-results { flex: 1; overflow-y: auto; padding: 16px; }
+.search-result { margin-bottom: 16px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.search-result a { display: block; text-decoration: none; color: inherit; }
+.search-result a:hover { background: rgba(25, 118, 210, 0.05); }
+.search-result-page { padding: 6px 12px; background: rgba(0,0,0,0.03); font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.search-result-content { padding: 12px; }
+.search-result mark { background: #fff59d; padding: 1px 2px; border-radius: 2px; }
+@media (max-width: 600px) { body { padding: 8px; } .message, .index-item { border-radius: 8px; } .message-content, .index-item-content { padding: 12px; } pre { font-size: 0.8rem; padding: 8px; } #search-box input { width: 120px; } #search-modal[open] { width: 95vw; height: 90vh; } }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Claude Code transcript</a> - page 21/28</h1>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-020.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-005.html">5</a>
+<a href="page-006.html">6</a>
+<a href="page-007.html">7</a>
+<a href="page-008.html">8</a>
+<a href="page-009.html">9</a>
+<a href="page-010.html">10</a>
+<a href="page-011.html">11</a>
+<a href="page-012.html">12</a>
+<a href="page-013.html">13</a>
+<a href="page-014.html">14</a>
+<a href="page-015.html">15</a>
+<a href="page-016.html">16</a>
+<a href="page-017.html">17</a>
+<a href="page-018.html">18</a>
+<a href="page-019.html">19</a>
+<a href="page-020.html">20</a>
+<span class="current">21</span>
+<a href="page-022.html">22</a>
+<a href="page-023.html">23</a>
+<a href="page-024.html">24</a>
+<a href="page-025.html">25</a>
+<a href="page-026.html">26</a>
+<a href="page-027.html">27</a>
+<a href="page-028.html">28</a>
+<a href="page-022.html">Next &rarr;</a>
+</div>
+
+        
+<div class="message user" id="msg-2026-03-26T22-02-08-324Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T22-02-08-324Z" class="timestamp-link"><time datetime="2026-03-26T22:02:08.324Z" data-timestamp="2026-03-26T22:02:08.324Z">2026-03-26T22:02:08.324Z</time></a></div><div class="message-content">
+<div class="user-content"><p>output default should be the same db file with a different extension</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-02-16-115Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-02-16-115Z" class="timestamp-link"><time datetime="2026-03-26T22:02:16.115Z" data-timestamp="2026-03-26T22:02:16.115Z">2026-03-26T22:02:16.115Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01RkcNgvxyoAo41JE9xYoYJy">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">graph.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/graph.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">	cmd := &amp;cobra.Command{
+		Use:   &#34;graph&#34;,
+		Short: &#34;Generate an SVG diagram of the CA hierarchy&#34;,
+		Long:  &#34;Render all CAs and certificates as an SVG tree diagram from a gossl database.&#34;,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runGraph(cmd.Context(), db, out)
+		},
+	}
+
+	cmd.Flags().StringVar(&amp;db, &#34;db&#34;, &#34;gossl.db&#34;, &#34;Path to the SQLite database file&#34;)
+	cmd.Flags().StringVar(&amp;out, &#34;out&#34;, &#34;gossl-graph.svg&#34;, &#34;Output SVG file path&#34;)</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">	cmd := &amp;cobra.Command{
+		Use:   &#34;graph&#34;,
+		Short: &#34;Generate an SVG diagram of the CA hierarchy&#34;,
+		Long:  &#34;Render all CAs and certificates as an SVG tree diagram from a gossl database.&#34;,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if out == &#34;&#34; {
+				out = strings.TrimSuffix(db, filepath.Ext(db)) + &#34;.svg&#34;
+			}
+			return runGraph(cmd.Context(), db, out)
+		},
+	}
+
+	cmd.Flags().StringVar(&amp;db, &#34;db&#34;, &#34;gossl.db&#34;, &#34;Path to the SQLite database file&#34;)
+	cmd.Flags().StringVar(&amp;out, &#34;out&#34;, &#34;&#34;, &#34;Output SVG file path (defaults to &lt;db&gt;.svg)&#34;)</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-02-16-124Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-02-16-124Z" class="timestamp-link"><time datetime="2026-03-26T22:02:16.124Z" data-timestamp="2026-03-26T22:02:16.124Z">2026-03-26T22:02:16.124Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/graph.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-02-23-113Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-02-23-113Z" class="timestamp-link"><time datetime="2026-03-26T22:02:23.113Z" data-timestamp="2026-03-26T22:02:23.113Z">2026-03-26T22:02:23.113Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01PQ9SxzsbJM22QSwHxAWRZv">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">graph.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/graph.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">	&#34;fmt&#34;
+	&#34;os&#34;
+	&#34;strings&#34;</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">	&#34;fmt&#34;
+	&#34;os&#34;
+	&#34;path/filepath&#34;
+	&#34;strings&#34;</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-02-23-126Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-02-23-126Z" class="timestamp-link"><time datetime="2026-03-26T22:02:23.126Z" data-timestamp="2026-03-26T22:02:23.126Z">2026-03-26T22:02:23.126Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/graph.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-02-29-301Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-02-29-301Z" class="timestamp-link"><time datetime="2026-03-26T22:02:29.301Z" data-timestamp="2026-03-26T22:02:29.301Z">2026-03-26T22:02:29.301Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01Qg4uLw1Lb2wyevrLVuw6k3">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Test default output name</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel build //cmd/gossl 2&gt;&amp;1 | tail -2 &amp;&amp; rm -f gossl.svg &amp;&amp; bazel-bin/cmd/gossl/gossl_/gossl graph &amp;&amp; ls -la gossl.svg</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-02-32-038Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-02-32-038Z" class="timestamp-link"><time datetime="2026-03-26T22:02:32.038Z" data-timestamp="2026-03-26T22:02:32.038Z">2026-03-26T22:02:32.038Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>INFO: 5 processes: 2 internal, 3 darwin-sandbox.
+INFO: Build completed successfully, 5 total actions
+Graph written to gossl.svg (4 CAs, 4 certs)
+-rw-r--r--@ 1 scaruso  staff  1879 Mar 26 15:02 gossl.svg</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-02-37-125Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-02-37-125Z" class="timestamp-link"><time datetime="2026-03-26T22:02:37.125Z" data-timestamp="2026-03-26T22:02:37.125Z">2026-03-26T22:02:37.125Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p><code>gossl graph</code> now outputs to <code>gossl.svg</code> (matching <code>gossl.db</code>). With <code>--db /tmp/test2.db</code> it would output <code>/tmp/test2.svg</code>.</p></div></div></div>
+<div class="message user" id="msg-2026-03-26T22-02-41-231Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T22-02-41-231Z" class="timestamp-link"><time datetime="2026-03-26T22:02:41.231Z" data-timestamp="2026-03-26T22:02:41.231Z">2026-03-26T22:02:41.231Z</time></a></div><div class="message-content">
+<div class="user-content"><p>looking at /tmp/test2.db seems we are priting all intermediates in the graph</p></div></div></div>
+<div class="message user" id="msg-2026-03-26T22-03-10-805Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T22-03-10-805Z" class="timestamp-link"><time datetime="2026-03-26T22:03:10.805Z" data-timestamp="2026-03-26T22:03:10.805Z">2026-03-26T22:03:10.805Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>[Request interrupted by user]</p></div></div></div>
+<div class="message user" id="msg-2026-03-26T22-03-10-915Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T22-03-10-915Z" class="timestamp-link"><time datetime="2026-03-26T22:03:10.915Z" data-timestamp="2026-03-26T22:03:10.915Z">2026-03-26T22:03:10.915Z</time></a></div><div class="message-content">
+<div class="user-content"><p>ah no my bad!</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-03-15-287Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-03-15-287Z" class="timestamp-link"><time datetime="2026-03-26T22:03:15.287Z" data-timestamp="2026-03-26T22:03:15.287Z">2026-03-26T22:03:15.287Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>No worries!</p></div></div></div>
+<div class="message user" id="msg-2026-03-26T22-04-02-860Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T22-04-02-860Z" class="timestamp-link"><time datetime="2026-03-26T22:04:02.860Z" data-timestamp="2026-03-26T22:04:02.860Z">2026-03-26T22:04:02.860Z</time></a></div><div class="message-content">
+<div class="user-content"><p>add a flag to skip filter by type (ca, intermediate, cert). --filter ca,intermediate should filter out certs</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-04-07-798Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-04-07-798Z" class="timestamp-link"><time datetime="2026-03-26T22:04:07.798Z" data-timestamp="2026-03-26T22:04:07.798Z">2026-03-26T22:04:07.798Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01T6w3Abkj35FTsdnsbhQ7ir"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/graph.go&#34;,
+  &#34;offset&#34;: 16,
+  &#34;limit&#34;: 30
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-04-07-854Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-04-07-854Z" class="timestamp-link"><time datetime="2026-03-26T22:04:07.854Z" data-timestamp="2026-03-26T22:04:07.854Z">2026-03-26T22:04:07.854Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>    16→		db  string
+    17→		out string
+    18→	)
+    19→
+    20→	cmd := &amp;cobra.Command{
+    21→		Use:   &quot;graph&quot;,
+    22→		Short: &quot;Generate an SVG diagram of the CA hierarchy&quot;,
+    23→		Long:  &quot;Render all CAs and certificates as an SVG tree diagram from a gossl database.&quot;,
+    24→		RunE: func(cmd *cobra.Command, args []string) error {
+    25→			if out == &quot;&quot; {
+    26→				out = strings.TrimSuffix(db, filepath.Ext(db)) + &quot;.svg&quot;
+    27→			}
+    28→			return runGraph(cmd.Context(), db, out)
+    29→		},
+    30→	}
+    31→
+    32→	cmd.Flags().StringVar(&amp;db, &quot;db&quot;, &quot;gossl.db&quot;, &quot;Path to the SQLite database file&quot;)
+    33→	cmd.Flags().StringVar(&amp;out, &quot;out&quot;, &quot;&quot;, &quot;Output SVG file path (defaults to &lt;db&gt;.svg)&quot;)
+    34→
+    35→	return cmd
+    36→}
+    37→
+    38→func runGraph(ctx context.Context, dbPath, out string) error {
+    39→
+    40→	d, err := store.OpenDB(ctx, dbPath)
+    41→	if err != nil {
+    42→		return err
+    43→	}
+    44→	defer d.Close()
+    45→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-04-16-654Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-04-16-654Z" class="timestamp-link"><time datetime="2026-03-26T22:04:16.654Z" data-timestamp="2026-03-26T22:04:16.654Z">2026-03-26T22:04:16.654Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01S1oZoKfK62iAqFKbXPgYCW">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">graph.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/graph.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">	var (
+		db  string
+		out string
+	)
+
+	cmd := &amp;cobra.Command{
+		Use:   &#34;graph&#34;,
+		Short: &#34;Generate an SVG diagram of the CA hierarchy&#34;,
+		Long:  &#34;Render all CAs and certificates as an SVG tree diagram from a gossl database.&#34;,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if out == &#34;&#34; {
+				out = strings.TrimSuffix(db, filepath.Ext(db)) + &#34;.svg&#34;
+			}
+			return runGraph(cmd.Context(), db, out)
+		},
+	}
+
+	cmd.Flags().StringVar(&amp;db, &#34;db&#34;, &#34;gossl.db&#34;, &#34;Path to the SQLite database file&#34;)
+	cmd.Flags().StringVar(&amp;out, &#34;out&#34;, &#34;&#34;, &#34;Output SVG file path (defaults to &lt;db&gt;.svg)&#34;)</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">	var (
+		db     string
+		out    string
+		filter string
+	)
+
+	cmd := &amp;cobra.Command{
+		Use:   &#34;graph&#34;,
+		Short: &#34;Generate an SVG diagram of the CA hierarchy&#34;,
+		Long: `Render all CAs and certificates as an SVG tree diagram from a gossl database.
+Use --filter to include only specific node types (comma-separated: ca, intermediate, cert).`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if out == &#34;&#34; {
+				out = strings.TrimSuffix(db, filepath.Ext(db)) + &#34;.svg&#34;
+			}
+			return runGraph(cmd.Context(), db, out, filter)
+		},
+	}
+
+	cmd.Flags().StringVar(&amp;db, &#34;db&#34;, &#34;gossl.db&#34;, &#34;Path to the SQLite database file&#34;)
+	cmd.Flags().StringVar(&amp;out, &#34;out&#34;, &#34;&#34;, &#34;Output SVG file path (defaults to &lt;db&gt;.svg)&#34;)
+	cmd.Flags().StringVar(&amp;filter, &#34;filter&#34;, &#34;&#34;, &#34;Node types to include (comma-separated: ca, intermediate, cert)&#34;)</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-04-16-669Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-04-16-669Z" class="timestamp-link"><time datetime="2026-03-26T22:04:16.669Z" data-timestamp="2026-03-26T22:04:16.669Z">2026-03-26T22:04:16.669Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/graph.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-04-27-754Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-04-27-754Z" class="timestamp-link"><time datetime="2026-03-26T22:04:27.754Z" data-timestamp="2026-03-26T22:04:27.754Z">2026-03-26T22:04:27.754Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01JjdkZMUj7XP5U6ZY8hatvy">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">graph.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/graph.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">func runGraph(ctx context.Context, dbPath, out string) error {
+
+	d, err := store.OpenDB(ctx, dbPath)
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+
+	q := store.New(d.SQLDB())
+
+	cas, err := q.ListCAs(ctx)
+	if err != nil {
+		return fmt.Errorf(&#34;listing CAs: %w&#34;, err)
+	}
+
+	certs, err := q.ListCerts(ctx)
+	if err != nil {
+		return fmt.Errorf(&#34;listing certs: %w&#34;, err)
+	}
+
+	svg := renderSVG(cas, certs)</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">func parseFilter(filter string) map[string]bool {
+	if filter == &#34;&#34; {
+		return nil
+	}
+	m := make(map[string]bool)
+	for _, f := range strings.Split(filter, &#34;,&#34;) {
+		m[strings.TrimSpace(f)] = true
+	}
+	return m
+}
+
+func runGraph(ctx context.Context, dbPath, out, filter string) error {
+	d, err := store.OpenDB(ctx, dbPath)
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+
+	q := store.New(d.SQLDB())
+	show := parseFilter(filter)
+
+	var cas []store.Ca
+	if show == nil || show[&#34;ca&#34;] || show[&#34;intermediate&#34;] {
+		cas, err = q.ListCAs(ctx)
+		if err != nil {
+			return fmt.Errorf(&#34;listing CAs: %w&#34;, err)
+		}
+		if show != nil {
+			var filtered []store.Ca
+			for _, ca := range cas {
+				if !ca.ParentID.Valid &amp;&amp; show[&#34;ca&#34;] {
+					filtered = append(filtered, ca)
+				} else if ca.ParentID.Valid &amp;&amp; show[&#34;intermediate&#34;] {
+					filtered = append(filtered, ca)
+				}
+			}
+			// Always include ancestors of visible nodes so the tree connects
+			cas = includeAncestors(filtered, cas)
+		}
+	}
+
+	var certs []store.Cert
+	if show == nil || show[&#34;cert&#34;] {
+		certs, err = q.ListCerts(ctx)
+		if err != nil {
+			return fmt.Errorf(&#34;listing certs: %w&#34;, err)
+		}
+	}
+
+	svg := renderSVG(cas, certs)</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-04-27-776Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-04-27-776Z" class="timestamp-link"><time datetime="2026-03-26T22:04:27.776Z" data-timestamp="2026-03-26T22:04:27.776Z">2026-03-26T22:04:27.776Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/graph.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-04-32-992Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-04-32-992Z" class="timestamp-link"><time datetime="2026-03-26T22:04:32.992Z" data-timestamp="2026-03-26T22:04:32.992Z">2026-03-26T22:04:32.992Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now add the <code>includeAncestors</code> helper before <code>renderSVG</code>.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-04-36-326Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-04-36-326Z" class="timestamp-link"><time datetime="2026-03-26T22:04:36.326Z" data-timestamp="2026-03-26T22:04:36.326Z">2026-03-26T22:04:36.326Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01DV1WFfTxUZgkZdcxyP3W6r">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">graph.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/graph.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">func renderSVG(cas []store.Ca, certs []store.Cert) string {</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">// includeAncestors ensures parent CAs of visible nodes are included so the tree is connected.
+func includeAncestors(visible, all []store.Ca) []store.Ca {
+	byID := make(map[int64]store.Ca)
+	for _, ca := range all {
+		byID[ca.ID] = ca
+	}
+
+	included := make(map[int64]bool)
+	for _, ca := range visible {
+		included[ca.ID] = true
+	}
+
+	// Walk up from each visible node
+	for _, ca := range visible {
+		cur := ca
+		for cur.ParentID.Valid {
+			if included[cur.ParentID.Int64] {
+				break
+			}
+			included[cur.ParentID.Int64] = true
+			cur = byID[cur.ParentID.Int64]
+		}
+	}
+
+	var result []store.Ca
+	for _, ca := range all {
+		if included[ca.ID] {
+			result = append(result, ca)
+		}
+	}
+	return result
+}
+
+func renderSVG(cas []store.Ca, certs []store.Cert) string {</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-04-36-409Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-04-36-409Z" class="timestamp-link"><time datetime="2026-03-26T22:04:36.409Z" data-timestamp="2026-03-26T22:04:36.409Z">2026-03-26T22:04:36.409Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/graph.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-04-43-695Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-04-43-695Z" class="timestamp-link"><time datetime="2026-03-26T22:04:43.695Z" data-timestamp="2026-03-26T22:04:43.695Z">2026-03-26T22:04:43.695Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01HH5d4Yg7B8tyUT1fuv28S5"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/graph.go&#34;,
+  &#34;offset&#34;: 14,
+  &#34;limit&#34;: 30
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-04-43-764Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-04-43-764Z" class="timestamp-link"><time datetime="2026-03-26T22:04:43.764Z" data-timestamp="2026-03-26T22:04:43.764Z">2026-03-26T22:04:43.764Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>    14→func newGraphCmd() *cobra.Command {
+    15→	var (
+    16→		db     string
+    17→		out    string
+    18→		filter string
+    19→	)
+    20→
+    21→	cmd := &amp;cobra.Command{
+    22→		Use:   &quot;graph&quot;,
+    23→		Short: &quot;Generate an SVG diagram of the CA hierarchy&quot;,
+    24→		Long: `Render all CAs and certificates as an SVG tree diagram from a gossl database.
+    25→Use --filter to include only specific node types (comma-separated: ca, intermediate, cert).`,
+    26→		RunE: func(cmd *cobra.Command, args []string) error {
+    27→			if out == &quot;&quot; {
+    28→				out = strings.TrimSuffix(db, filepath.Ext(db)) + &quot;.svg&quot;
+    29→			}
+    30→			return runGraph(cmd.Context(), db, out, filter)
+    31→		},
+    32→	}
+    33→
+    34→	cmd.Flags().StringVar(&amp;db, &quot;db&quot;, &quot;gossl.db&quot;, &quot;Path to the SQLite database file&quot;)
+    35→	cmd.Flags().StringVar(&amp;out, &quot;out&quot;, &quot;&quot;, &quot;Output SVG file path (defaults to &lt;db&gt;.svg)&quot;)
+    36→	cmd.Flags().StringVar(&amp;filter, &quot;filter&quot;, &quot;&quot;, &quot;Node types to include (comma-separated: ca, intermediate, cert)&quot;)
+    37→
+    38→	return cmd
+    39→}
+    40→
+    41→func parseFilter(filter string) map[string]bool {
+    42→	if filter == &quot;&quot; {
+    43→		return nil</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-04-59-471Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-04-59-471Z" class="timestamp-link"><time datetime="2026-03-26T22:04:59.471Z" data-timestamp="2026-03-26T22:04:59.471Z">2026-03-26T22:04:59.471Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01VVP6mB6icwLE4kMtSvsrr9">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">graph.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/graph.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">	var (
+		db     string
+		out    string
+		filter string
+	)
+
+	cmd := &amp;cobra.Command{
+		Use:   &#34;graph&#34;,
+		Short: &#34;Generate an SVG diagram of the CA hierarchy&#34;,
+		Long: `Render all CAs and certificates as an SVG tree diagram from a gossl database.
+Use --filter to include only specific node types (comma-separated: ca, intermediate, cert).`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if out == &#34;&#34; {
+				out = strings.TrimSuffix(db, filepath.Ext(db)) + &#34;.svg&#34;
+			}
+			return runGraph(cmd.Context(), db, out, filter)
+		},
+	}
+
+	cmd.Flags().StringVar(&amp;db, &#34;db&#34;, &#34;gossl.db&#34;, &#34;Path to the SQLite database file&#34;)
+	cmd.Flags().StringVar(&amp;out, &#34;out&#34;, &#34;&#34;, &#34;Output SVG file path (defaults to &lt;db&gt;.svg)&#34;)
+	cmd.Flags().StringVar(&amp;filter, &#34;filter&#34;, &#34;&#34;, &#34;Node types to include (comma-separated: ca, intermediate, cert)&#34;)</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">	var (
+		db     string
+		out    string
+		filter string
+		format string
+	)
+
+	cmd := &amp;cobra.Command{
+		Use:   &#34;graph&#34;,
+		Short: &#34;Generate a diagram of the CA hierarchy&#34;,
+		Long: `Render all CAs and certificates as a tree diagram from a gossl database.
+Use --filter to include only specific node types (comma-separated: ca, intermediate, cert).
+Use --format to choose output format: svg, json, or text.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if out == &#34;&#34; {
+				ext := map[string]string{&#34;svg&#34;: &#34;.svg&#34;, &#34;json&#34;: &#34;.json&#34;, &#34;text&#34;: &#34;.txt&#34;}[format]
+				out = strings.TrimSuffix(db, filepath.Ext(db)) + ext
+			}
+			return runGraph(cmd.Context(), db, out, filter, format)
+		},
+	}
+
+	cmd.Flags().StringVar(&amp;db, &#34;db&#34;, &#34;gossl.db&#34;, &#34;Path to the SQLite database file&#34;)
+	cmd.Flags().StringVar(&amp;out, &#34;out&#34;, &#34;&#34;, &#34;Output file path (defaults to &lt;db&gt;.&lt;format&gt;)&#34;)
+	cmd.Flags().StringVar(&amp;filter, &#34;filter&#34;, &#34;&#34;, &#34;Node types to include (comma-separated: ca, intermediate, cert)&#34;)
+	cmd.Flags().StringVar(&amp;format, &#34;format&#34;, &#34;svg&#34;, &#34;Output format: svg, json, text&#34;)</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-04-59-502Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-04-59-502Z" class="timestamp-link"><time datetime="2026-03-26T22:04:59.502Z" data-timestamp="2026-03-26T22:04:59.502Z">2026-03-26T22:04:59.502Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/graph.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-05-04-234Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-05-04-234Z" class="timestamp-link"><time datetime="2026-03-26T22:05:04.234Z" data-timestamp="2026-03-26T22:05:04.234Z">2026-03-26T22:05:04.234Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now update <code>runGraph</code> to handle the format, and add json/text renderers.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-05-04-599Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-05-04-599Z" class="timestamp-link"><time datetime="2026-03-26T22:05:04.599Z" data-timestamp="2026-03-26T22:05:04.599Z">2026-03-26T22:05:04.599Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01NgKFS2HAiRkgP2Z2r75sVj"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/graph.go&#34;,
+  &#34;offset&#34;: 53,
+  &#34;limit&#34;: 5
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-05-04-653Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-05-04-653Z" class="timestamp-link"><time datetime="2026-03-26T22:05:04.653Z" data-timestamp="2026-03-26T22:05:04.653Z">2026-03-26T22:05:04.653Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>    53→	return m
+    54→}
+    55→
+    56→func runGraph(ctx context.Context, dbPath, out, filter string) error {
+    57→	d, err := store.OpenDB(ctx, dbPath)</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-05-09-470Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-05-09-470Z" class="timestamp-link"><time datetime="2026-03-26T22:05:09.470Z" data-timestamp="2026-03-26T22:05:09.470Z">2026-03-26T22:05:09.470Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01PWwHz89amxBj61hXVfEdYD"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/graph.go&#34;,
+  &#34;offset&#34;: 56,
+  &#34;limit&#34;: 40
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-05-09-515Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-05-09-515Z" class="timestamp-link"><time datetime="2026-03-26T22:05:09.515Z" data-timestamp="2026-03-26T22:05:09.515Z">2026-03-26T22:05:09.515Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>    56→func runGraph(ctx context.Context, dbPath, out, filter string) error {
+    57→	d, err := store.OpenDB(ctx, dbPath)
+    58→	if err != nil {
+    59→		return err
+    60→	}
+    61→	defer d.Close()
+    62→
+    63→	q := store.New(d.SQLDB())
+    64→	show := parseFilter(filter)
+    65→
+    66→	var cas []store.Ca
+    67→	if show == nil || show[&quot;ca&quot;] || show[&quot;intermediate&quot;] {
+    68→		cas, err = q.ListCAs(ctx)
+    69→		if err != nil {
+    70→			return fmt.Errorf(&quot;listing CAs: %w&quot;, err)
+    71→		}
+    72→		if show != nil {
+    73→			var filtered []store.Ca
+    74→			for _, ca := range cas {
+    75→				if !ca.ParentID.Valid &amp;&amp; show[&quot;ca&quot;] {
+    76→					filtered = append(filtered, ca)
+    77→				} else if ca.ParentID.Valid &amp;&amp; show[&quot;intermediate&quot;] {
+    78→					filtered = append(filtered, ca)
+    79→				}
+    80→			}
+    81→			// Always include ancestors of visible nodes so the tree connects
+    82→			cas = includeAncestors(filtered, cas)
+    83→		}
+    84→	}
+    85→
+    86→	var certs []store.Cert
+    87→	if show == nil || show[&quot;cert&quot;] {
+    88→		certs, err = q.ListCerts(ctx)
+    89→		if err != nil {
+    90→			return fmt.Errorf(&quot;listing certs: %w&quot;, err)
+    91→		}
+    92→	}
+    93→
+    94→	svg := renderSVG(cas, certs)
+    95→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-05-22-010Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-05-22-010Z" class="timestamp-link"><time datetime="2026-03-26T22:05:22.010Z" data-timestamp="2026-03-26T22:05:22.010Z">2026-03-26T22:05:22.010Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01E4FUXBWJr68YoiCFZ3UHTZ"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/graph.go&#34;,
+  &#34;offset&#34;: 94,
+  &#34;limit&#34;: 15
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-05-22-085Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-05-22-085Z" class="timestamp-link"><time datetime="2026-03-26T22:05:22.085Z" data-timestamp="2026-03-26T22:05:22.085Z">2026-03-26T22:05:22.085Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>    94→	svg := renderSVG(cas, certs)
+    95→
+    96→	if err := os.WriteFile(out, []byte(svg), 0644); err != nil {
+    97→		return fmt.Errorf(&quot;writing SVG: %w&quot;, err)
+    98→	}
+    99→
+   100→	fmt.Printf(&quot;Graph written to %s (%d CAs, %d certs)\n&quot;, out, len(cas), len(certs))
+   101→	return nil
+   102→}
+   103→
+   104→type node struct {
+   105→	id       string
+   106→	label    string
+   107→	kind     string // &quot;root&quot;, &quot;intermediate&quot;, &quot;cert&quot;, &quot;revoked&quot;
+   108→	children []*node</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-05-27-025Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-05-27-025Z" class="timestamp-link"><time datetime="2026-03-26T22:05:27.025Z" data-timestamp="2026-03-26T22:05:27.025Z">2026-03-26T22:05:27.025Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01433QaoWL1UMjZVG56rGEi2">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">graph.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/graph.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">func runGraph(ctx context.Context, dbPath, out, filter string) error {</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">func runGraph(ctx context.Context, dbPath, out, filter, format string) error {</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-05-27-031Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-05-27-031Z" class="timestamp-link"><time datetime="2026-03-26T22:05:27.031Z" data-timestamp="2026-03-26T22:05:27.031Z">2026-03-26T22:05:27.031Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/graph.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-05-35-562Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-05-35-562Z" class="timestamp-link"><time datetime="2026-03-26T22:05:35.562Z" data-timestamp="2026-03-26T22:05:35.562Z">2026-03-26T22:05:35.562Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_019AuFp7pxa7xDoCAhcrcm9v">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">graph.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/graph.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">	svg := renderSVG(cas, certs)
+
+	if err := os.WriteFile(out, []byte(svg), 0644); err != nil {
+		return fmt.Errorf(&#34;writing SVG: %w&#34;, err)
+	}
+
+	fmt.Printf(&#34;Graph written to %s (%d CAs, %d certs)\n&#34;, out, len(cas), len(certs))
+	return nil
+}</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">	var content string
+	switch format {
+	case &#34;svg&#34;:
+		content = renderSVG(cas, certs)
+	case &#34;json&#34;:
+		content = renderJSON(cas, certs)
+	case &#34;text&#34;:
+		content = renderText(cas, certs)
+	default:
+		return fmt.Errorf(&#34;unsupported format %q (use svg, json, or text)&#34;, format)
+	}
+
+	if err := os.WriteFile(out, []byte(content), 0644); err != nil {
+		return fmt.Errorf(&#34;writing output: %w&#34;, err)
+	}
+
+	fmt.Printf(&#34;Graph written to %s (%d CAs, %d certs)\n&#34;, out, len(cas), len(certs))
+	return nil
+}</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-05-35-664Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-05-35-664Z" class="timestamp-link"><time datetime="2026-03-26T22:05:35.664Z" data-timestamp="2026-03-26T22:05:35.664Z">2026-03-26T22:05:35.664Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/graph.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-05-41-171Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-05-41-171Z" class="timestamp-link"><time datetime="2026-03-26T22:05:41.171Z" data-timestamp="2026-03-26T22:05:41.171Z">2026-03-26T22:05:41.171Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now add the JSON and text renderers. Let me add them before <code>renderSVG</code>, along with the needed import.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-05-42-129Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-05-42-129Z" class="timestamp-link"><time datetime="2026-03-26T22:05:42.129Z" data-timestamp="2026-03-26T22:05:42.129Z">2026-03-26T22:05:42.129Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01HM9ZTcwmDfUaxgd4izgABZ">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">graph.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/graph.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">	&#34;fmt&#34;
+	&#34;os&#34;
+	&#34;path/filepath&#34;
+	&#34;strings&#34;</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">	&#34;encoding/json&#34;
+	&#34;fmt&#34;
+	&#34;os&#34;
+	&#34;path/filepath&#34;
+	&#34;strings&#34;</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-05-42-193Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-05-42-193Z" class="timestamp-link"><time datetime="2026-03-26T22:05:42.193Z" data-timestamp="2026-03-26T22:05:42.193Z">2026-03-26T22:05:42.193Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/graph.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-05-47-124Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-05-47-124Z" class="timestamp-link"><time datetime="2026-03-26T22:05:47.124Z" data-timestamp="2026-03-26T22:05:47.124Z">2026-03-26T22:05:47.124Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now add <code>renderJSON</code> and <code>renderText</code> before <code>renderSVG</code>.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-05-58-271Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-05-58-271Z" class="timestamp-link"><time datetime="2026-03-26T22:05:58.271Z" data-timestamp="2026-03-26T22:05:58.271Z">2026-03-26T22:05:58.271Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01FcaoPbR8Gkohb6hUE6WrUL">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">graph.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/graph.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">func renderSVG(cas []store.Ca, certs []store.Cert) string {</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">// --- JSON format ---
+
+type jsonNode struct {
+	Name     string      `json:&#34;name&#34;`
+	Type     string      `json:&#34;type&#34;`
+	Serial   string      `json:&#34;serial&#34;`
+	Children []*jsonNode `json:&#34;children,omitempty&#34;`
+}
+
+func renderJSON(cas []store.Ca, certs []store.Cert) string {
+	caByID := make(map[int64]*jsonNode)
+	var roots []*jsonNode
+
+	for _, ca := range cas {
+		kind := &#34;intermediate&#34;
+		if !ca.ParentID.Valid {
+			kind = &#34;root&#34;
+		}
+		n := &amp;jsonNode{Name: ca.CommonName, Type: kind, Serial: ca.Serial}
+		caByID[ca.ID] = n
+	}
+
+	for _, ca := range cas {
+		n := caByID[ca.ID]
+		if ca.ParentID.Valid {
+			if parent, ok := caByID[ca.ParentID.Int64]; ok {
+				parent.Children = append(parent.Children, n)
+			}
+		} else {
+			roots = append(roots, n)
+		}
+	}
+
+	for _, cert := range certs {
+		kind := &#34;cert&#34;
+		if cert.RevokedAt.Valid {
+			kind = &#34;revoked&#34;
+		}
+		n := &amp;jsonNode{Name: cert.CommonName, Type: kind, Serial: cert.Serial}
+		if parent, ok := caByID[cert.CaID]; ok {
+			parent.Children = append(parent.Children, n)
+		}
+	}
+
+	data, _ := json.MarshalIndent(roots, &#34;&#34;, &#34;  &#34;)
+	return string(data) + &#34;\n&#34;
+}
+
+// --- Text format ---
+
+func renderText(cas []store.Ca, certs []store.Cert) string {
+	caByID := make(map[int64]*node)
+	var roots []*node
+
+	for _, ca := range cas {
+		kind := &#34;intermediate&#34;
+		if !ca.ParentID.Valid {
+			kind = &#34;root&#34;
+		}
+		n := &amp;node{id: ca.Serial, label: ca.CommonName, kind: kind}
+		caByID[ca.ID] = n
+	}
+
+	for _, ca := range cas {
+		n := caByID[ca.ID]
+		if ca.ParentID.Valid {
+			if parent, ok := caByID[ca.ParentID.Int64]; ok {
+				parent.children = append(parent.children, n)
+			}
+		} else {
+			roots = append(roots, n)
+		}
+	}
+
+	for _, cert := range certs {
+		kind := &#34;cert&#34;
+		if cert.RevokedAt.Valid {
+			kind = &#34;revoked&#34;
+		}
+		n := &amp;node{id: cert.Serial, label: cert.CommonName, kind: kind}
+		if parent, ok := caByID[cert.CaID]; ok {
+			parent.children = append(parent.children, n)
+		}
+	}
+
+	var b strings.Builder
+	for _, root := range roots {
+		printTree(&amp;b, root, &#34;&#34;, true)
+	}
+	return b.String()
+}
+
+func printTree(b *strings.Builder, n *node, prefix string, last bool) {
+	connector := &#34;├── &#34;
+	if last {
+		connector = &#34;└── &#34;
+	}
+	if prefix == &#34;&#34; {
+		connector = &#34;&#34;
+	}
+
+	tag := &#34;&#34;
+	switch n.kind {
+	case &#34;root&#34;:
+		tag = &#34; [ROOT]&#34;
+	case &#34;revoked&#34;:
+		tag = &#34; [REVOKED]&#34;
+	}
+
+	b.WriteString(fmt.Sprintf(&#34;%s%s%s%s\n&#34;, prefix, connector, n.label, tag))
+
+	childPrefix := prefix
+	if prefix != &#34;&#34; {
+		if last {
+			childPrefix += &#34;    &#34;
+		} else {
+			childPrefix += &#34;│   &#34;
+		}
+	}
+
+	for i, child := range n.children {
+		printTree(b, child, childPrefix, i == len(n.children)-1)
+	}
+}
+
+// --- SVG format ---
+
+func renderSVG(cas []store.Ca, certs []store.Cert) string {</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-05-58-290Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-05-58-290Z" class="timestamp-link"><time datetime="2026-03-26T22:05:58.290Z" data-timestamp="2026-03-26T22:05:58.290Z">2026-03-26T22:05:58.290Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/graph.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-06-05-183Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-06-05-183Z" class="timestamp-link"><time datetime="2026-03-26T22:06:05.183Z" data-timestamp="2026-03-26T22:06:05.183Z">2026-03-26T22:06:05.183Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_014BxeU6yjHQBCA22crtjhnh">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Build</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel build //cmd/gossl 2&gt;&amp;1 | tail -3</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-06-07-814Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-06-07-814Z" class="timestamp-link"><time datetime="2026-03-26T22:06:07.814Z" data-timestamp="2026-03-26T22:06:07.814Z">2026-03-26T22:06:07.814Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>INFO: Elapsed time: 2.302s, Critical Path: 1.82s
+INFO: 5 processes: 2 internal, 3 darwin-sandbox.
+INFO: Build completed successfully, 5 total actions</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-06-14-676Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-06-14-676Z" class="timestamp-link"><time datetime="2026-03-26T22:06:14.676Z" data-timestamp="2026-03-26T22:06:14.676Z">2026-03-26T22:06:14.676Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01GB527RLc12P8bzpC58EMgf">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Test all formats and filter</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">GOSSL=&#34;bazel-bin/cmd/gossl/gossl_/gossl&#34;
+
+echo &#34;=== Text ===&#34;
+$GOSSL graph --format text --out /dev/stdout
+
+echo &#34;&#34;
+echo &#34;=== JSON ===&#34;
+$GOSSL graph --format json --out /dev/stdout
+
+echo &#34;&#34;
+echo &#34;=== Filter: ca,intermediate only (text) ===&#34;
+$GOSSL graph --format text --filter ca,intermediate --out /dev/stdout</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-06-15-265Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-06-15-265Z" class="timestamp-link"><time datetime="2026-03-26T22:06:15.265Z" data-timestamp="2026-03-26T22:06:15.265Z">2026-03-26T22:06:15.265Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>=== Text ===
+Root CA [ROOT]
+Production
+Prod US-East
+payments.us-east.example.com
+api.prod.example.com
+Staging
+web.staging.example.com [REVOKED]
+api.staging.example.com
+Graph written to /dev/stdout (4 CAs, 4 certs)
+
+=== JSON ===
+[
+  {
+    &quot;name&quot;: &quot;Root CA&quot;,
+    &quot;type&quot;: &quot;root&quot;,
+    &quot;serial&quot;: &quot;E8B9B20240B238EAD8C1B88D757033E1&quot;,
+    &quot;children&quot;: [
+      {
+        &quot;name&quot;: &quot;Production&quot;,
+        &quot;type&quot;: &quot;intermediate&quot;,
+        &quot;serial&quot;: &quot;DDB8B9B0F436CC2F35653D8DBCA1A329&quot;,
+        &quot;children&quot;: [
+          {
+            &quot;name&quot;: &quot;Prod US-East&quot;,
+            &quot;type&quot;: &quot;intermediate&quot;,
+            &quot;serial&quot;: &quot;E88B44A4B96856A7EA4E636928EF981A&quot;,
+            &quot;children&quot;: [
+              {
+                &quot;name&quot;: &quot;payments.us-east.example.com&quot;,
+                &quot;type&quot;: &quot;cert&quot;,
+                &quot;serial&quot;: &quot;BDDDC581551B79494E0C7990C1E957C8&quot;
+              }
+            ]
+          },
+          {
+            &quot;name&quot;: &quot;api.prod.example.com&quot;,
+            &quot;type&quot;: &quot;cert&quot;,
+            &quot;serial&quot;: &quot;729BDC70C9A05EEBDEF6C38D6928E0FC&quot;
+          }
+        ]
+      },
+      {
+        &quot;name&quot;: &quot;Staging&quot;,
+        &quot;type&quot;: &quot;intermediate&quot;,
+        &quot;serial&quot;: &quot;1BA48D1E83026C66EB31D7E221CC0E8&quot;,
+        &quot;children&quot;: [
+          {
+            &quot;name&quot;: &quot;web.staging.example.com&quot;,
+            &quot;type&quot;: &quot;revoked&quot;,
+            &quot;serial&quot;: &quot;580AF75D55E2CBAC0E0DD7F300FFD5F&quot;
+          },
+          {
+            &quot;name&quot;: &quot;api.staging.example.com&quot;,
+            &quot;type&quot;: &quot;cert&quot;,
+            &quot;serial&quot;: &quot;3B5CCC941709DB349C64CE9FC3DC14C2&quot;
+          }
+        ]
+      }
+    ]
+  }
+]
+Graph written to /dev/stdout (4 CAs, 4 certs)
+
+=== Filter: ca,intermediate only (text) ===
+Root CA [ROOT]
+Production
+Prod US-East
+Staging
+Graph written to /dev/stdout (4 CAs, 0 certs)</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-06-22-306Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-06-22-306Z" class="timestamp-link"><time datetime="2026-03-26T22:06:22.306Z" data-timestamp="2026-03-26T22:06:22.306Z">2026-03-26T22:06:22.306Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>The text tree lost its indentation. The <code>printTree</code> prefix logic needs the root to start with an empty prefix correctly. Let me check — the issue is all nodes print flat. The tree building is correct but the root <code>prefix == ""</code> case strips the connector. Let me look more carefully... the children aren't indented because <code>childPrefix</code> when <code>prefix == ""</code> stays <code>""</code>.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-06-26-927Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-06-26-927Z" class="timestamp-link"><time datetime="2026-03-26T22:06:26.927Z" data-timestamp="2026-03-26T22:06:26.927Z">2026-03-26T22:06:26.927Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_014zDFyoXC2LPERxCzSwDGoZ">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">graph.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/graph.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">func printTree(b *strings.Builder, n *node, prefix string, last bool) {
+	connector := &#34;├── &#34;
+	if last {
+		connector = &#34;└── &#34;
+	}
+	if prefix == &#34;&#34; {
+		connector = &#34;&#34;
+	}
+
+	tag := &#34;&#34;
+	switch n.kind {
+	case &#34;root&#34;:
+		tag = &#34; [ROOT]&#34;
+	case &#34;revoked&#34;:
+		tag = &#34; [REVOKED]&#34;
+	}
+
+	b.WriteString(fmt.Sprintf(&#34;%s%s%s%s\n&#34;, prefix, connector, n.label, tag))
+
+	childPrefix := prefix
+	if prefix != &#34;&#34; {
+		if last {
+			childPrefix += &#34;    &#34;
+		} else {
+			childPrefix += &#34;│   &#34;
+		}
+	}
+
+	for i, child := range n.children {
+		printTree(b, child, childPrefix, i == len(n.children)-1)
+	}
+}</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">func printTree(b *strings.Builder, n *node, prefix string, last bool) {
+	connector := &#34;├── &#34;
+	if last {
+		connector = &#34;└── &#34;
+	}
+
+	tag := &#34;&#34;
+	switch n.kind {
+	case &#34;root&#34;:
+		tag = &#34; [ROOT]&#34;
+	case &#34;revoked&#34;:
+		tag = &#34; [REVOKED]&#34;
+	}
+
+	if prefix == &#34;&#34; {
+		// Root node — no connector, children get base indent
+		b.WriteString(fmt.Sprintf(&#34;%s%s\n&#34;, n.label, tag))
+		for i, child := range n.children {
+			printTree(b, child, &#34;&#34;, i == len(n.children)-1)
+		}
+		return
+	}
+
+	b.WriteString(fmt.Sprintf(&#34;%s%s%s%s\n&#34;, prefix, connector, n.label, tag))
+
+	childPrefix := prefix
+	if last {
+		childPrefix += &#34;    &#34;
+	} else {
+		childPrefix += &#34;│   &#34;
+	}
+
+	for i, child := range n.children {
+		printTree(b, child, childPrefix, i == len(n.children)-1)
+	}
+}</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-06-26-934Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-06-26-934Z" class="timestamp-link"><time datetime="2026-03-26T22:06:26.934Z" data-timestamp="2026-03-26T22:06:26.934Z">2026-03-26T22:06:26.934Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/graph.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-06-32-249Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-06-32-249Z" class="timestamp-link"><time datetime="2026-03-26T22:06:32.249Z" data-timestamp="2026-03-26T22:06:32.249Z">2026-03-26T22:06:32.249Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Hmm, that still won't work right — the root's children also get <code>prefix=""</code>. I need a different approach for the root level.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-06-38-036Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-06-38-036Z" class="timestamp-link"><time datetime="2026-03-26T22:06:38.036Z" data-timestamp="2026-03-26T22:06:38.036Z">2026-03-26T22:06:38.036Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_017DVAJ6154f2iSjHfkGs9d5">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">graph.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/graph.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">	var b strings.Builder
+	for _, root := range roots {
+		printTree(&amp;b, root, &#34;&#34;, true)
+	}
+	return b.String()
+}
+
+func printTree(b *strings.Builder, n *node, prefix string, last bool) {
+	connector := &#34;├── &#34;
+	if last {
+		connector = &#34;└── &#34;
+	}
+
+	tag := &#34;&#34;
+	switch n.kind {
+	case &#34;root&#34;:
+		tag = &#34; [ROOT]&#34;
+	case &#34;revoked&#34;:
+		tag = &#34; [REVOKED]&#34;
+	}
+
+	if prefix == &#34;&#34; {
+		// Root node — no connector, children get base indent
+		b.WriteString(fmt.Sprintf(&#34;%s%s\n&#34;, n.label, tag))
+		for i, child := range n.children {
+			printTree(b, child, &#34;&#34;, i == len(n.children)-1)
+		}
+		return
+	}
+
+	b.WriteString(fmt.Sprintf(&#34;%s%s%s%s\n&#34;, prefix, connector, n.label, tag))
+
+	childPrefix := prefix
+	if last {
+		childPrefix += &#34;    &#34;
+	} else {
+		childPrefix += &#34;│   &#34;
+	}
+
+	for i, child := range n.children {
+		printTree(b, child, childPrefix, i == len(n.children)-1)
+	}
+}</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">	var b strings.Builder
+	for _, root := range roots {
+		printTreeRoot(&amp;b, root)
+	}
+	return b.String()
+}
+
+func printTreeRoot(b *strings.Builder, n *node) {
+	tag := nodeTag(n.kind)
+	b.WriteString(fmt.Sprintf(&#34;%s%s\n&#34;, n.label, tag))
+	for i, child := range n.children {
+		printTreeNode(b, child, &#34;&#34;, i == len(n.children)-1)
+	}
+}
+
+func printTreeNode(b *strings.Builder, n *node, prefix string, last bool) {
+	connector := &#34;├── &#34;
+	childExt := &#34;│   &#34;
+	if last {
+		connector = &#34;└── &#34;
+		childExt = &#34;    &#34;
+	}
+
+	tag := nodeTag(n.kind)
+	b.WriteString(fmt.Sprintf(&#34;%s%s%s%s\n&#34;, prefix, connector, n.label, tag))
+
+	childPrefix := prefix + childExt
+	for i, child := range n.children {
+		printTreeNode(b, child, childPrefix, i == len(n.children)-1)
+	}
+}
+
+func nodeTag(kind string) string {
+	switch kind {
+	case &#34;root&#34;:
+		return &#34; [ROOT]&#34;
+	case &#34;revoked&#34;:
+		return &#34; [REVOKED]&#34;
+	default:
+		return &#34;&#34;
+	}
+}</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-06-38-056Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-06-38-056Z" class="timestamp-link"><time datetime="2026-03-26T22:06:38.056Z" data-timestamp="2026-03-26T22:06:38.056Z">2026-03-26T22:06:38.056Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/graph.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-06-43-107Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-06-43-107Z" class="timestamp-link"><time datetime="2026-03-26T22:06:43.107Z" data-timestamp="2026-03-26T22:06:43.107Z">2026-03-26T22:06:43.107Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_017eBiCrHohyNMXKMN68aa8m">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Test text tree</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel build //cmd/gossl 2&gt;&amp;1 | tail -2 &amp;&amp; bazel-bin/cmd/gossl/gossl_/gossl graph --format text --out /dev/stdout</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T22-06-45-763Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T22-06-45-763Z" class="timestamp-link"><time datetime="2026-03-26T22:06:45.763Z" data-timestamp="2026-03-26T22:06:45.763Z">2026-03-26T22:06:45.763Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>INFO: 5 processes: 2 internal, 3 darwin-sandbox.
+INFO: Build completed successfully, 5 total actions
+Root CA [ROOT]
+├── Production
+│   ├── Prod US-East
+│   │   └── payments.us-east.example.com
+│   └── api.prod.example.com
+└── Staging
+    ├── web.staging.example.com [REVOKED]
+    └── api.staging.example.com
+Graph written to /dev/stdout (4 CAs, 4 certs)</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T22-06-51-411Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T22-06-51-411Z" class="timestamp-link"><time datetime="2026-03-26T22:06:51.411Z" data-timestamp="2026-03-26T22:06:51.411Z">2026-03-26T22:06:51.411Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>All three formats working:</p>
+<pre><code>gossl graph                              # SVG (default)
+gossl graph --format text --out /dev/stdout  # text tree to stdout
+gossl graph --format json                # JSON tree
+gossl graph --filter ca,intermediate     # CAs only, no certs
+</code></pre></div></div></div>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-020.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-005.html">5</a>
+<a href="page-006.html">6</a>
+<a href="page-007.html">7</a>
+<a href="page-008.html">8</a>
+<a href="page-009.html">9</a>
+<a href="page-010.html">10</a>
+<a href="page-011.html">11</a>
+<a href="page-012.html">12</a>
+<a href="page-013.html">13</a>
+<a href="page-014.html">14</a>
+<a href="page-015.html">15</a>
+<a href="page-016.html">16</a>
+<a href="page-017.html">17</a>
+<a href="page-018.html">18</a>
+<a href="page-019.html">19</a>
+<a href="page-020.html">20</a>
+<span class="current">21</span>
+<a href="page-022.html">22</a>
+<a href="page-023.html">23</a>
+<a href="page-024.html">24</a>
+<a href="page-025.html">25</a>
+<a href="page-026.html">26</a>
+<a href="page-027.html">27</a>
+<a href="page-028.html">28</a>
+<a href="page-022.html">Next &rarr;</a>
+</div>
+
+    </div>
+    <script>
+document.querySelectorAll('time[data-timestamp]').forEach(function(el) {
+    const timestamp = el.getAttribute('data-timestamp');
+    const date = new Date(timestamp);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    if (isToday) { el.textContent = timeStr; }
+    else { el.textContent = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + timeStr; }
+});
+document.querySelectorAll('pre.json').forEach(function(el) {
+    let text = el.textContent;
+    text = text.replace(/"([^"]+)":/g, '<span style="color: #ce93d8">"$1"</span>:');
+    text = text.replace(/: "([^"]*)"/g, ': <span style="color: #81d4fa">"$1"</span>');
+    text = text.replace(/: (\d+)/g, ': <span style="color: #ffcc80">$1</span>');
+    text = text.replace(/: (true|false|null)/g, ': <span style="color: #f48fb1">$1</span>');
+    el.innerHTML = text;
+});
+document.querySelectorAll('.truncatable').forEach(function(wrapper) {
+    const content = wrapper.querySelector('.truncatable-content');
+    const btn = wrapper.querySelector('.expand-btn');
+    if (content.scrollHeight > 250) {
+        wrapper.classList.add('truncated');
+        btn.addEventListener('click', function() {
+            if (wrapper.classList.contains('truncated')) { wrapper.classList.remove('truncated'); wrapper.classList.add('expanded'); btn.textContent = 'Show less'; }
+            else { wrapper.classList.remove('expanded'); wrapper.classList.add('truncated'); btn.textContent = 'Show more'; }
+        });
+    }
+});
+</script>
+</body>
+</html>

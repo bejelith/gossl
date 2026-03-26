@@ -1,0 +1,2254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code transcript - page 1</title>
+    <style>
+:root { --bg-color: #f5f5f5; --card-bg: #ffffff; --user-bg: #e3f2fd; --user-border: #1976d2; --assistant-bg: #f5f5f5; --assistant-border: #9e9e9e; --thinking-bg: #fff8e1; --thinking-border: #ffc107; --thinking-text: #666; --tool-bg: #f3e5f5; --tool-border: #9c27b0; --tool-result-bg: #e8f5e9; --tool-error-bg: #ffebee; --text-color: #212121; --text-muted: #757575; --code-bg: #263238; --code-text: #aed581; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 16px; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 24px; padding-bottom: 8px; border-bottom: 2px solid var(--user-border); }
+.header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 2px solid var(--user-border); padding-bottom: 8px; margin-bottom: 24px; }
+.header-row h1 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; flex: 1; min-width: 200px; }
+.message { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.message.user { background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.message.assistant { background: var(--card-bg); border-left: 4px solid var(--assistant-border); }
+.message.tool-reply { background: #fff8e1; border-left: 4px solid #ff9800; }
+.tool-reply .role-label { color: #e65100; }
+.tool-reply .tool-result { background: transparent; padding: 0; margin: 0; }
+.tool-reply .tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.message-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.role-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.user .role-label { color: var(--user-border); }
+time { color: var(--text-muted); font-size: 0.8rem; }
+.timestamp-link { color: inherit; text-decoration: none; }
+.timestamp-link:hover { text-decoration: underline; }
+.message:target { animation: highlight 2s ease-out; }
+@keyframes highlight { 0% { background-color: rgba(25, 118, 210, 0.2); } 100% { background-color: transparent; } }
+.message-content { padding: 16px; }
+.message-content p { margin: 0 0 12px 0; }
+.message-content p:last-child { margin-bottom: 0; }
+.thinking { background: var(--thinking-bg); border: 1px solid var(--thinking-border); border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 0.9rem; color: var(--thinking-text); }
+.thinking-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #f57c00; margin-bottom: 8px; }
+.thinking p { margin: 8px 0; }
+.assistant-text { margin: 8px 0; }
+.tool-use { background: var(--tool-bg); border: 1px solid var(--tool-border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-header { font-weight: 600; color: var(--tool-border); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.tool-icon { font-size: 1.1rem; }
+.tool-description { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
+.tool-result { background: var(--tool-result-bg); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-result.tool-error { background: var(--tool-error-bg); }
+.file-tool { border-radius: 8px; padding: 12px; margin: 12px 0; }
+.write-tool { background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%); border: 1px solid #4caf50; }
+.edit-tool { background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); border: 1px solid #ff9800; }
+.file-tool-header { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.write-header { color: #2e7d32; }
+.edit-header { color: #e65100; }
+.file-tool-icon { font-size: 1rem; }
+.file-tool-path { font-family: monospace; background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 4px; }
+.file-tool-fullpath { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; word-break: break-all; }
+.file-content { margin: 0; }
+.edit-section { display: flex; margin: 4px 0; border-radius: 4px; overflow: hidden; }
+.edit-label { padding: 8px 12px; font-weight: bold; font-family: monospace; display: flex; align-items: flex-start; }
+.edit-old { background: #fce4ec; }
+.edit-old .edit-label { color: #b71c1c; background: #f8bbd9; }
+.edit-old .edit-content { color: #880e4f; }
+.edit-new { background: #e8f5e9; }
+.edit-new .edit-label { color: #1b5e20; background: #a5d6a7; }
+.edit-new .edit-content { color: #1b5e20; }
+.edit-content { margin: 0; flex: 1; background: transparent; font-size: 0.85rem; }
+.edit-replace-all { font-size: 0.75rem; font-weight: normal; color: var(--text-muted); }
+.write-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #e6f4ea); }
+.edit-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff0e5); }
+.todo-list { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border: 1px solid #81c784; border-radius: 8px; padding: 12px; margin: 12px 0; }
+.todo-header { font-weight: 600; color: #2e7d32; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.todo-items { list-style: none; margin: 0; padding: 0; }
+.todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 0.9rem; }
+.todo-item:last-child { border-bottom: none; }
+.todo-icon { flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; }
+.todo-completed .todo-icon { color: #2e7d32; background: rgba(46, 125, 50, 0.15); }
+.todo-completed .todo-content { color: #558b2f; text-decoration: line-through; }
+.todo-in-progress .todo-icon { color: #f57c00; background: rgba(245, 124, 0, 0.15); }
+.todo-in-progress .todo-content { color: #e65100; font-weight: 500; }
+.todo-pending .todo-icon { color: #757575; background: rgba(0,0,0,0.05); }
+.todo-pending .todo-content { color: #616161; }
+pre { background: var(--code-bg); color: var(--code-text); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; margin: 8px 0; white-space: pre-wrap; word-wrap: break-word; }
+pre.json { color: #e0e0e0; }
+code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre code { background: none; padding: 0; }
+.user-content { margin: 0; }
+.truncatable { position: relative; }
+.truncatable.truncated .truncatable-content { max-height: 200px; overflow: hidden; }
+.truncatable.truncated::after { content: ''; position: absolute; bottom: 32px; left: 0; right: 0; height: 60px; background: linear-gradient(to bottom, transparent, var(--card-bg)); pointer-events: none; }
+.message.user .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--user-bg)); }
+.message.tool-reply .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.tool-use .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-bg)); }
+.tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-result-bg)); }
+.expand-btn { display: none; width: 100%; padding: 8px 16px; margin-top: 4px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+.expand-btn:hover { background: rgba(0,0,0,0.1); }
+.truncatable.truncated .expand-btn, .truncatable.expanded .expand-btn { display: block; }
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; flex-wrap: wrap; }
+.pagination a, .pagination span { padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
+.pagination a { background: var(--card-bg); color: var(--user-border); border: 1px solid var(--user-border); }
+.pagination a:hover { background: var(--user-bg); }
+.pagination .current { background: var(--user-border); color: white; }
+.pagination .disabled { color: var(--text-muted); border: 1px solid #ddd; }
+.pagination .index-link { background: var(--user-border); color: white; }
+details.continuation { margin-bottom: 16px; }
+details.continuation summary { cursor: pointer; padding: 12px 16px; background: var(--user-bg); border-left: 4px solid var(--user-border); border-radius: 12px; font-weight: 500; color: var(--text-muted); }
+details.continuation summary:hover { background: rgba(25, 118, 210, 0.15); }
+details.continuation[open] summary { border-radius: 12px 12px 0 0; margin-bottom: 0; }
+.index-item { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.index-item a { display: block; text-decoration: none; color: inherit; }
+.index-item a:hover { background: rgba(25, 118, 210, 0.1); }
+.index-item-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.index-item-number { font-weight: 600; color: var(--user-border); }
+.index-item-content { padding: 16px; }
+.index-item-stats { padding: 8px 16px 12px 32px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid rgba(0,0,0,0.06); }
+.index-item-commit { margin-top: 6px; padding: 4px 8px; background: #fff3e0; border-radius: 4px; font-size: 0.85rem; color: #e65100; }
+.index-item-commit code { background: rgba(0,0,0,0.08); padding: 1px 4px; border-radius: 3px; font-size: 0.8rem; margin-right: 6px; }
+.commit-card { margin: 8px 0; padding: 10px 14px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 6px; }
+.commit-card a { text-decoration: none; color: #5d4037; display: block; }
+.commit-card a:hover { color: #e65100; }
+.commit-card-hash { font-family: monospace; color: #e65100; font-weight: 600; margin-right: 8px; }
+.index-commit { margin-bottom: 12px; padding: 10px 16px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.index-commit a { display: block; text-decoration: none; color: inherit; }
+.index-commit a:hover { background: rgba(255, 152, 0, 0.1); margin: -10px -16px; padding: 10px 16px; border-radius: 8px; }
+.index-commit-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
+.index-commit-hash { font-family: monospace; color: #e65100; font-weight: 600; }
+.index-commit-msg { color: #5d4037; }
+.index-item-long-text { margin-top: 8px; padding: 12px; background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--assistant-border); }
+.index-item-long-text .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--card-bg)); }
+.index-item-long-text-content { color: var(--text-color); }
+#search-box { display: none; align-items: center; gap: 8px; }
+#search-box input { padding: 6px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; width: 180px; }
+#search-box button, #modal-search-btn, #modal-close-btn { background: var(--user-border); color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#search-box button:hover, #modal-search-btn:hover { background: #1565c0; }
+#modal-close-btn { background: var(--text-muted); margin-left: 8px; }
+#modal-close-btn:hover { background: #616161; }
+#search-modal[open] { border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); padding: 0; width: 90vw; max-width: 900px; height: 80vh; max-height: 80vh; display: flex; flex-direction: column; }
+#search-modal::backdrop { background: rgba(0,0,0,0.5); }
+.search-modal-header { display: flex; align-items: center; gap: 8px; padding: 16px; border-bottom: 1px solid var(--assistant-border); background: var(--bg-color); border-radius: 12px 12px 0 0; }
+.search-modal-header input { flex: 1; padding: 8px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; }
+#search-status { padding: 8px 16px; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+#search-results { flex: 1; overflow-y: auto; padding: 16px; }
+.search-result { margin-bottom: 16px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.search-result a { display: block; text-decoration: none; color: inherit; }
+.search-result a:hover { background: rgba(25, 118, 210, 0.05); }
+.search-result-page { padding: 6px 12px; background: rgba(0,0,0,0.03); font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.search-result-content { padding: 12px; }
+.search-result mark { background: #fff59d; padding: 1px 2px; border-radius: 2px; }
+@media (max-width: 600px) { body { padding: 8px; } .message, .index-item { border-radius: 8px; } .message-content, .index-item-content { padding: 12px; } pre { font-size: 0.8rem; padding: 8px; } #search-box input { width: 120px; } #search-modal[open] { width: 95vw; height: 90vh; } }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Claude Code transcript</a> - page 1/4</h1>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<span class="disabled">&larr; Prev</span>
+<span class="current">1</span>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-002.html">Next &rarr;</a>
+</div>
+
+        
+<div class="message user" id="msg-2026-03-27T21-07-20-475Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-27T21-07-20-475Z" class="timestamp-link"><time datetime="2026-03-27T21:07:20.475Z" data-timestamp="2026-03-27T21:07:20.475Z">2026-03-27T21:07:20.475Z</time></a></div><div class="message-content">
+<div class="user-content"><p>generate 1 cert and 1 pkey. then demostrate how to use gossl to see if the key matches the cert</p>
+<h1>gossl Documentation</h1>
+<p>The following is the complete documentation for gossl, a simplified
+alternative to openssl for mTLS certificate management and troubleshooting.</p>
+<h1>CA Management</h1>
+<h2>Creating a Root CA</h2>
+<pre><code>gossl ca create --cn &quot;My Root CA&quot;
+</code></pre>
+<p>The first CA created in a database is the root. It has no parent (<code>parent_id = NULL</code>). A self-signed certificate is generated and stored in the database.</p>
+<h3>Options</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--cn</code></td>
+<td>required</td>
+<td>Common name for the CA</td>
+</tr>
+<tr>
+<td><code>--db</code></td>
+<td><code>gossl.db</code></td>
+<td>Path to the SQLite database</td>
+</tr>
+<tr>
+<td><code>--days</code></td>
+<td>3650</td>
+<td>Certificate validity in days</td>
+</tr>
+<tr>
+<td><code>--key-algo</code></td>
+<td><code>rsa</code></td>
+<td>Key algorithm: <code>rsa</code> or <code>ecdsa</code></td>
+</tr>
+<tr>
+<td><code>--key-size</code></td>
+<td><code>2048</code></td>
+<td>RSA key size in bits</td>
+</tr>
+<tr>
+<td><code>--curve</code></td>
+<td><code>P-256</code></td>
+<td>ECDSA curve: <code>P-256</code>, <code>P-384</code>, <code>P-521</code></td>
+</tr>
+<tr>
+<td><code>--ca</code></td>
+<td>(none)</td>
+<td>Parent CA common name (see intermediates)</td>
+</tr>
+</tbody>
+</table>
+<h2>Creating an Intermediate CA</h2>
+<p>After a root CA exists, run <code>ca create</code> again. Without <code>--ca</code>, the new CA is parented to the root automatically.</p>
+<pre><code>gossl ca create --cn &quot;Issuing CA&quot;
+</code></pre>
+<p>To explicitly specify a parent:</p>
+<pre><code>gossl ca create --cn &quot;Leaf Issuing CA&quot; --ca &quot;Issuing CA&quot;
+</code></pre>
+<p>The intermediate's certificate is signed by the specified parent CA and stored in the database.</p>
+<h2>Hierarchy Examples</h2>
+<h3>Two-tier (root + issuing)</h3>
+<pre><code>gossl ca create --cn &quot;Root CA&quot; --days 7300
+gossl ca create --cn &quot;Issuing CA&quot; --days 3650
+</code></pre>
+<p>Issue certificates from the intermediate:</p>
+<pre><code>gossl cert issue --cn &quot;service.example.com&quot; --ca &quot;Issuing CA&quot;
+</code></pre>
+<h3>Three-tier (root + policy + issuing)</h3>
+<pre><code>gossl ca create --cn &quot;Root CA&quot; --days 7300
+gossl ca create --cn &quot;Policy CA&quot; --ca &quot;Root CA&quot; --days 3650
+gossl ca create --cn &quot;Issuing CA&quot; --ca &quot;Policy CA&quot; --days 1825
+gossl cert issue --cn &quot;service.example.com&quot; --ca &quot;Issuing CA&quot;
+</code></pre>
+<h3>ECDSA hierarchy</h3>
+<pre><code>gossl ca create --cn &quot;EC Root CA&quot; --key-algo ecdsa --curve P-384
+gossl ca create --cn &quot;EC Issuing CA&quot; --key-algo ecdsa --curve P-256
+</code></pre>
+<h2>Listing CAs</h2>
+<pre><code>gossl ca list
+gossl ca list --db /path/to/other.db
+</code></pre>
+<p>Prints each CA's common name, serial, expiry, and parent (if any).</p>
+<hr />
+<h1>Certificates</h1>
+<h2>Issuing a Certificate</h2>
+<pre><code>gossl cert issue --cn &quot;server.example.com&quot; --san &quot;DNS:server.example.com,IP:192.168.1.10&quot;
+</code></pre>
+<p>Without <code>--ca</code>, the cert is signed by the root CA. PEM output goes to stdout.</p>
+<h3>Options</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--cn</code></td>
+<td>required</td>
+<td>Common name</td>
+</tr>
+<tr>
+<td><code>--ca</code></td>
+<td>root CA</td>
+<td>Signing CA common name</td>
+</tr>
+<tr>
+<td><code>--db</code></td>
+<td><code>gossl.db</code></td>
+<td>Path to the SQLite database</td>
+</tr>
+<tr>
+<td><code>--days</code></td>
+<td>365</td>
+<td>Validity in days</td>
+</tr>
+<tr>
+<td><code>--san</code></td>
+<td>(none)</td>
+<td>Subject alternative names (comma-separated)</td>
+</tr>
+<tr>
+<td><code>--key-algo</code></td>
+<td><code>rsa</code></td>
+<td>Key algorithm: <code>rsa</code> or <code>ecdsa</code></td>
+</tr>
+<tr>
+<td><code>--key-size</code></td>
+<td><code>2048</code></td>
+<td>RSA key size in bits</td>
+</tr>
+<tr>
+<td><code>--curve</code></td>
+<td><code>P-256</code></td>
+<td>ECDSA curve</td>
+</tr>
+</tbody>
+</table>
+<p>SAN format: <code>DNS:hostname</code>, <code>IP:1.2.3.4</code>, <code>EMAIL:user@example.com</code>, <code>URI:https://example.com</code></p>
+<pre><code>gossl cert issue \
+  --cn &quot;api.example.com&quot; \
+  --ca &quot;Issuing CA&quot; \
+  --san &quot;DNS:api.example.com,DNS:api-internal.example.com,IP:10.0.0.5&quot; \
+  --days 90
+</code></pre>
+<h2>Signing an External CSR</h2>
+<p>Sign a CSR generated outside gossl:</p>
+<pre><code>gossl cert sign request.csr --ca &quot;Issuing CA&quot; --days 365
+</code></pre>
+<p>Write the signed certificate to a file:</p>
+<pre><code>gossl cert sign request.csr --ca &quot;Issuing CA&quot; --out signed.pem
+</code></pre>
+<p>Overwrite an existing output file:</p>
+<pre><code>gossl cert sign request.csr --ca &quot;Issuing CA&quot; --out signed.pem --force
+</code></pre>
+<h3>Key Strength Validation</h3>
+<p><code>cert sign</code> validates the key in the CSR before signing. RSA keys must be at least 2048 bits. CSRs with weaker keys are rejected.</p>
+<h3>Options</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--ca</code></td>
+<td>root CA</td>
+<td>Signing CA common name</td>
+</tr>
+<tr>
+<td><code>--db</code></td>
+<td><code>gossl.db</code></td>
+<td>Path to the SQLite database</td>
+</tr>
+<tr>
+<td><code>--days</code></td>
+<td>365</td>
+<td>Validity in days</td>
+</tr>
+<tr>
+<td><code>--out</code></td>
+<td>stdout</td>
+<td>Output file path</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>false</td>
+<td>Overwrite existing output file</td>
+</tr>
+</tbody>
+</table>
+<h2>Listing Certificates</h2>
+<pre><code>gossl cert list
+gossl cert list --db /path/to/other.db
+</code></pre>
+<p>Prints serial, common name, CA, expiry, and revocation status for every certificate in the database.</p>
+<h2>Revoking a Certificate</h2>
+<pre><code>gossl cert revoke --serial 0A1B2C3D
+</code></pre>
+<p>Marks the certificate as revoked in the database. The serial is the hex serial number shown in <code>cert list</code> or <code>cert inspect</code>.</p>
+<h3>Options</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--serial</code></td>
+<td>required</td>
+<td>Hex serial number of the certificate</td>
+</tr>
+<tr>
+<td><code>--db</code></td>
+<td><code>gossl.db</code></td>
+<td>Path to the SQLite database</td>
+</tr>
+</tbody>
+</table>
+<h2>Exporting a Certificate</h2>
+<p>Retrieve a certificate from the database by serial number:</p>
+<pre><code>gossl cert export --serial 0A1B2C3D
+</code></pre>
+<p>Write to a file:</p>
+<pre><code>gossl cert export --serial 0A1B2C3D --out cert.pem
+</code></pre>
+<p>Include the full chain (certificate + all intermediate CA certs up to root):</p>
+<pre><code>gossl cert export --serial 0A1B2C3D --out chain.pem --chain
+</code></pre>
+<h3>Options</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--serial</code></td>
+<td>required</td>
+<td>Hex serial number</td>
+</tr>
+<tr>
+<td><code>--db</code></td>
+<td><code>gossl.db</code></td>
+<td>Path to the SQLite database</td>
+</tr>
+<tr>
+<td><code>--out</code></td>
+<td>stdout</td>
+<td>Output file path</td>
+</tr>
+<tr>
+<td><code>--chain</code></td>
+<td>false</td>
+<td>Include full certificate chain</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>false</td>
+<td>Overwrite existing output file</td>
+</tr>
+</tbody>
+</table>
+<h2>Inspecting a Certificate</h2>
+<p>From a file:</p>
+<pre><code>gossl cert inspect server.pem
+</code></pre>
+<p>From stdin:</p>
+<pre><code>cat server.pem | gossl cert inspect -
+openssl s_client -connect host:443 &lt;/dev/null | gossl cert inspect -
+</code></pre>
+<p>From the database by serial:</p>
+<pre><code>gossl cert inspect --db gossl.db --serial 0A1B2C3D
+</code></pre>
+<p>Prints subject, issuer, serial, validity dates, key algorithm and size, SANs, and basic constraints.</p>
+<h2>Verifying a Certificate</h2>
+<p>Check that a certificate is valid against a chain:</p>
+<pre><code>gossl cert verify server.pem
+gossl cert verify server.pem --chain chain.pem
+cat server.pem | gossl cert verify -
+</code></pre>
+<p><code>--chain</code> provides intermediate or root certs to build the trust path. Without it, only the certificate's self-consistency is checked.</p>
+<hr />
+<h1>CSR Inspection</h1>
+<p><code>gossl csr inspect</code> parses and displays the contents of a Certificate Signing Request.</p>
+<h2>Usage</h2>
+<p>From a file:</p>
+<pre><code>gossl csr inspect request.csr
+</code></pre>
+<p>From stdin:</p>
+<pre><code>cat request.csr | gossl csr inspect -
+openssl req -new -key key.pem -subj &quot;/CN=example.com&quot; | gossl csr inspect -
+</code></pre>
+<h2>Output</h2>
+<p>Prints:
+- Subject (CN and any other attributes present)
+- Public key algorithm and key size / curve
+- Requested Subject Alternative Names (if present in extensions)
+- Signature algorithm</p>
+<h2>Notes</h2>
+<p>gossl does not store CSRs. This command only parses and displays — it does not create, validate, or sign. To sign a CSR against a CA in the database, use <code>gossl cert sign</code>.</p>
+<p>The <code>cert sign</code> command additionally validates key strength (RSA &gt;= 2048 bits) before signing. <code>csr inspect</code> will display a weak key without rejecting it.</p>
+<hr />
+<h1>Getting Started</h1>
+<h2>Installation</h2>
+<p>Build from source using Bazel:</p>
+<pre><code>bazel build //cmd/gossl
+</code></pre>
+<p>The binary is written to <code>bazel-bin/cmd/gossl/gossl</code>. Add it to your PATH or invoke it directly.</p>
+<h2>Quick Start</h2>
+<h3>1. Create a CA</h3>
+<pre><code>gossl ca create --cn &quot;My Root CA&quot;
+</code></pre>
+<p>This creates <code>gossl.db</code> in the current directory and registers the root CA. The first CA created is always the root.</p>
+<h3>2. Issue a Certificate</h3>
+<pre><code>gossl cert issue --cn &quot;server.example.com&quot; --san &quot;DNS:server.example.com,IP:127.0.0.1&quot;
+</code></pre>
+<p>Without <code>--ca</code>, the cert is issued under the root CA. Output is PEM to stdout.</p>
+<h3>3. Inspect a Remote Server</h3>
+<pre><code>gossl sclient server.example.com:443
+</code></pre>
+<p>Connects to the host, performs a TLS handshake, and prints certificate details for the server's chain.</p>
+<h3>4. Verify a Certificate File</h3>
+<pre><code>gossl cert inspect server.pem
+</code></pre>
+<p>Prints the subject, issuer, validity period, SANs, and key info from a local PEM file.</p>
+<h2>The Database</h2>
+<p>gossl stores all CA and certificate state in a single SQLite file. The default is <code>gossl.db</code> in the current working directory. Every command that reads or writes PKI state accepts <code>--db</code> to point at a different file.</p>
+<pre><code>gossl ca create --cn &quot;Prod Root CA&quot; --db /etc/pki/prod.db
+gossl cert issue --cn &quot;api.prod.example.com&quot; --db /etc/pki/prod.db
+</code></pre>
+<p>The database contains:
+- A unified CA table where root CAs have <code>parent_id = NULL</code> and intermediates reference their parent.
+- A certificate table with serial numbers, PEM data, and revocation status.</p>
+<p>Keep the database file backed up. Losing it means losing the ability to sign or revoke certificates under those CAs.</p>
+<h2>Output Format</h2>
+<p>Private keys are written in PEM format. RSA keys use PKCS#1 encoding; ECDSA keys use SEC 1 encoding. Certificates are standard PEM X.509.</p>
+<p>Most commands write PEM to stdout unless <code>--out</code> is provided.</p>
+<hr />
+<h1>CA Hierarchy Visualization</h1>
+<p>Generate a diagram of all CAs and certificates in a gossl database.</p>
+<h2>Basic Usage</h2>
+<pre><code class="language-bash">gossl graph
+</code></pre>
+<p>Outputs an SVG file named after the database (e.g. <code>gossl.svg</code> for <code>gossl.db</code>).</p>
+<h2>Options</h2>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--db</code></td>
+<td><code>gossl.db</code></td>
+<td>Database file path</td>
+</tr>
+<tr>
+<td><code>--out</code></td>
+<td><code>&lt;db&gt;.svg</code></td>
+<td>Output file path (defaults to db name with format extension)</td>
+</tr>
+<tr>
+<td><code>--format</code></td>
+<td><code>svg</code></td>
+<td>Output format: <code>svg</code>, <code>json</code>, <code>text</code></td>
+</tr>
+<tr>
+<td><code>--filter</code></td>
+<td>(all)</td>
+<td>Node types to include (comma-separated: <code>ca</code>, <code>intermediate</code>, <code>cert</code>)</td>
+</tr>
+</tbody>
+</table>
+<h2>Output Formats</h2>
+<h3>SVG</h3>
+<p>Color-coded tree diagram:
+- Blue: Root CA
+- Purple: Intermediate CAs
+- Green: Active certificates
+- Red: Revoked certificates</p>
+<pre><code class="language-bash">gossl graph
+gossl graph --db prod.db --out hierarchy.svg
+</code></pre>
+<h3>Text</h3>
+<p>ASCII tree, suitable for terminal output or piping:</p>
+<pre><code class="language-bash">gossl graph --format text --out /dev/stdout
+</code></pre>
+<pre><code>Root CA [ROOT]
+├── Production
+│   ├── Prod US-East
+│   │   └── payments.example.com
+│   └── api.prod.example.com
+└── Staging
+    ├── web.staging.example.com [REVOKED]
+    └── api.staging.example.com
+</code></pre>
+<h3>JSON</h3>
+<p>Nested tree structure, useful for programmatic consumption or piping to <code>jq</code>:</p>
+<pre><code class="language-bash">gossl graph --format json --out /dev/stdout | jq
+</code></pre>
+<pre><code class="language-json">[
+  {
+    &quot;name&quot;: &quot;Root CA&quot;,
+    &quot;type&quot;: &quot;root&quot;,
+    &quot;serial&quot;: &quot;A1B2C3D4&quot;,
+    &quot;children&quot;: [
+      {
+        &quot;name&quot;: &quot;Intermediate&quot;,
+        &quot;type&quot;: &quot;intermediate&quot;,
+        &quot;serial&quot;: &quot;E5F6A7B8&quot;,
+        &quot;children&quot;: [
+          { &quot;name&quot;: &quot;api.example.com&quot;, &quot;type&quot;: &quot;cert&quot;, &quot;serial&quot;: &quot;C9D0E1F2&quot; }
+        ]
+      }
+    ]
+  }
+]
+</code></pre>
+<h2>Filtering</h2>
+<p>Show only specific node types. Types: <code>ca</code> (root CAs), <code>intermediate</code>, <code>cert</code> (leaf certificates).</p>
+<pre><code class="language-bash"># CAs only — no leaf certs
+gossl graph --filter ca,intermediate --format text --out /dev/stdout
+
+# Certs only — parent CAs are included automatically to keep the tree connected
+gossl graph --filter cert --format text --out /dev/stdout
+</code></pre>
+<p>When filtering, ancestor CAs of visible nodes are always included so the tree remains connected.</p>
+<hr />
+<h1>TLS Client Inspection (sclient)</h1>
+<p><code>gossl sclient</code> connects to a TLS server, completes a handshake, and reports the server's certificate chain. It is similar in purpose to <code>openssl s_client</code>.</p>
+<h2>Basic Usage</h2>
+<pre><code>gossl sclient host:port
+</code></pre>
+<p>Examples:</p>
+<pre><code>gossl sclient example.com:443
+gossl sclient internal-service.corp:8443
+</code></pre>
+<h2>Options</h2>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--sni</code></td>
+<td>(host from argument)</td>
+<td>Override the TLS SNI hostname sent in the handshake</td>
+</tr>
+<tr>
+<td><code>--timeout</code></td>
+<td>10s</td>
+<td>Connection timeout</td>
+</tr>
+<tr>
+<td><code>--ca-file</code></td>
+<td>system trust store</td>
+<td>PEM file of CA certificates to trust</td>
+</tr>
+<tr>
+<td><code>--show-certs</code></td>
+<td>false</td>
+<td>Print full PEM blocks for all certificates in the chain</td>
+</tr>
+<tr>
+<td><code>--cert</code></td>
+<td>(none)</td>
+<td>Client certificate for mTLS (PEM file)</td>
+</tr>
+<tr>
+<td><code>--key</code></td>
+<td>(none)</td>
+<td>Client private key for mTLS (PEM file)</td>
+</tr>
+<tr>
+<td><code>--alpn</code></td>
+<td>(none)</td>
+<td>Comma-separated list of ALPN protocol names to advertise</td>
+</tr>
+</tbody>
+</table>
+<h2>Examples</h2>
+<h3>Inspect a public server</h3>
+<pre><code>gossl sclient example.com:443
+</code></pre>
+<h3>Override SNI (e.g., when connecting by IP)</h3>
+<pre><code>gossl sclient 10.0.0.5:443 --sni api.example.com
+</code></pre>
+<h3>Trust a private CA</h3>
+<pre><code>gossl sclient internal.corp:8443 --ca-file /etc/pki/corp-root.pem
+</code></pre>
+<h3>Print the full certificate chain as PEM</h3>
+<pre><code>gossl sclient example.com:443 --show-certs
+</code></pre>
+<h3>Connect with a client certificate (mTLS)</h3>
+<pre><code>gossl sclient server.example.com:8443 --cert client.pem --key client-key.pem
+</code></pre>
+<h3>Specify ALPN protocols</h3>
+<pre><code>gossl sclient example.com:443 --alpn &quot;h2,http/1.1&quot;
+</code></pre>
+<h3>Short connection timeout</h3>
+<pre><code>gossl sclient slow-host.example.com:443 --timeout 3s
+</code></pre>
+<h2>Output</h2>
+<p>Without <code>--show-certs</code>, prints summary information for each certificate in the chain: subject, issuer, validity, and SANs. With <code>--show-certs</code>, also emits the PEM blocks, which can be piped directly to <code>gossl cert inspect -</code> or saved to a file.</p>
+<pre><code>gossl sclient example.com:443 --show-certs | gossl cert inspect -
+</code></pre>
+<hr />
+<h1>HTTPS Echo Server (serve)</h1>
+<p><code>gossl serve</code> starts a local HTTPS server that echoes the request body back to the caller. When verbose mode is enabled, request headers are copied to the response headers. It is useful for testing TLS configurations, client certificate setups, and verifying connectivity.</p>
+<h2>Basic Usage</h2>
+<pre><code>gossl serve
+</code></pre>
+<p>Starts on <code>0.0.0.0:8443</code> using a certificate auto-generated from the default database.</p>
+<h2>Response Format</h2>
+<p>The server streams the request body back as the response body. With <code>-v</code>, all request headers are also set on the response.</p>
+<pre><code class="language-bash"># Body is echoed back
+curl -k -d &quot;hello&quot; https://localhost:8443/
+# → hello
+
+# With verbose, request headers appear on the response
+curl -k -v -H &quot;X-Custom: test&quot; https://localhost:8443/
+# Response includes X-Custom: test header
+</code></pre>
+<h2>Modes</h2>
+<h3>Database mode (default)</h3>
+<p>The server loads its certificate and key from the database. A certificate is created automatically if one does not exist.</p>
+<pre><code>gossl serve --db gossl.db --dn &quot;server.example.com&quot;
+</code></pre>
+<p><code>--dn</code> specifies the CN used when auto-generating a certificate.</p>
+<h3>File mode</h3>
+<p>Provide certificate and key files directly, bypassing the database:</p>
+<pre><code>gossl serve --cert server.pem --pkey server-key.pem
+</code></pre>
+<h2>Options</h2>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--db</code></td>
+<td><code>gossl.db</code></td>
+<td>Path to the SQLite database (database mode)</td>
+</tr>
+<tr>
+<td><code>--dn</code></td>
+<td><code>localhost</code></td>
+<td>CN for auto-generated server certificate</td>
+</tr>
+<tr>
+<td><code>--cert</code></td>
+<td>(none)</td>
+<td>PEM certificate file (file mode)</td>
+</tr>
+<tr>
+<td><code>--pkey</code></td>
+<td>(none)</td>
+<td>PEM private key file (file mode)</td>
+</tr>
+<tr>
+<td><code>--port</code></td>
+<td><code>8443</code></td>
+<td>Port to listen on</td>
+</tr>
+<tr>
+<td><code>--addr</code></td>
+<td><code>0.0.0.0</code></td>
+<td>Address to bind to</td>
+</tr>
+<tr>
+<td><code>--metrics-handler</code></td>
+<td><code>/metrics</code></td>
+<td>Path for Prometheus metrics endpoint (set to empty string to disable)</td>
+</tr>
+<tr>
+<td><code>--mtls</code></td>
+<td>false</td>
+<td>Require client certificates</td>
+</tr>
+<tr>
+<td><code>-v</code></td>
+<td>false</td>
+<td>Copy request headers to response headers</td>
+</tr>
+</tbody>
+</table>
+<h2>mTLS</h2>
+<p>Enable mutual TLS to require and verify client certificates:</p>
+<pre><code>gossl serve --mtls --db gossl.db
+</code></pre>
+<p>The server uses the CAs in the database as the trusted client CA pool. Clients that do not present a certificate, or present one signed by an unknown CA, are rejected at the TLS layer.</p>
+<h2>Metrics</h2>
+<p>The server exposes Prometheus-compatible metrics via OpenTelemetry at the <code>/metrics</code> endpoint (configurable with <code>--metrics-handler</code>).</p>
+<pre><code>curl -k https://localhost:8443/metrics
+</code></pre>
+<p>Available metrics:</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gossl_conn_setup_duration_nanoseconds</code></td>
+<td>Histogram</td>
+<td>Time from new connection to first active state (TLS handshake latency)</td>
+</tr>
+</tbody>
+</table>
+<p>Disable the endpoint by setting <code>--metrics-handler ""</code>.</p>
+<h2>Typical Workflows</h2>
+<h3>Test a certificate chain end to end</h3>
+<pre><code># Create PKI
+gossl ca create --cn &quot;Test Root CA&quot;
+gossl cert issue --cn &quot;server.localhost&quot; --san &quot;DNS:localhost,IP:127.0.0.1&quot;
+
+# Start server
+gossl serve --dn &quot;server.localhost&quot;
+
+# Inspect from another terminal
+gossl sclient localhost:8443 --ca-file &lt;(gossl cert export --serial &lt;root-serial&gt;)
+curl -k https://localhost:8443/test
+</code></pre>
+<h3>Test mTLS client authentication</h3>
+<pre><code># Issue a client certificate
+gossl cert issue --cn &quot;client.test&quot; --ca &quot;Test Root CA&quot;
+
+# Start server with mTLS
+gossl serve --mtls --db gossl.db
+
+# Connect with client cert
+gossl sclient localhost:8443 --cert client.pem --key client-key.pem
+curl --cert client.pem --key client-key.pem --cacert root.pem https://localhost:8443/
+</code></pre>
+<h3>Bind to loopback only</h3>
+<pre><code>gossl serve --addr 127.0.0.1 --port 9443
+</code></pre>
+<hr />
+<h1>Troubleshooting</h1>
+<h2>mTLS: Client Certificate Rejected</h2>
+<p><strong>Symptom:</strong> TLS handshake fails with <code>certificate required</code>, <code>bad certificate</code>, or <code>unknown CA</code>.</p>
+<p><strong>Causes and fixes:</strong></p>
+<ol>
+<li>
+<p>The client certificate was not signed by a CA that the server trusts. Confirm the server is using a trust store that includes the issuing CA. In gossl serve, the trusted pool comes from the database — ensure the client cert was issued by a CA in that database.</p>
+</li>
+<li>
+<p>The client is not presenting a certificate at all. Check that <code>--cert</code> and <code>--key</code> are passed to the connecting tool.</p>
+</li>
+<li>
+<p>The client certificate has been revoked. Check <code>gossl cert list</code> and look for <code>revoked</code> status on the relevant serial.</p>
+</li>
+</ol>
+<h2>Expired Certificate</h2>
+<p><strong>Symptom:</strong> TLS error <code>certificate has expired</code> or <code>x509: certificate has expired or is not yet valid</code>.</p>
+<p><strong>Fix:</strong> Issue a new certificate:</p>
+<pre><code>gossl cert issue --cn &quot;service.example.com&quot; --san &quot;DNS:service.example.com&quot; --ca &quot;Issuing CA&quot;
+</code></pre>
+<p>Check expiry of any certificate:</p>
+<pre><code>gossl cert inspect service.pem
+gossl cert inspect --db gossl.db --serial 0A1B2C3D
+</code></pre>
+<p>Check expiry of CA certificates:</p>
+<pre><code>gossl ca list
+</code></pre>
+<h2>Missing Intermediate CA</h2>
+<p><strong>Symptom:</strong> Chain validation fails even though the end-entity certificate is valid.</p>
+<p><strong>Symptom detail:</strong> <code>x509: certificate signed by unknown authority</code> when the root is trusted but an intermediate is not in the presented chain.</p>
+<p><strong>Fix:</strong> Export the full chain and use it when serving or connecting:</p>
+<pre><code>gossl cert export --serial &lt;end-entity-serial&gt; --chain --out fullchain.pem
+</code></pre>
+<p>Verify the chain is complete:</p>
+<pre><code>gossl cert verify fullchain.pem
+</code></pre>
+<h2>Wrong CA Trust Store</h2>
+<p><strong>Symptom:</strong> <code>gossl sclient</code> or a browser reports <code>certificate signed by unknown authority</code> against an internal server.</p>
+<p><strong>Fix:</strong> Pass the correct root CA to the client:</p>
+<pre><code>gossl sclient internal.corp:8443 --ca-file root-ca.pem
+</code></pre>
+<p>Export the root CA certificate from the database:</p>
+<pre><code>gossl cert export --serial &lt;root-ca-serial&gt; --out root-ca.pem
+</code></pre>
+<p>The root CA serial is visible in <code>gossl ca list</code>.</p>
+<h2>Weak Key in CSR Rejected</h2>
+<p><strong>Symptom:</strong> <code>gossl cert sign</code> fails with a message about key strength.</p>
+<p><strong>Cause:</strong> <code>cert sign</code> enforces a minimum RSA key size of 2048 bits. CSRs with 1024-bit RSA keys are rejected.</p>
+<p><strong>Fix:</strong> Regenerate the CSR with a stronger key:</p>
+<pre><code>openssl genrsa -out key.pem 2048
+openssl req -new -key key.pem -subj &quot;/CN=example.com&quot; -out request.csr
+gossl cert sign request.csr --ca &quot;Issuing CA&quot;
+</code></pre>
+<p>Inspect the key size in an existing CSR before signing:</p>
+<pre><code>gossl csr inspect request.csr
+</code></pre>
+<h2>SNI Mismatch</h2>
+<p><strong>Symptom:</strong> Server presents a certificate for the wrong hostname, or <code>gossl sclient</code> shows a certificate whose subject does not match the host you connected to.</p>
+<p><strong>Cause:</strong> The server is returning a default certificate because the SNI hostname in the ClientHello did not match any configured virtual host, or the certificate simply has the wrong SANs.</p>
+<p><strong>Fix — if connecting by IP:</strong> Override SNI to send the expected hostname:</p>
+<pre><code>gossl sclient 10.0.0.5:443 --sni api.example.com
+</code></pre>
+<p><strong>Fix — if the certificate is missing SANs:</strong> Reissue with correct SANs:</p>
+<pre><code>gossl cert issue --cn &quot;api.example.com&quot; \
+  --san &quot;DNS:api.example.com,DNS:api-internal.example.com&quot; \
+  --ca &quot;Issuing CA&quot;
+</code></pre>
+<p>Note: Modern TLS stacks match on SANs, not CN. Always include <code>DNS:</code> entries in <code>--san</code>.</p>
+<h2>Connection Timeout / Hang</h2>
+<p><strong>Symptom:</strong> <code>gossl sclient</code> hangs indefinitely.</p>
+<p><strong>Fix:</strong> Set an explicit timeout:</p>
+<pre><code>gossl sclient host:443 --timeout 5s
+</code></pre>
+<p>Check that the port is reachable and not firewalled before debugging TLS.</p>
+<h2>Certificate Issued but Not Visible in List</h2>
+<p><strong>Symptom:</strong> <code>gossl cert list</code> does not show a certificate just issued.</p>
+<p><strong>Cause:</strong> A different database file was used for issuance and listing.</p>
+<p><strong>Fix:</strong> Always pass <code>--db</code> consistently, or rely on the same working directory when using the default <code>gossl.db</code>:</p>
+<pre><code>gossl cert issue --cn &quot;example.com&quot; --db /path/to/pki.db
+gossl cert list --db /path/to/pki.db
+</code></pre>
+<hr /></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-07-25-281Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-07-25-281Z" class="timestamp-link"><time datetime="2026-03-27T21:07:25.281Z" data-timestamp="2026-03-27T21:07:25.281Z">2026-03-27T21:07:25.281Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-07-29-657Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-07-29-657Z" class="timestamp-link"><time datetime="2026-03-27T21:07:29.657Z" data-timestamp="2026-03-27T21:07:29.657Z">2026-03-27T21:07:29.657Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01VHdiwHZaE1eWhFdSPnBWPX"><div class="tool-header"><span class="tool-icon">⚙</span> Agent</div><div class="tool-description">Find cert match/check command</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subagent_type&#34;: &#34;Explore&#34;,
+  &#34;prompt&#34;: &#34;Search the gossl codebase for any command or functionality related to checking if a private key matches a certificate. Look for keywords like \&#34;match\&#34;, \&#34;check\&#34;, \&#34;verify key\&#34;, \&#34;key pair\&#34;, \&#34;public key comparison\&#34; in the CLI commands and internal packages. Check cmd/ and internal/cli/ directories. Be thorough - check all cert subcommands.&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-07-30-272Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-07-30-272Z" class="timestamp-link"><time datetime="2026-03-27T21:07:30.272Z" data-timestamp="2026-03-27T21:07:30.272Z">2026-03-27T21:07:30.272Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_0155VRA61WevYEiKsL9wSyrM">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Build gossl binary</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel build //cmd/gossl 2&gt;&amp;1 | tail -5</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-08-04-117Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-08-04-117Z" class="timestamp-link"><time datetime="2026-03-27T21:08:04.117Z" data-timestamp="2026-03-27T21:08:04.117Z">2026-03-27T21:08:04.117Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Based on my comprehensive search of the gossl codebase, here is my final report:
+
+## Search Results: Key-Certificate Matching Functionality
+
+**Summary:** After a thorough search of the gossl codebase (all CLI commands and internal packages), there is **NO existing command or functionality to check if a private key matches a certificate**.
+
+### What Was Found:
+
+**Available Certificate/Key-Related Commands:**
+
+1. **`cert inspect`** - Display certificate details (Subject, Issuer, Serial, SANs, Public Key Algorithm, Signature Algorithm, Validity status)
+
+2. **`cert verify`** - Verify a certificate against a CA bundle (verifies certificate chain validity)
+
+3. **`cert sign`** - Sign an externally generated CSR
+
+4. **`cert issue`** - Issue a certificate signed by a CA
+
+5. **`cert export`** - Export a certificate to PEM file
+
+6. **`cert list`** - List all issued certificates
+
+7. **`cert revoke`** - Revoke a certificate
+
+8. **`ca create`** - Create a CA with a new key pair
+
+9. **`sclient`** - Inspect server&#x27;s TLS configuration and verify certificate chain
+
+10. **`serve`** - Start HTTPS server with certificate and private key (loads keypair using `tls.X509KeyPair` but doesn&#x27;t validate matching)
+
+11. **`csr inspect`** - Display CSR details
+
+### Key Files Examined:
+
+- `/Users/scaruso/dev/gossl/internal/cli/cert.go` - All certificate commands (lines 24-685)
+- `/Users/scaruso/dev/gossl/internal/cli/crypto.go` - Cryptographic utilities (key generation, parsing, validation)
+- `/Users/scaruso/dev/gossl/internal/cli/root.go` - Root command registration
+- `/Users/scaruso/dev/gossl/internal/cli/ca.go` - CA management commands
+- `/Users/scaruso/dev/gossl/internal/cli/serve.go` - HTTPS server command
+- `/Users/scaruso/dev/gossl/internal/cli/sclient.go` - TLS client for server inspection
+
+### Observation:
+
+In `serve.go` (lines 90-93 and 111-114), the code calls `tls.X509KeyPair()` which loads a certificate and private key, but this function does **not validate** that they match - it only parses them. If mismatched files are provided, the error would only surface at runtime during actual TLS negotiation, not during initialization.
+
+**Conclusion:** A command or utility function to explicitly verify if a private key matches a certificate (by comparing public keys) is not implemented in the codebase.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-08-04-746Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-08-04-746Z" class="timestamp-link"><time datetime="2026-03-27T21:08:04.746Z" data-timestamp="2026-03-27T21:08:04.746Z">2026-03-27T21:08:04.746Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Target //cmd/gossl:gossl up-to-date:
+  bazel-bin/cmd/gossl/gossl_/gossl
+INFO: Elapsed time: 0.473s, Critical Path: 0.10s
+INFO: 1 process: 1 internal.
+INFO: Build completed successfully, 1 total action</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-08-10-857Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-08-10-857Z" class="timestamp-link"><time datetime="2026-03-27T21:08:10.857Z" data-timestamp="2026-03-27T21:08:10.857Z">2026-03-27T21:08:10.857Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-08-11-263Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-08-11-263Z" class="timestamp-link"><time datetime="2026-03-27T21:08:11.263Z" data-timestamp="2026-03-27T21:08:11.263Z">2026-03-27T21:08:11.263Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01W6MRXDi7h8ZT4qnShZXaXe">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Check what&#39;s changed in cert.go</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">git diff internal/cli/cert.go | head -200</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-08-11-414Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-08-11-414Z" class="timestamp-link"><time datetime="2026-03-27T21:08:11.414Z" data-timestamp="2026-03-27T21:08:11.414Z">2026-03-27T21:08:11.414Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>diff --git a/internal/cli/cert.go b/internal/cli/cert.go
+index 8c9ba81..e2290bd 100644
+--- a/internal/cli/cert.go
++++ b/internal/cli/cert.go
+@@ -12,6 +12,7 @@ import (
+ 	&quot;fmt&quot;
+ 	&quot;io&quot;
+ 	&quot;net&quot;
++	&quot;net/url&quot;
+ 	&quot;os&quot;
+ 	&quot;strings&quot;
+ 	&quot;time&quot;
+@@ -130,10 +131,27 @@ func runCertIssue(ctx context.Context, cn, dbPath, caCN string, days int, san, k
+ 	if san != &quot;&quot; {
+ 		for _, s := range strings.Split(san, &quot;,&quot;) {
+ 			s = strings.TrimSpace(s)
+-			if ip := net.ParseIP(s); ip != nil {
+-				template.IPAddresses = append(template.IPAddresses, ip)
+-			} else {
+-				template.DNSNames = append(template.DNSNames, s)
++			switch {
++			case strings.HasPrefix(s, &quot;DNS:&quot;):
++				template.DNSNames = append(template.DNSNames, s[len(&quot;DNS:&quot;):])
++			case strings.HasPrefix(s, &quot;IP:&quot;):
++				if ip := net.ParseIP(s[len(&quot;IP:&quot;):]); ip != nil {
++					template.IPAddresses = append(template.IPAddresses, ip)
++				}
++			case strings.HasPrefix(s, &quot;EMAIL:&quot;):
++				template.EmailAddresses = append(template.EmailAddresses, s[len(&quot;EMAIL:&quot;):])
++			case strings.HasPrefix(s, &quot;URI:&quot;):
++				u, err := url.Parse(s[len(&quot;URI:&quot;):])
++				if err == nil {
++					template.URIs = append(template.URIs, u)
++				}
++			default:
++				// Bare value: auto-detect IP vs DNS
++				if ip := net.ParseIP(s); ip != nil {
++					template.IPAddresses = append(template.IPAddresses, ip)
++				} else {
++					template.DNSNames = append(template.DNSNames, s)
++				}
+ 			}
+ 		}
+ 	}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-08-15-947Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-08-15-947Z" class="timestamp-link"><time datetime="2026-03-27T21:08:15.947Z" data-timestamp="2026-03-27T21:08:15.947Z">2026-03-27T21:08:15.947Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-08-16-740Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-08-16-740Z" class="timestamp-link"><time datetime="2026-03-27T21:08:16.740Z" data-timestamp="2026-03-27T21:08:16.740Z">2026-03-27T21:08:16.740Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01DHrCK3CcMSSQDxwS3cs2UY">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Show gossl help</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel-bin/cmd/gossl/gossl_/gossl --help 2&gt;&amp;1</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-08-16-900Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-08-16-900Z" class="timestamp-link"><time datetime="2026-03-27T21:08:16.900Z" data-timestamp="2026-03-27T21:08:16.900Z">2026-03-27T21:08:16.900Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Simplified TLS certificate management and troubleshooting
+
+Usage:
+  gossl [command]
+
+Available Commands:
+  ca          Manage certificate authorities
+  cert        Manage and inspect certificates
+  completion  Generate the autocompletion script for the specified shell
+  csr         Inspect certificate signing requests
+  docs        Print built-in documentation (useful for LLM context)
+  graph       Generate a diagram of the CA hierarchy
+  help        Help about any command
+  sclient     Inspect and validate a server&#x27;s TLS configuration
+  serve       Start an HTTPS echo server
+
+Flags:
+  -h, --help      help for gossl
+  -v, --version   version for gossl
+
+Use &quot;gossl [command] --help&quot; for more information about a command.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-08-17-027Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-08-17-027Z" class="timestamp-link"><time datetime="2026-03-27T21:08:17.027Z" data-timestamp="2026-03-27T21:08:17.027Z">2026-03-27T21:08:17.027Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01Lb91VWet4zkSbhQtzXZiGW">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Show cert subcommand help</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel-bin/cmd/gossl/gossl_/gossl cert --help 2&gt;&amp;1</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-08-17-095Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-08-17-095Z" class="timestamp-link"><time datetime="2026-03-27T21:08:17.095Z" data-timestamp="2026-03-27T21:08:17.095Z">2026-03-27T21:08:17.095Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Manage and inspect certificates
+
+Usage:
+  gossl cert [command]
+
+Available Commands:
+  export      Export a certificate to PEM file
+  inspect     Display certificate details
+  issue       Issue a certificate signed by a CA
+  list        List all issued certificates
+  revoke      Revoke a certificate
+  sign        Sign an externally generated CSR
+  verify      Verify a certificate against a CA bundle
+
+Flags:
+  -h, --help   help for cert
+
+Use &quot;gossl cert [command] --help&quot; for more information about a command.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-08-30-955Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-08-30-955Z" class="timestamp-link"><time datetime="2026-03-27T21:08:30.955Z" data-timestamp="2026-03-27T21:08:30.955Z">2026-03-27T21:08:30.955Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>There's no key matching command in gossl yet. The tool currently can't check if a private key matches a certificate. To answer both your questions:</p>
+<p><strong>Re: generating and matching</strong> — gossl doesn't have a <code>cert check</code> or key-match command. You'd need to build one. Here's what the demo would look like once it exists:</p>
+<pre><code class="language-bash"># Create a CA and issue a cert
+gossl ca create --cn &quot;Demo CA&quot;
+gossl cert issue --cn &quot;demo.example.com&quot; --san &quot;DNS:demo.example.com&quot; &gt; demo.pem
+
+# Extract the private key (cert issue outputs both cert + key to stdout)
+# Then check the match:
+gossl cert check demo.pem --key demo-key.pem   # hypothetical command
+</code></pre>
+<p><strong>Re: do we need a key inspect command?</strong> — I'd say you need two things, and they might be separate commands or combined:</p>
+<ol>
+<li>
+<p><strong>Key inspect</strong> (<code>gossl key inspect key.pem</code>) — show key algorithm, size/curve, public key fingerprint. Useful for debugging "what is this key file?"</p>
+</li>
+<li>
+<p><strong>Key-cert match check</strong> — compare the public key in a certificate (or CSR) against a private key file to confirm they form a pair. This is a very common troubleshooting need (the classic <code>openssl x509 -modulus</code> + <code>openssl rsa -modulus</code> dance).</p>
+</li>
+</ol>
+<p>These could be:
+- <code>gossl key inspect key.pem</code> — standalone key info
+- <code>gossl key check --cert cert.pem --key key.pem</code> — match verification
+- Or a combined <code>gossl cert check cert.pem --key key.pem</code> on the cert subcommand</p>
+<p>Want me to brainstorm the design and build these commands? The key-cert matching is the more impactful feature for mTLS troubleshooting — it's one of the most common pain points that <code>openssl</code> makes annoyingly verbose.</p></div></div></div>
+<div class="message user" id="msg-2026-03-27T21-09-02-294Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-27T21-09-02-294Z" class="timestamp-link"><time datetime="2026-03-27T21:09:02.294Z" data-timestamp="2026-03-27T21:09:02.294Z">2026-03-27T21:09:02.294Z</time></a></div><div class="message-content">
+<div class="user-content"><ol>
+<li>is ok</li>
+<li>i dont want it, the modulus can be visualize with both key inspect and cert inspect</li>
+</ol></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-09-08-841Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-09-08-841Z" class="timestamp-link"><time datetime="2026-03-27T21:09:08.841Z" data-timestamp="2026-03-27T21:09:08.841Z">2026-03-27T21:09:08.841Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Got it. So the workflow would be:</p>
+<ol>
+<li><code>gossl key inspect key.pem</code> — shows algorithm, size/curve, and modulus/public key fingerprint</li>
+<li><code>gossl cert inspect cert.pem</code> — already shows cert details, just needs to also display the modulus/public key fingerprint</li>
+<li>User eyeballs whether the modulus matches (or pipes through <code>grep</code>)</li>
+</ol>
+<p>Want me to build <code>key inspect</code> and add modulus output to <code>cert inspect</code>?</p></div></div></div>
+<div class="message user" id="msg-2026-03-27T21-09-18-483Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-27T21-09-18-483Z" class="timestamp-link"><time datetime="2026-03-27T21:09:18.483Z" data-timestamp="2026-03-27T21:09:18.483Z">2026-03-27T21:09:18.483Z</time></a></div><div class="message-content">
+<div class="user-content"><p>y</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-09-22-130Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-09-22-130Z" class="timestamp-link"><time datetime="2026-03-27T21:09:22.130Z" data-timestamp="2026-03-27T21:09:22.130Z">2026-03-27T21:09:22.130Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01V6UNQHWJrAdGaR7ZVo32o4"><div class="tool-header"><span class="tool-icon">⚙</span> Skill</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;skill&#34;: &#34;superpowers:brainstorming&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-09-22-159Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-09-22-159Z" class="timestamp-link"><time datetime="2026-03-27T21:09:22.159Z" data-timestamp="2026-03-27T21:09:22.159Z">2026-03-27T21:09:22.159Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Launching skill: superpowers:brainstorming</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message user" id="msg-2026-03-27T21-09-22-158Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-27T21-09-22-158Z" class="timestamp-link"><time datetime="2026-03-27T21:09:22.158Z" data-timestamp="2026-03-27T21:09:22.158Z">2026-03-27T21:09:22.158Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Base directory for this skill: /Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/brainstorming</p>
+<h1>Brainstorming Ideas Into Designs</h1>
+<p>Help turn ideas into fully formed designs and specs through natural collaborative dialogue.</p>
+<p>Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.</p>
+<p><HARD-GATE>
+Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
+</HARD-GATE></p>
+<h2>Anti-Pattern: "This Is Too Simple To Need A Design"</h2>
+<p>Every project goes through this process. A todo list, a single-function utility, a config change — all of them. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.</p>
+<h2>Checklist</h2>
+<p>You MUST create a task for each of these items and complete them in order:</p>
+<ol>
+<li><strong>Explore project context</strong> — check files, docs, recent commits</li>
+<li><strong>Offer visual companion</strong> (if topic will involve visual questions) — this is its own message, not combined with a clarifying question. See the Visual Companion section below.</li>
+<li><strong>Ask clarifying questions</strong> — one at a time, understand purpose/constraints/success criteria</li>
+<li><strong>Propose 2-3 approaches</strong> — with trade-offs and your recommendation</li>
+<li><strong>Present design</strong> — in sections scaled to their complexity, get user approval after each section</li>
+<li><strong>Write design doc</strong> — save to <code>docs/superpowers/specs/YYYY-MM-DD-&lt;topic&gt;-design.md</code> and commit</li>
+<li><strong>Spec self-review</strong> — quick inline check for placeholders, contradictions, ambiguity, scope (see below)</li>
+<li><strong>User reviews written spec</strong> — ask user to review the spec file before proceeding</li>
+<li><strong>Transition to implementation</strong> — invoke writing-plans skill to create implementation plan</li>
+</ol>
+<h2>Process Flow</h2>
+<pre><code class="language-dot">digraph brainstorming {
+    &quot;Explore project context&quot; [shape=box];
+    &quot;Visual questions ahead?&quot; [shape=diamond];
+    &quot;Offer Visual Companion\n(own message, no other content)&quot; [shape=box];
+    &quot;Ask clarifying questions&quot; [shape=box];
+    &quot;Propose 2-3 approaches&quot; [shape=box];
+    &quot;Present design sections&quot; [shape=box];
+    &quot;User approves design?&quot; [shape=diamond];
+    &quot;Write design doc&quot; [shape=box];
+    &quot;Spec self-review\n(fix inline)&quot; [shape=box];
+    &quot;User reviews spec?&quot; [shape=diamond];
+    &quot;Invoke writing-plans skill&quot; [shape=doublecircle];
+
+    &quot;Explore project context&quot; -&gt; &quot;Visual questions ahead?&quot;;
+    &quot;Visual questions ahead?&quot; -&gt; &quot;Offer Visual Companion\n(own message, no other content)&quot; [label=&quot;yes&quot;];
+    &quot;Visual questions ahead?&quot; -&gt; &quot;Ask clarifying questions&quot; [label=&quot;no&quot;];
+    &quot;Offer Visual Companion\n(own message, no other content)&quot; -&gt; &quot;Ask clarifying questions&quot;;
+    &quot;Ask clarifying questions&quot; -&gt; &quot;Propose 2-3 approaches&quot;;
+    &quot;Propose 2-3 approaches&quot; -&gt; &quot;Present design sections&quot;;
+    &quot;Present design sections&quot; -&gt; &quot;User approves design?&quot;;
+    &quot;User approves design?&quot; -&gt; &quot;Present design sections&quot; [label=&quot;no, revise&quot;];
+    &quot;User approves design?&quot; -&gt; &quot;Write design doc&quot; [label=&quot;yes&quot;];
+    &quot;Write design doc&quot; -&gt; &quot;Spec self-review\n(fix inline)&quot;;
+    &quot;Spec self-review\n(fix inline)&quot; -&gt; &quot;User reviews spec?&quot;;
+    &quot;User reviews spec?&quot; -&gt; &quot;Write design doc&quot; [label=&quot;changes requested&quot;];
+    &quot;User reviews spec?&quot; -&gt; &quot;Invoke writing-plans skill&quot; [label=&quot;approved&quot;];
+}
+</code></pre>
+<p><strong>The terminal state is invoking writing-plans.</strong> Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is writing-plans.</p>
+<h2>The Process</h2>
+<p><strong>Understanding the idea:</strong></p>
+<ul>
+<li>Check out the current project state first (files, docs, recent commits)</li>
+<li>Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.</li>
+<li>If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.</li>
+<li>For appropriately-scoped projects, ask questions one at a time to refine the idea</li>
+<li>Prefer multiple choice questions when possible, but open-ended is fine too</li>
+<li>Only one question per message - if a topic needs more exploration, break it into multiple questions</li>
+<li>Focus on understanding: purpose, constraints, success criteria</li>
+</ul>
+<p><strong>Exploring approaches:</strong></p>
+<ul>
+<li>Propose 2-3 different approaches with trade-offs</li>
+<li>Present options conversationally with your recommendation and reasoning</li>
+<li>Lead with your recommended option and explain why</li>
+</ul>
+<p><strong>Presenting the design:</strong></p>
+<ul>
+<li>Once you believe you understand what you're building, present the design</li>
+<li>Scale each section to its complexity: a few sentences if straightforward, up to 200-300 words if nuanced</li>
+<li>Ask after each section whether it looks right so far</li>
+<li>Cover: architecture, components, data flow, error handling, testing</li>
+<li>Be ready to go back and clarify if something doesn't make sense</li>
+</ul>
+<p><strong>Design for isolation and clarity:</strong></p>
+<ul>
+<li>Break the system into smaller units that each have one clear purpose, communicate through well-defined interfaces, and can be understood and tested independently</li>
+<li>For each unit, you should be able to answer: what does it do, how do you use it, and what does it depend on?</li>
+<li>Can someone understand what a unit does without reading its internals? Can you change the internals without breaking consumers? If not, the boundaries need work.</li>
+<li>Smaller, well-bounded units are also easier for you to work with - you reason better about code you can hold in context at once, and your edits are more reliable when files are focused. When a file grows large, that's often a signal that it's doing too much.</li>
+</ul>
+<p><strong>Working in existing codebases:</strong></p>
+<ul>
+<li>Explore the current structure before proposing changes. Follow existing patterns.</li>
+<li>Where existing code has problems that affect the work (e.g., a file that's grown too large, unclear boundaries, tangled responsibilities), include targeted improvements as part of the design - the way a good developer improves code they're working in.</li>
+<li>Don't propose unrelated refactoring. Stay focused on what serves the current goal.</li>
+</ul>
+<h2>After the Design</h2>
+<p><strong>Documentation:</strong></p>
+<ul>
+<li>Write the validated design (spec) to <code>docs/superpowers/specs/YYYY-MM-DD-&lt;topic&gt;-design.md</code></li>
+<li>(User preferences for spec location override this default)</li>
+<li>Use elements-of-style:writing-clearly-and-concisely skill if available</li>
+<li>Commit the design document to git</li>
+</ul>
+<p><strong>Spec Self-Review:</strong>
+After writing the spec document, look at it with fresh eyes:</p>
+<ol>
+<li><strong>Placeholder scan:</strong> Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.</li>
+<li><strong>Internal consistency:</strong> Do any sections contradict each other? Does the architecture match the feature descriptions?</li>
+<li><strong>Scope check:</strong> Is this focused enough for a single implementation plan, or does it need decomposition?</li>
+<li><strong>Ambiguity check:</strong> Could any requirement be interpreted two different ways? If so, pick one and make it explicit.</li>
+</ol>
+<p>Fix any issues inline. No need to re-review — just fix and move on.</p>
+<p><strong>User Review Gate:</strong>
+After the spec review loop passes, ask the user to review the written spec before proceeding:</p>
+<blockquote>
+<p>"Spec written and committed to <code>&lt;path&gt;</code>. Please review it and let me know if you want to make any changes before we start writing out the implementation plan."</p>
+</blockquote>
+<p>Wait for the user's response. If they request changes, make them and re-run the spec review loop. Only proceed once the user approves.</p>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li>Invoke the writing-plans skill to create a detailed implementation plan</li>
+<li>Do NOT invoke any other skill. writing-plans is the next step.</li>
+</ul>
+<h2>Key Principles</h2>
+<ul>
+<li><strong>One question at a time</strong> - Don't overwhelm with multiple questions</li>
+<li><strong>Multiple choice preferred</strong> - Easier to answer than open-ended when possible</li>
+<li><strong>YAGNI ruthlessly</strong> - Remove unnecessary features from all designs</li>
+<li><strong>Explore alternatives</strong> - Always propose 2-3 approaches before settling</li>
+<li><strong>Incremental validation</strong> - Present design, get approval before moving on</li>
+<li><strong>Be flexible</strong> - Go back and clarify when something doesn't make sense</li>
+</ul>
+<h2>Visual Companion</h2>
+<p>A browser-based companion for showing mockups, diagrams, and visual options during brainstorming. Available as a tool — not a mode. Accepting the companion means it's available for questions that benefit from visual treatment; it does NOT mean every question goes through the browser.</p>
+<p><strong>Offering the companion:</strong> When you anticipate that upcoming questions will involve visual content (mockups, layouts, diagrams), offer it once for consent:</p>
+<blockquote>
+<p>"Some of what we're working on might be easier to explain if I can show it to you in a web browser. I can put together mockups, diagrams, comparisons, and other visuals as we go. This feature is still new and can be token-intensive. Want to try it? (Requires opening a local URL)"</p>
+</blockquote>
+<p><strong>This offer MUST be its own message.</strong> Do not combine it with clarifying questions, context summaries, or any other content. The message should contain ONLY the offer above and nothing else. Wait for the user's response before continuing. If they decline, proceed with text-only brainstorming.</p>
+<p><strong>Per-question decision:</strong> Even after the user accepts, decide FOR EACH QUESTION whether to use the browser or the terminal. The test: <strong>would the user understand this better by seeing it than reading it?</strong></p>
+<ul>
+<li><strong>Use the browser</strong> for content that IS visual — mockups, wireframes, layout comparisons, architecture diagrams, side-by-side visual designs</li>
+<li><strong>Use the terminal</strong> for content that is text — requirements questions, conceptual choices, tradeoff lists, A/B/C/D text options, scope decisions</li>
+</ul>
+<p>A question about a UI topic is not automatically a visual question. "What does personality mean in this context?" is a conceptual question — use the terminal. "Which wizard layout works better?" is a visual question — use the browser.</p>
+<p>If they agree to the companion, read the detailed guide before proceeding:
+<code>skills/brainstorming/visual-companion.md</code></p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-09-25-295Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-09-25-295Z" class="timestamp-link"><time datetime="2026-03-27T21:09:25.295Z" data-timestamp="2026-03-27T21:09:25.295Z">2026-03-27T21:09:25.295Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01SRx2DKHjPQ7WTTkEn8gcTv"><div class="tool-header"><span class="tool-icon">⚙</span> ToolSearch</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;query&#34;: &#34;select:TaskCreate,TaskUpdate&#34;,
+  &#34;max_results&#34;: 2
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-09-25-298Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-09-25-298Z" class="timestamp-link"><time datetime="2026-03-27T21:09:25.298Z" data-timestamp="2026-03-27T21:09:25.298Z">2026-03-27T21:09:25.298Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &quot;type&quot;: &quot;tool_reference&quot;,
+  &quot;tool_name&quot;: &quot;TaskCreate&quot;
+}</pre><pre class="json">{
+  &quot;type&quot;: &quot;tool_reference&quot;,
+  &quot;tool_name&quot;: &quot;TaskUpdate&quot;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-09-29-681Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-09-29-681Z" class="timestamp-link"><time datetime="2026-03-27T21:09:29.681Z" data-timestamp="2026-03-27T21:09:29.681Z">2026-03-27T21:09:29.681Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-09-31-028Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-09-31-028Z" class="timestamp-link"><time datetime="2026-03-27T21:09:31.028Z" data-timestamp="2026-03-27T21:09:31.028Z">2026-03-27T21:09:31.028Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_014fQzFLxiPKcGHYjHS5tRhc"><div class="tool-header"><span class="tool-icon">⚙</span> TaskCreate</div><div class="tool-description">Check existing cert inspect output, crypto utilities, and code structure</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subject&#34;: &#34;Explore project context for key inspect + cert inspect modulus&#34;,
+  &#34;activeForm&#34;: &#34;Exploring project context&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-09-31-048Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-09-31-048Z" class="timestamp-link"><time datetime="2026-03-27T21:09:31.048Z" data-timestamp="2026-03-27T21:09:31.048Z">2026-03-27T21:09:31.048Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Task #1 created successfully: Explore project context for key inspect + cert inspect modulus</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-09-35-116Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-09-35-116Z" class="timestamp-link"><time datetime="2026-03-27T21:09:35.116Z" data-timestamp="2026-03-27T21:09:35.116Z">2026-03-27T21:09:35.116Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01R9Ug6SWgxxKT7AB61m2Jvd"><div class="tool-header"><span class="tool-icon">⚙</span> TaskUpdate</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;taskId&#34;: &#34;1&#34;,
+  &#34;status&#34;: &#34;in_progress&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-09-35-124Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-09-35-124Z" class="timestamp-link"><time datetime="2026-03-27T21:09:35.124Z" data-timestamp="2026-03-27T21:09:35.124Z">2026-03-27T21:09:35.124Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Updated task #1 status</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-09-38-558Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-09-38-558Z" class="timestamp-link"><time datetime="2026-03-27T21:09:38.558Z" data-timestamp="2026-03-27T21:09:38.558Z">2026-03-27T21:09:38.558Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01BBM7D126xiYvX5kiNX4c7f"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/cert.go&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-09-38-918Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-09-38-918Z" class="timestamp-link"><time datetime="2026-03-27T21:09:38.918Z" data-timestamp="2026-03-27T21:09:38.918Z">2026-03-27T21:09:38.918Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01XYiQCXe8Jmeb8e58kJ3paJ"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/crypto.go&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-09-38-942Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-09-38-942Z" class="timestamp-link"><time datetime="2026-03-27T21:09:38.942Z" data-timestamp="2026-03-27T21:09:38.942Z">2026-03-27T21:09:38.942Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→package cli
+     2→
+     3→import (
+     4→	&quot;context&quot;
+     5→	&quot;crypto/ecdsa&quot;
+     6→	&quot;crypto/rand&quot;
+     7→	&quot;crypto/rsa&quot;
+     8→	&quot;crypto/x509&quot;
+     9→	&quot;crypto/x509/pkix&quot;
+    10→	&quot;database/sql&quot;
+    11→	&quot;encoding/pem&quot;
+    12→	&quot;fmt&quot;
+    13→	&quot;io&quot;
+    14→	&quot;net&quot;
+    15→	&quot;net/url&quot;
+    16→	&quot;os&quot;
+    17→	&quot;strings&quot;
+    18→	&quot;time&quot;
+    19→
+    20→	&quot;github.com/bejelith/gossl/internal/store&quot;
+    21→	&quot;github.com/spf13/cobra&quot;
+    22→)
+    23→
+    24→func newCertCmd() *cobra.Command {
+    25→	cmd := &amp;cobra.Command{
+    26→		Use:   &quot;cert&quot;,
+    27→		Short: &quot;Manage and inspect certificates&quot;,
+    28→	}
+    29→	cmd.AddCommand(newCertIssueCmd())
+    30→	cmd.AddCommand(newCertSignCmd())
+    31→	cmd.AddCommand(newCertListCmd())
+    32→	cmd.AddCommand(newCertRevokeCmd())
+    33→	cmd.AddCommand(newCertExportCmd())
+    34→	cmd.AddCommand(newCertInspectCmd())
+    35→	cmd.AddCommand(newCertVerifyCmd())
+    36→	return cmd
+    37→}
+    38→
+    39→// --- cert issue ---
+    40→
+    41→func newCertIssueCmd() *cobra.Command {
+    42→	var (
+    43→		cn      string
+    44→		db      string
+    45→		ca      string
+    46→		days    int
+    47→		san     string
+    48→		keyAlgo string
+    49→		keySize int
+    50→		curve   string
+    51→	)
+    52→
+    53→	cmd := &amp;cobra.Command{
+    54→		Use:   &quot;issue&quot;,
+    55→		Short: &quot;Issue a certificate signed by a CA&quot;,
+    56→		RunE: func(cmd *cobra.Command, args []string) error {
+    57→			return runCertIssue(cmd.Context(), cn, db, ca, days, san, keyAlgo, keySize, curve)
+    58→		},
+    59→	}
+    60→
+    61→	cmd.Flags().StringVar(&amp;cn, &quot;cn&quot;, &quot;&quot;, &quot;Common name for the certificate (required)&quot;)
+    62→	cmd.Flags().StringVar(&amp;db, &quot;db&quot;, &quot;gossl.db&quot;, &quot;Path to the SQLite database file&quot;)
+    63→	cmd.Flags().StringVar(&amp;ca, &quot;ca&quot;, &quot;&quot;, &quot;Signing CA common name (defaults to root CA)&quot;)
+    64→	cmd.Flags().IntVar(&amp;days, &quot;days&quot;, 365, &quot;Validity period in days&quot;)
+    65→	cmd.Flags().StringVar(&amp;san, &quot;san&quot;, &quot;&quot;, &quot;Subject alternative names (comma-separated)&quot;)
+    66→	cmd.Flags().StringVar(&amp;keyAlgo, &quot;key-algo&quot;, &quot;rsa&quot;, &quot;Key algorithm (rsa or ecdsa)&quot;)
+    67→	cmd.Flags().IntVar(&amp;keySize, &quot;key-size&quot;, 4096, &quot;RSA key size in bits&quot;)
+    68→	cmd.Flags().StringVar(&amp;curve, &quot;curve&quot;, &quot;P-256&quot;, &quot;ECDSA curve (P-256, P-384, P-521)&quot;)
+    69→	_ = cmd.MarkFlagRequired(&quot;cn&quot;)
+    70→
+    71→	return cmd
+    72→}
+    73→
+    74→func runCertIssue(ctx context.Context, cn, dbPath, caCN string, days int, san, keyAlgo string, keySize int, curve string) error {
+    75→	d, err := store.OpenDB(ctx, dbPath)
+    76→	if err != nil {
+    77→		return err
+    78→	}
+    79→	defer d.Close()
+    80→
+    81→	q := store.New(d.SQLDB())
+    82→
+    83→	var caRow store.Ca
+    84→	if caCN == &quot;&quot; {
+    85→		caRow, err = q.GetRootCA(ctx)
+    86→		if err != nil {
+    87→			return fmt.Errorf(&quot;no root CA found (use --ca to specify)&quot;)
+    88→		}
+    89→	} else {
+    90→		caRow, err = q.GetCAByCN(ctx, caCN)
+    91→		if err != nil {
+    92→			return fmt.Errorf(&quot;CA %q not found&quot;, caCN)
+    93→		}
+    94→	}
+    95→
+    96→	caCert, err := parseCertPEMBytes([]byte(caRow.CertPem))
+    97→	if err != nil {
+    98→		return fmt.Errorf(&quot;parsing CA certificate: %w&quot;, err)
+    99→	}
+   100→
+   101→	caKeyPEM, err := q.LoadKey(ctx, caRow.Serial)
+   102→	if err != nil {
+   103→		return fmt.Errorf(&quot;loading CA private key: %w&quot;, err)
+   104→	}
+   105→
+   106→	caKey, err := parsePrivateKey(caKeyPEM)
+   107→	if err != nil {
+   108→		return fmt.Errorf(&quot;parsing CA private key: %w&quot;, err)
+   109→	}
+   110→
+   111→	privKey, keyPEM, err := generateKey(keyAlgo, keySize, curve)
+   112→	if err != nil {
+   113→		return err
+   114→	}
+   115→
+   116→	serialNumber, err := generateSerial()
+   117→	if err != nil {
+   118→		return fmt.Errorf(&quot;generating serial number: %w&quot;, err)
+   119→	}
+   120→
+   121→	now := time.Now()
+   122→	template := &amp;x509.Certificate{
+   123→		SerialNumber: serialNumber,
+   124→		Subject:      pkix.Name{CommonName: cn},
+   125→		NotBefore:    now,
+   126→		NotAfter:     now.AddDate(0, 0, days),
+   127→		KeyUsage:     x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+   128→		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
+   129→	}
+   130→
+   131→	if san != &quot;&quot; {
+   132→		for _, s := range strings.Split(san, &quot;,&quot;) {
+   133→			s = strings.TrimSpace(s)
+   134→			switch {
+   135→			case strings.HasPrefix(s, &quot;DNS:&quot;):
+   136→				template.DNSNames = append(template.DNSNames, s[len(&quot;DNS:&quot;):])
+   137→			case strings.HasPrefix(s, &quot;IP:&quot;):
+   138→				if ip := net.ParseIP(s[len(&quot;IP:&quot;):]); ip != nil {
+   139→					template.IPAddresses = append(template.IPAddresses, ip)
+   140→				}
+   141→			case strings.HasPrefix(s, &quot;EMAIL:&quot;):
+   142→				template.EmailAddresses = append(template.EmailAddresses, s[len(&quot;EMAIL:&quot;):])
+   143→			case strings.HasPrefix(s, &quot;URI:&quot;):
+   144→				u, err := url.Parse(s[len(&quot;URI:&quot;):])
+   145→				if err == nil {
+   146→					template.URIs = append(template.URIs, u)
+   147→				}
+   148→			default:
+   149→				// Bare value: auto-detect IP vs DNS
+   150→				if ip := net.ParseIP(s); ip != nil {
+   151→					template.IPAddresses = append(template.IPAddresses, ip)
+   152→				} else {
+   153→					template.DNSNames = append(template.DNSNames, s)
+   154→				}
+   155→			}
+   156→		}
+   157→	}
+   158→
+   159→	pubKey := publicKey(privKey)
+   160→	certDER, err := x509.CreateCertificate(rand.Reader, template, caCert, pubKey, caKey)
+   161→	if err != nil {
+   162→		return fmt.Errorf(&quot;creating certificate: %w&quot;, err)
+   163→	}
+   164→
+   165→	certPEM := pem.EncodeToMemory(&amp;pem.Block{Type: &quot;CERTIFICATE&quot;, Bytes: certDER})
+   166→	serial := serialHex(serialNumber)
+   167→
+   168→	_, err = q.CreateCert(ctx, store.CreateCertParams{
+   169→		CaID:       caRow.ID,
+   170→		CommonName: cn,
+   171→		Serial:     serial,
+   172→		KeyAlgo:    keyAlgo,
+   173→		CertPem:    string(certPEM),
+   174→		NotBefore:  template.NotBefore,
+   175→		NotAfter:   template.NotAfter,
+   176→		CreatedAt:  now,
+   177→	})
+   178→	if err != nil {
+   179→		return fmt.Errorf(&quot;storing cert: %w&quot;, err)
+   180→	}
+   181→
+   182→	if err := q.StoreKey(ctx, store.StoreKeyParams{ID: serial, KeyPem: keyPEM}); err != nil {
+   183→		return fmt.Errorf(&quot;storing private key: %w&quot;, err)
+   184→	}
+   185→
+   186→	fmt.Printf(&quot;Issued certificate %q (serial %s) signed by %q\n&quot;, cn, serial, caRow.CommonName)
+   187→	return nil
+   188→}
+   189→
+   190→// --- cert sign (from external CSR) ---
+   191→
+   192→func newCertSignCmd() *cobra.Command {
+   193→	var (
+   194→		db    string
+   195→		ca    string
+   196→		days  int
+   197→		out   string
+   198→		force bool
+   199→	)
+   200→
+   201→	cmd := &amp;cobra.Command{
+   202→		Use:   &quot;sign &lt;csr-file&gt;&quot;,
+   203→		Short: &quot;Sign an externally generated CSR&quot;,
+   204→		Long:  &quot;Sign a PEM-encoded CSR file using a CA from the database.\nValidates the CSR signature and enforces minimum key strength requirements.&quot;,
+   205→		Args:  cobra.ExactArgs(1),
+   206→		RunE: func(cmd *cobra.Command, args []string) error {
+   207→			return runCertSign(cmd.Context(), args[0], db, ca, days, out, force)
+   208→		},
+   209→	}
+   210→
+   211→	cmd.Flags().StringVar(&amp;db, &quot;db&quot;, &quot;gossl.db&quot;, &quot;Path to the SQLite database file&quot;)
+   212→	cmd.Flags().StringVar(&amp;ca, &quot;ca&quot;, &quot;&quot;, &quot;Signing CA common name (defaults to root CA)&quot;)
+   213→	cmd.Flags().IntVar(&amp;days, &quot;days&quot;, 365, &quot;Validity period in days&quot;)
+   214→	cmd.Flags().StringVar(&amp;out, &quot;out&quot;, &quot;&quot;, &quot;Output certificate PEM file (required)&quot;)
+   215→	cmd.Flags().BoolVar(&amp;force, &quot;force&quot;, false, &quot;Overwrite existing output file&quot;)
+   216→	_ = cmd.MarkFlagRequired(&quot;out&quot;)
+   217→
+   218→	return cmd
+   219→}
+   220→
+   221→func runCertSign(ctx context.Context, csrFile, dbPath, caCN string, days int, out string, force bool) error {
+   222→	if !force {
+   223→		if _, err := os.Stat(out); err == nil {
+   224→			return fmt.Errorf(&quot;file %s already exists (use --force to overwrite)&quot;, out)
+   225→		}
+   226→	}
+   227→
+   228→	// Read and validate CSR
+   229→	csrData, err := os.ReadFile(csrFile)
+   230→	if err != nil {
+   231→		return fmt.Errorf(&quot;reading CSR: %w&quot;, err)
+   232→	}
+   233→
+   234→	csr, err := parseCSRPEMBytes(csrData)
+   235→	if err != nil {
+   236→		return err
+   237→	}
+   238→
+   239→	if err := validateCSRKey(csr); err != nil {
+   240→		return fmt.Errorf(&quot;CSR key validation failed: %w&quot;, err)
+   241→	}
+   242→
+   243→	// Open DB and resolve CA
+   244→	d, err := store.OpenDB(ctx, dbPath)
+   245→	if err != nil {
+   246→		return err
+   247→	}
+   248→	defer d.Close()
+   249→
+   250→	q := store.New(d.SQLDB())
+   251→
+   252→	var caRow store.Ca
+   253→	if caCN == &quot;&quot; {
+   254→		caRow, err = q.GetRootCA(ctx)
+   255→		if err != nil {
+   256→			return fmt.Errorf(&quot;no root CA found (use --ca to specify)&quot;)
+   257→		}
+   258→	} else {
+   259→		caRow, err = q.GetCAByCN(ctx, caCN)
+   260→		if err != nil {
+   261→			return fmt.Errorf(&quot;CA %q not found&quot;, caCN)
+   262→		}
+   263→	}
+   264→
+   265→	caCert, err := parseCertPEMBytes([]byte(caRow.CertPem))
+   266→	if err != nil {
+   267→		return fmt.Errorf(&quot;parsing CA certificate: %w&quot;, err)
+   268→	}
+   269→
+   270→	caKeyPEM, err := q.LoadKey(ctx, caRow.Serial)
+   271→	if err != nil {
+   272→		return fmt.Errorf(&quot;loading CA private key: %w&quot;, err)
+   273→	}
+   274→
+   275→	caKey, err := parsePrivateKey(caKeyPEM)
+   276→	if err != nil {
+   277→		return fmt.Errorf(&quot;parsing CA private key: %w&quot;, err)
+   278→	}
+   279→
+   280→	serialNumber, err := generateSerial()
+   281→	if err != nil {
+   282→		return fmt.Errorf(&quot;generating serial number: %w&quot;, err)
+   283→	}
+   284→
+   285→	now := time.Now()
+   286→	template := &amp;x509.Certificate{
+   287→		SerialNumber: serialNumber,
+   288→		Subject:      csr.Subject,
+   289→		NotBefore:    now,
+   290→		NotAfter:     now.AddDate(0, 0, days),
+   291→		KeyUsage:     x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+   292→		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
+   293→		DNSNames:     csr.DNSNames,
+   294→		IPAddresses:  csr.IPAddresses,
+   295→	}
+   296→
+   297→	certDER, err := x509.CreateCertificate(rand.Reader, template, caCert, csr.PublicKey, caKey)
+   298→	if err != nil {
+   299→		return fmt.Errorf(&quot;creating certificate: %w&quot;, err)
+   300→	}
+   301→
+   302→	certPEM := pem.EncodeToMemory(&amp;pem.Block{Type: &quot;CERTIFICATE&quot;, Bytes: certDER})
+   303→	serial := serialHex(serialNumber)
+   304→
+   305→	// Determine key algo from CSR public key
+   306→	keyAlgo := &quot;unknown&quot;
+   307→	switch csr.PublicKey.(type) {
+   308→	case *rsa.PublicKey:
+   309→		keyAlgo = &quot;rsa&quot;
+   310→	case *ecdsa.PublicKey:
+   311→		keyAlgo = &quot;ecdsa&quot;
+   312→	}
+   313→
+   314→	_, err = q.CreateCert(ctx, store.CreateCertParams{
+   315→		CaID:       caRow.ID,
+   316→		CommonName: csr.Subject.CommonName,
+   317→		Serial:     serial,
+   318→		KeyAlgo:    keyAlgo,
+   319→		CertPem:    string(certPEM),
+   320→		NotBefore:  template.NotBefore,
+   321→		NotAfter:   template.NotAfter,
+   322→		CreatedAt:  now,
+   323→	})
+   324→	if err != nil {
+   325→		return fmt.Errorf(&quot;storing cert: %w&quot;, err)
+   326→	}
+   327→
+   328→	if err := os.WriteFile(out, certPEM, 0o600); err != nil {
+   329→		return fmt.Errorf(&quot;writing certificate: %w&quot;, err)
+   330→	}
+   331→
+   332→	fmt.Printf(&quot;Signed certificate %q (serial %s) from CSR, signed by %q\n&quot;, csr.Subject.CommonName, serial, caRow.CommonName)
+   333→	fmt.Printf(&quot;Written to %s\n&quot;, out)
+   334→	return nil
+   335→}
+   336→
+   337→// --- cert list ---
+   338→
+   339→func newCertListCmd() *cobra.Command {
+   340→	var db string
+   341→
+   342→	cmd := &amp;cobra.Command{
+   343→		Use:   &quot;list&quot;,
+   344→		Short: &quot;List all issued certificates&quot;,
+   345→		RunE: func(cmd *cobra.Command, args []string) error {
+   346→			return runCertList(cmd.Context(), db)
+   347→		},
+   348→	}
+   349→
+   350→	cmd.Flags().StringVar(&amp;db, &quot;db&quot;, &quot;gossl.db&quot;, &quot;Path to the SQLite database file&quot;)
+   351→	return cmd
+   352→}
+   353→
+   354→func runCertList(ctx context.Context, dbPath string) error {
+   355→	d, err := store.OpenDB(ctx, dbPath)
+   356→	if err != nil {
+   357→		return err
+   358→	}
+   359→	defer d.Close()
+   360→
+   361→	q := store.New(d.SQLDB())
+   362→	certs, err := q.ListCerts(ctx)
+   363→	if err != nil {
+   364→		return fmt.Errorf(&quot;listing certs: %w&quot;, err)
+   365→	}
+   366→
+   367→	if len(certs) == 0 {
+   368→		fmt.Println(&quot;No certificates found.&quot;)
+   369→		return nil
+   370→	}
+   371→
+   372→	for _, c := range certs {
+   373→		status := &quot;active&quot;
+   374→		if c.RevokedAt.Valid {
+   375→			status = &quot;revoked&quot;
+   376→		}
+   377→		fmt.Printf(&quot;Certificate:\n&quot;)
+   378→		fmt.Printf(&quot;  Common Name: %s\n&quot;, c.CommonName)
+   379→		fmt.Printf(&quot;  Serial:      %s\n&quot;, c.Serial)
+   380→		fmt.Printf(&quot;  Algorithm:   %s\n&quot;, c.KeyAlgo)
+   381→		fmt.Printf(&quot;  Not Before:  %s\n&quot;, c.NotBefore.Format(time.RFC3339))
+   382→		fmt.Printf(&quot;  Not After:   %s\n&quot;, c.NotAfter.Format(time.RFC3339))
+   383→		fmt.Printf(&quot;  Status:      %s\n&quot;, status)
+   384→		fmt.Println()
+   385→	}
+   386→	return nil
+   387→}
+   388→
+   389→// --- cert revoke ---
+   390→
+   391→func newCertRevokeCmd() *cobra.Command {
+   392→	var (
+   393→		serial string
+   394→		db     string
+   395→	)
+   396→
+   397→	cmd := &amp;cobra.Command{
+   398→		Use:   &quot;revoke&quot;,
+   399→		Short: &quot;Revoke a certificate&quot;,
+   400→		RunE: func(cmd *cobra.Command, args []string) error {
+   401→			return runCertRevoke(cmd.Context(), serial, db)
+   402→		},
+   403→	}
+   404→
+   405→	cmd.Flags().StringVar(&amp;serial, &quot;serial&quot;, &quot;&quot;, &quot;Certificate serial number (required)&quot;)
+   406→	cmd.Flags().StringVar(&amp;db, &quot;db&quot;, &quot;gossl.db&quot;, &quot;Path to the SQLite database file&quot;)
+   407→	_ = cmd.MarkFlagRequired(&quot;serial&quot;)
+   408→
+   409→	return cmd
+   410→}
+   411→
+   412→func runCertRevoke(ctx context.Context, serial, dbPath string) error {
+   413→	d, err := store.OpenDB(ctx, dbPath)
+   414→	if err != nil {
+   415→		return err
+   416→	}
+   417→	defer d.Close()
+   418→
+   419→	q := store.New(d.SQLDB())
+   420→	n, err := q.RevokeCert(ctx, store.RevokeCertParams{
+   421→		RevokedAt: sql.NullTime{Time: time.Now(), Valid: true},
+   422→		Serial:    serial,
+   423→	})
+   424→	if err != nil {
+   425→		return fmt.Errorf(&quot;revoking cert: %w&quot;, err)
+   426→	}
+   427→	if n == 0 {
+   428→		return fmt.Errorf(&quot;certificate %s not found&quot;, serial)
+   429→	}
+   430→
+   431→	fmt.Printf(&quot;Revoked certificate %s\n&quot;, serial)
+   432→	return nil
+   433→}
+   434→
+   435→// --- cert export ---
+   436→
+   437→func newCertExportCmd() *cobra.Command {
+   438→	var (
+   439→		serial string
+   440→		db     string
+   441→		out    string
+   442→		chain  bool
+   443→		force  bool
+   444→	)
+   445→
+   446→	cmd := &amp;cobra.Command{
+   447→		Use:   &quot;export&quot;,
+   448→		Short: &quot;Export a certificate to PEM file&quot;,
+   449→		RunE: func(cmd *cobra.Command, args []string) error {
+   450→			return runCertExport(cmd.Context(), serial, db, out, chain, force)
+   451→		},
+   452→	}
+   453→
+   454→	cmd.Flags().StringVar(&amp;serial, &quot;serial&quot;, &quot;&quot;, &quot;Certificate serial number (required)&quot;)
+   455→	cmd.Flags().StringVar(&amp;db, &quot;db&quot;, &quot;gossl.db&quot;, &quot;Path to the SQLite database file&quot;)
+   456→	cmd.Flags().StringVar(&amp;out, &quot;out&quot;, &quot;&quot;, &quot;Output file path (required)&quot;)
+   457→	cmd.Flags().BoolVar(&amp;chain, &quot;chain&quot;, false, &quot;Include full certificate chain&quot;)
+   458→	cmd.Flags().BoolVar(&amp;force, &quot;force&quot;, false, &quot;Overwrite existing file&quot;)
+   459→	_ = cmd.MarkFlagRequired(&quot;serial&quot;)
+   460→	_ = cmd.MarkFlagRequired(&quot;out&quot;)
+   461→
+   462→	return cmd
+   463→}
+   464→
+   465→func runCertExport(ctx context.Context, serial, dbPath, out string, chain, force bool) error {
+   466→	if !force {
+   467→		if _, err := os.Stat(out); err == nil {
+   468→			return fmt.Errorf(&quot;file %s already exists (use --force to overwrite)&quot;, out)
+   469→		}
+   470→	}
+   471→
+   472→	d, err := store.OpenDB(ctx, dbPath)
+   473→	if err != nil {
+   474→		return err
+   475→	}
+   476→	defer d.Close()
+   477→
+   478→	q := store.New(d.SQLDB())
+   479→
+   480→	cert, err := q.GetCertBySerial(ctx, serial)
+   481→	if err != nil {
+   482→		return fmt.Errorf(&quot;certificate %s not found&quot;, serial)
+   483→	}
+   484→
+   485→	pemData := cert.CertPem
+   486→
+   487→	if chain {
+   488→		// Walk up the CA chain
+   489→		caID := cert.CaID
+   490→		for {
+   491→			caRow, err := q.GetCA(ctx, caID)
+   492→			if err != nil {
+   493→				break
+   494→			}
+   495→			pemData += caRow.CertPem
+   496→			if !caRow.ParentID.Valid {
+   497→				break // reached root
+   498→			}
+   499→			caID = caRow.ParentID.Int64
+   500→		}
+   501→	}
+   502→
+   503→	if err := os.WriteFile(out, []byte(pemData), 0o600); err != nil {
+   504→		return fmt.Errorf(&quot;writing file: %w&quot;, err)
+   505→	}
+   506→
+   507→	fmt.Printf(&quot;Exported certificate %s to %s\n&quot;, serial, out)
+   508→	return nil
+   509→}
+   510→
+   511→// --- cert inspect ---
+   512→
+   513→func newCertInspectCmd() *cobra.Command {
+   514→	var (
+   515→		db     string
+   516→		serial string
+   517→	)
+   518→
+   519→	cmd := &amp;cobra.Command{
+   520→		Use:   &quot;inspect [file]&quot;,
+   521→		Short: &quot;Display certificate details&quot;,
+   522→		Long:  &quot;Inspect a certificate from a PEM file, stdin (-), or the database (--db --serial).&quot;,
+   523→		RunE: func(cmd *cobra.Command, args []string) error {
+   524→			return runCertInspect(cmd.Context(), args, db, serial)
+   525→		},
+   526→	}
+   527→
+   528→	cmd.Flags().StringVar(&amp;db, &quot;db&quot;, &quot;&quot;, &quot;Path to the SQLite database file&quot;)
+   529→	cmd.Flags().StringVar(&amp;serial, &quot;serial&quot;, &quot;&quot;, &quot;Certificate serial number (with --db)&quot;)
+   530→
+   531→	return cmd
+   532→}
+   533→
+   534→func runCertInspect(ctx context.Context, args []string, dbPath, serial string) error {
+   535→	var pemData []byte
+   536→
+   537→	if dbPath != &quot;&quot; &amp;&amp; serial != &quot;&quot; {
+   538→		d, err := store.OpenDB(ctx, dbPath)
+   539→		if err != nil {
+   540→			return err
+   541→		}
+   542→		defer d.Close()
+   543→
+   544→		q := store.New(d.SQLDB())
+   545→		cert, err := q.GetCertBySerial(ctx, serial)
+   546→		if err != nil {
+   547→			return fmt.Errorf(&quot;certificate %s not found&quot;, serial)
+   548→		}
+   549→		pemData = []byte(cert.CertPem)
+   550→	} else if len(args) &gt; 0 {
+   551→		// Unbounded read: CLI tool reads entire PEM into memory for x509 parsing.
+   552→		// Let the kernel OOM-kill if input is unreasonably large.
+   553→		var err error
+   554→		if args[0] == &quot;-&quot; {
+   555→			pemData, err = io.ReadAll(os.Stdin)
+   556→		} else {
+   557→			pemData, err = os.ReadFile(args[0])
+   558→		}
+   559→		if err != nil {
+   560→			return fmt.Errorf(&quot;reading input: %w&quot;, err)
+   561→		}
+   562→	} else {
+   563→		return fmt.Errorf(&quot;provide a file path, &#x27;-&#x27; for stdin, or --db --serial&quot;)
+   564→	}
+   565→
+   566→	cert, err := parseCertPEMBytes(pemData)
+   567→	if err != nil {
+   568→		return err
+   569→	}
+   570→
+   571→	printCertInfo(cert)
+   572→	return nil
+   573→}
+   574→
+   575→func printCertInfo(cert *x509.Certificate) {
+   576→	fmt.Printf(&quot;Subject:     %s\n&quot;, cert.Subject.String())
+   577→	fmt.Printf(&quot;Issuer:      %s\n&quot;, cert.Issuer.String())
+   578→	fmt.Printf(&quot;Serial:      %X\n&quot;, cert.SerialNumber)
+   579→	fmt.Printf(&quot;Not Before:  %s\n&quot;, cert.NotBefore.Format(time.RFC3339))
+   580→	fmt.Printf(&quot;Not After:   %s\n&quot;, cert.NotAfter.Format(time.RFC3339))
+   581→	fmt.Printf(&quot;Is CA:       %v\n&quot;, cert.IsCA)
+   582→
+   583→	if len(cert.DNSNames) &gt; 0 {
+   584→		fmt.Printf(&quot;DNS SANs:    %s\n&quot;, strings.Join(cert.DNSNames, &quot;, &quot;))
+   585→	}
+   586→	if len(cert.IPAddresses) &gt; 0 {
+   587→		ips := make([]string, len(cert.IPAddresses))
+   588→		for i, ip := range cert.IPAddresses {
+   589→			ips[i] = ip.String()
+   590→		}
+   591→		fmt.Printf(&quot;IP SANs:     %s\n&quot;, strings.Join(ips, &quot;, &quot;))
+   592→	}
+   593→
+   594→	if cert.PublicKeyAlgorithm != x509.UnknownPublicKeyAlgorithm {
+   595→		fmt.Printf(&quot;Public Key:  %s\n&quot;, cert.PublicKeyAlgorithm.String())
+   596→	}
+   597→
+   598→	fmt.Printf(&quot;Signature:   %s\n&quot;, cert.SignatureAlgorithm.String())
+   599→
+   600→	if now := time.Now(); now.After(cert.NotAfter) {
+   601→		fmt.Printf(&quot;Status:      EXPIRED (expired %s ago)\n&quot;, now.Sub(cert.NotAfter).Truncate(time.Hour))
+   602→	} else {
+   603→		fmt.Printf(&quot;Status:      valid (expires in %s)\n&quot;, cert.NotAfter.Sub(now).Truncate(time.Hour))
+   604→	}
+   605→}
+   606→
+   607→// --- cert verify ---
+   608→
+   609→func newCertVerifyCmd() *cobra.Command {
+   610→	var chainFile string
+   611→
+   612→	cmd := &amp;cobra.Command{
+   613→		Use:   &quot;verify [file]&quot;,
+   614→		Short: &quot;Verify a certificate against a CA bundle&quot;,
+   615→		RunE: func(cmd *cobra.Command, args []string) error {
+   616→			return runCertVerify(args, chainFile)
+   617→		},
+   618→	}
+   619→
+   620→	cmd.Flags().StringVar(&amp;chainFile, &quot;chain&quot;, &quot;&quot;, &quot;CA bundle PEM file (required)&quot;)
+   621→	_ = cmd.MarkFlagRequired(&quot;chain&quot;)
+   622→
+   623→	return cmd
+   624→}
+   625→
+   626→func runCertVerify(args []string, chainFile string) error {
+   627→	if len(args) == 0 {
+   628→		return fmt.Errorf(&quot;provide a certificate file path or &#x27;-&#x27; for stdin&quot;)
+   629→	}
+   630→
+   631→	// Unbounded read: CLI tool reads entire PEM into memory for x509 parsing.
+   632→	// Let the kernel OOM-kill if input is unreasonably large.
+   633→	var certData []byte
+   634→	var err error
+   635→	if args[0] == &quot;-&quot; {
+   636→		certData, err = io.ReadAll(os.Stdin)
+   637→	} else {
+   638→		certData, err = os.ReadFile(args[0])
+   639→	}
+   640→	if err != nil {
+   641→		return fmt.Errorf(&quot;reading certificate: %w&quot;, err)
+   642→	}
+   643→
+   644→	chainData, err := os.ReadFile(chainFile)
+   645→	if err != nil {
+   646→		return fmt.Errorf(&quot;reading chain file: %w&quot;, err)
+   647→	}
+   648→
+   649→	cert, err := parseCertPEMBytes(certData)
+   650→	if err != nil {
+   651→		return fmt.Errorf(&quot;parsing certificate: %w&quot;, err)
+   652→	}
+   653→
+   654→	roots := x509.NewCertPool()
+   655→	intermediates := x509.NewCertPool()
+   656→
+   657→	rest := chainData
+   658→	for {
+   659→		var block *pem.Block
+   660→		block, rest = pem.Decode(rest)
+   661→		if block == nil {
+   662→			break
+   663→		}
+   664→		chainCert, err := x509.ParseCertificate(block.Bytes)
+   665→		if err != nil {
+   666→			continue
+   667→		}
+   668→		if chainCert.IsCA &amp;&amp; chainCert.Subject.String() == chainCert.Issuer.String() {
+   669→			roots.AddCert(chainCert)
+   670→		} else {
+   671→			intermediates.AddCert(chainCert)
+   672→		}
+   673→	}
+   674→
+   675→	_, err = cert.Verify(x509.VerifyOptions{
+   676→		Roots:         roots,
+   677→		Intermediates: intermediates,
+   678→	})
+   679→	if err != nil {
+   680→		return fmt.Errorf(&quot;verification failed: %w&quot;, err)
+   681→	}
+   682→
+   683→	fmt.Printf(&quot;OK: certificate %q verified successfully\n&quot;, cert.Subject.CommonName)
+   684→	return nil
+   685→}
+   686→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-09-38-922Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-09-38-922Z" class="timestamp-link"><time datetime="2026-03-27T21:09:38.922Z" data-timestamp="2026-03-27T21:09:38.922Z">2026-03-27T21:09:38.922Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→package cli
+     2→
+     3→import (
+     4→	&quot;crypto/ecdsa&quot;
+     5→	&quot;crypto/elliptic&quot;
+     6→	&quot;crypto/rand&quot;
+     7→	&quot;crypto/rsa&quot;
+     8→	&quot;crypto/x509&quot;
+     9→	&quot;encoding/pem&quot;
+    10→	&quot;fmt&quot;
+    11→	&quot;math/big&quot;
+    12→)
+    13→
+    14→func generateKey(algo string, size int, curve string) (any, []byte, error) {
+    15→	switch algo {
+    16→	case &quot;rsa&quot;:
+    17→		if size &lt; 2048 {
+    18→			return nil, nil, fmt.Errorf(&quot;RSA key size %d is below minimum 2048 bits&quot;, size)
+    19→		}
+    20→		key, err := rsa.GenerateKey(rand.Reader, size)
+    21→		if err != nil {
+    22→			return nil, nil, fmt.Errorf(&quot;generating RSA key: %w&quot;, err)
+    23→		}
+    24→		keyPEM := pem.EncodeToMemory(&amp;pem.Block{
+    25→			Type:  &quot;RSA PRIVATE KEY&quot;,
+    26→			Bytes: x509.MarshalPKCS1PrivateKey(key),
+    27→		})
+    28→		return key, keyPEM, nil
+    29→	case &quot;ecdsa&quot;:
+    30→		c, err := parseCurve(curve)
+    31→		if err != nil {
+    32→			return nil, nil, err
+    33→		}
+    34→		key, err := ecdsa.GenerateKey(c, rand.Reader)
+    35→		if err != nil {
+    36→			return nil, nil, fmt.Errorf(&quot;generating ECDSA key: %w&quot;, err)
+    37→		}
+    38→		der, err := x509.MarshalECPrivateKey(key)
+    39→		if err != nil {
+    40→			return nil, nil, fmt.Errorf(&quot;marshalling ECDSA key: %w&quot;, err)
+    41→		}
+    42→		keyPEM := pem.EncodeToMemory(&amp;pem.Block{Type: &quot;EC PRIVATE KEY&quot;, Bytes: der})
+    43→		return key, keyPEM, nil
+    44→	default:
+    45→		return nil, nil, fmt.Errorf(&quot;unsupported key algorithm: %s&quot;, algo)
+    46→	}
+    47→}
+    48→
+    49→func parseCurve(name string) (elliptic.Curve, error) {
+    50→	switch name {
+    51→	case &quot;P-256&quot;:
+    52→		return elliptic.P256(), nil
+    53→	case &quot;P-384&quot;:
+    54→		return elliptic.P384(), nil
+    55→	case &quot;P-521&quot;:
+    56→		return elliptic.P521(), nil
+    57→	default:
+    58→		return nil, fmt.Errorf(&quot;unsupported curve: %s&quot;, name)
+    59→	}
+    60→}
+    61→
+    62→func publicKey(priv any) any {
+    63→	switch k := priv.(type) {
+    64→	case *rsa.PrivateKey:
+    65→		return &amp;k.PublicKey
+    66→	case *ecdsa.PrivateKey:
+    67→		return &amp;k.PublicKey
+    68→	default:
+    69→		return nil
+    70→	}
+    71→}
+    72→
+    73→func generateSerial() (*big.Int, error) {
+    74→	return rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
+    75→}
+    76→
+    77→func serialHex(sn *big.Int) string {
+    78→	return fmt.Sprintf(&quot;%X&quot;, sn)
+    79→}
+    80→
+    81→func parsePrivateKey(keyPEM []byte) (any, error) {
+    82→	block, _ := pem.Decode(keyPEM)
+    83→	if block == nil {
+    84→		return nil, fmt.Errorf(&quot;failed to decode PEM&quot;)
+    85→	}
+    86→	switch block.Type {
+    87→	case &quot;RSA PRIVATE KEY&quot;:
+    88→		return x509.ParsePKCS1PrivateKey(block.Bytes)
+    89→	case &quot;EC PRIVATE KEY&quot;:
+    90→		return x509.ParseECPrivateKey(block.Bytes)
+    91→	default:
+    92→		return nil, fmt.Errorf(&quot;unsupported key type: %s&quot;, block.Type)
+    93→	}
+    94→}
+    95→
+    96→const minRSAKeySize = 2048
+    97→
+    98→// validateCSRKey checks that the CSR&#x27;s public key meets minimum strength requirements.
+    99→func validateCSRKey(csr *x509.CertificateRequest) error {
+   100→	switch pub := csr.PublicKey.(type) {
+   101→	case *rsa.PublicKey:
+   102→		if pub.N.BitLen() &lt; minRSAKeySize {
+   103→			return fmt.Errorf(&quot;RSA key size %d bits is below minimum %d bits&quot;, pub.N.BitLen(), minRSAKeySize)
+   104→		}
+   105→	case *ecdsa.PublicKey:
+   106→		curve := pub.Curve.Params().Name
+   107→		switch curve {
+   108→		case &quot;P-256&quot;, &quot;P-384&quot;, &quot;P-521&quot;:
+   109→			// ok
+   110→		default:
+   111→			return fmt.Errorf(&quot;unsupported ECDSA curve: %s&quot;, curve)
+   112→		}
+   113→	default:
+   114→		return fmt.Errorf(&quot;unsupported public key algorithm: %T&quot;, csr.PublicKey)
+   115→	}
+   116→	return nil
+   117→}
+   118→
+   119→func parseCSRPEMBytes(data []byte) (*x509.CertificateRequest, error) {
+   120→	block, _ := pem.Decode(data)
+   121→	if block == nil {
+   122→		return nil, fmt.Errorf(&quot;failed to decode CSR PEM&quot;)
+   123→	}
+   124→	csr, err := x509.ParseCertificateRequest(block.Bytes)
+   125→	if err != nil {
+   126→		return nil, fmt.Errorf(&quot;parsing CSR: %w&quot;, err)
+   127→	}
+   128→	if err := csr.CheckSignature(); err != nil {
+   129→		return nil, fmt.Errorf(&quot;CSR signature verification failed: %w&quot;, err)
+   130→	}
+   131→	return csr, nil
+   132→}
+   133→
+   134→func parseCertPEMBytes(data []byte) (*x509.Certificate, error) {
+   135→	block, _ := pem.Decode(data)
+   136→	if block == nil {
+   137→		return nil, fmt.Errorf(&quot;failed to decode certificate PEM&quot;)
+   138→	}
+   139→	return x509.ParseCertificate(block.Bytes)
+   140→}
+   141→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-09-39-082Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-09-39-082Z" class="timestamp-link"><time datetime="2026-03-27T21:09:39.082Z" data-timestamp="2026-03-27T21:09:39.082Z">2026-03-27T21:09:39.082Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01SiEjUkAJ4wqpkNUWbWuFts"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/root.go&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-09-39-085Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-09-39-085Z" class="timestamp-link"><time datetime="2026-03-27T21:09:39.085Z" data-timestamp="2026-03-27T21:09:39.085Z">2026-03-27T21:09:39.085Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→// Package cli defines the gossl command-line interface.
+     2→package cli
+     3→
+     4→import (
+     5→	&quot;fmt&quot;
+     6→
+     7→	&quot;github.com/spf13/cobra&quot;
+     8→)
+     9→
+    10→// NewRoot returns the root gossl command.
+    11→func NewRoot(version, commit string) *cobra.Command {
+    12→	root := &amp;cobra.Command{
+    13→		Use:     &quot;gossl&quot;,
+    14→		Short:   &quot;Simplified TLS certificate management and troubleshooting&quot;,
+    15→		Version: fmt.Sprintf(&quot;%s (%s)&quot;, version, commit),
+    16→	}
+    17→
+    18→	root.AddCommand(newCACmd())
+    19→	root.AddCommand(newCertCmd())
+    20→	root.AddCommand(newCSRCmd())
+    21→	root.AddCommand(newSClientCmd())
+    22→	root.AddCommand(newServeCmd())
+    23→	root.AddCommand(newDocsCmd())
+    24→	root.AddCommand(newGraphCmd())
+    25→
+    26→	return root
+    27→}
+    28→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-09-42-395Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-09-42-395Z" class="timestamp-link"><time datetime="2026-03-27T21:09:42.395Z" data-timestamp="2026-03-27T21:09:42.395Z">2026-03-27T21:09:42.395Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_016rFt7UexJbQ63TcQ29xC7Z"><div class="tool-header"><span class="tool-icon">⚙</span> TaskUpdate</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;taskId&#34;: &#34;1&#34;,
+  &#34;status&#34;: &#34;completed&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-09-42-409Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-09-42-409Z" class="timestamp-link"><time datetime="2026-03-27T21:09:42.409Z" data-timestamp="2026-03-27T21:09:42.409Z">2026-03-27T21:09:42.409Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Updated task #1 status</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-09-53-694Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-09-53-694Z" class="timestamp-link"><time datetime="2026-03-27T21:09:53.694Z" data-timestamp="2026-03-27T21:09:53.694Z">2026-03-27T21:09:53.694Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now I have full context. No visual questions needed here. Let me ask the first clarifying question.</p>
+<p>For <code>key inspect</code>, what output format are you thinking? I see <code>cert inspect</code> prints labeled fields line by line. I'm thinking <code>key inspect</code> would mirror that style:</p>
+<pre><code>Algorithm:   RSA
+Key Size:    4096 bits
+Modulus:     SHA256:ab:cd:ef:12:...
+</code></pre>
+<p>For the modulus fingerprint specifically — should it be:
+1. <strong>SHA-256 fingerprint of the public key</strong> (e.g., <code>SHA256:ab:cd:ef:...</code>) — compact, easy to compare visually
+2. <strong>Raw modulus hex</strong> (like <code>openssl rsa -modulus</code>) — verbose but matches what openssl users expect
+3. <strong>Both</strong> — fingerprint by default, <code>--raw</code> flag for full modulus</p>
+<p>I'd recommend option 1 (SHA-256 fingerprint) since the whole point is quick visual matching. What do you think?</p></div></div></div>
+<div class="message user" id="msg-2026-03-27T21-10-16-647Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-27T21-10-16-647Z" class="timestamp-link"><time datetime="2026-03-27T21:10:16.647Z" data-timestamp="2026-03-27T21:10:16.647Z">2026-03-27T21:10:16.647Z</time></a></div><div class="message-content">
+<div class="user-content"><p>3</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-10-24-626Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-10-24-626Z" class="timestamp-link"><time datetime="2026-03-27T21:10:24.626Z" data-timestamp="2026-03-27T21:10:24.626Z">2026-03-27T21:10:24.626Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-10-33-986Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-10-33-986Z" class="timestamp-link"><time datetime="2026-03-27T21:10:33.986Z" data-timestamp="2026-03-27T21:10:33.986Z">2026-03-27T21:10:33.986Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Good choice. Here's the design:</p>
+<h2>Design</h2>
+<h3>1. New <code>gossl key</code> command group</h3>
+<p>Mirrors the existing <code>cert</code>, <code>csr</code>, <code>ca</code> pattern. New file <code>internal/cli/key.go</code> with a single subcommand <code>inspect</code>.</p>
+<p><strong><code>gossl key inspect &lt;file&gt;</code> / <code>gossl key inspect -</code></strong></p>
+<p>Output:</p>
+<pre><code>Algorithm:        RSA
+Key Size:         4096 bits
+Public Key SHA256: ab:cd:ef:12:34:...
+</code></pre>
+<p>With <code>--raw</code>:</p>
+<pre><code>Algorithm:        RSA
+Key Size:         4096 bits
+Public Key SHA256: ab:cd:ef:12:34:...
+Modulus:          B4:A7:C3:...  (full hex)
+</code></pre>
+<p>For ECDSA, "Key Size" becomes "Curve: P-256" and "Modulus" becomes the uncompressed public point hex.</p>
+<p>Flags: <code>--raw</code> (show full modulus/public point)</p>
+<h3>2. Add public key fingerprint to <code>cert inspect</code></h3>
+<p>Add one line to the existing <code>printCertInfo</code> output:</p>
+<pre><code>Public Key SHA256: ab:cd:ef:12:34:...
+</code></pre>
+<p>Same SHA-256 fingerprint so users can eyeball-match between <code>cert inspect</code> and <code>key inspect</code>.</p>
+<h3>3. Shared helper</h3>
+<p>A <code>publicKeyFingerprint(pub any) string</code> function in <code>crypto.go</code> that computes SHA-256 of the DER-encoded public key — used by both commands. Plus a <code>publicKeyModulus(pub any) string</code> for the raw output.</p>
+<hr />
+<p>Does this look right, or do you want to adjust anything before I write the spec and move to implementation?</p></div></div></div>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<span class="disabled">&larr; Prev</span>
+<span class="current">1</span>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-002.html">Next &rarr;</a>
+</div>
+
+    </div>
+    <script>
+document.querySelectorAll('time[data-timestamp]').forEach(function(el) {
+    const timestamp = el.getAttribute('data-timestamp');
+    const date = new Date(timestamp);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    if (isToday) { el.textContent = timeStr; }
+    else { el.textContent = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + timeStr; }
+});
+document.querySelectorAll('pre.json').forEach(function(el) {
+    let text = el.textContent;
+    text = text.replace(/"([^"]+)":/g, '<span style="color: #ce93d8">"$1"</span>:');
+    text = text.replace(/: "([^"]*)"/g, ': <span style="color: #81d4fa">"$1"</span>');
+    text = text.replace(/: (\d+)/g, ': <span style="color: #ffcc80">$1</span>');
+    text = text.replace(/: (true|false|null)/g, ': <span style="color: #f48fb1">$1</span>');
+    el.innerHTML = text;
+});
+document.querySelectorAll('.truncatable').forEach(function(wrapper) {
+    const content = wrapper.querySelector('.truncatable-content');
+    const btn = wrapper.querySelector('.expand-btn');
+    if (content.scrollHeight > 250) {
+        wrapper.classList.add('truncated');
+        btn.addEventListener('click', function() {
+            if (wrapper.classList.contains('truncated')) { wrapper.classList.remove('truncated'); wrapper.classList.add('expanded'); btn.textContent = 'Show less'; }
+            else { wrapper.classList.remove('expanded'); wrapper.classList.add('truncated'); btn.textContent = 'Show more'; }
+        });
+    }
+});
+</script>
+</body>
+</html>

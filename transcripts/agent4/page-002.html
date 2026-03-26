@@ -1,0 +1,2121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code transcript - page 2</title>
+    <style>
+:root { --bg-color: #f5f5f5; --card-bg: #ffffff; --user-bg: #e3f2fd; --user-border: #1976d2; --assistant-bg: #f5f5f5; --assistant-border: #9e9e9e; --thinking-bg: #fff8e1; --thinking-border: #ffc107; --thinking-text: #666; --tool-bg: #f3e5f5; --tool-border: #9c27b0; --tool-result-bg: #e8f5e9; --tool-error-bg: #ffebee; --text-color: #212121; --text-muted: #757575; --code-bg: #263238; --code-text: #aed581; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 16px; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 24px; padding-bottom: 8px; border-bottom: 2px solid var(--user-border); }
+.header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 2px solid var(--user-border); padding-bottom: 8px; margin-bottom: 24px; }
+.header-row h1 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; flex: 1; min-width: 200px; }
+.message { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.message.user { background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.message.assistant { background: var(--card-bg); border-left: 4px solid var(--assistant-border); }
+.message.tool-reply { background: #fff8e1; border-left: 4px solid #ff9800; }
+.tool-reply .role-label { color: #e65100; }
+.tool-reply .tool-result { background: transparent; padding: 0; margin: 0; }
+.tool-reply .tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.message-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.role-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.user .role-label { color: var(--user-border); }
+time { color: var(--text-muted); font-size: 0.8rem; }
+.timestamp-link { color: inherit; text-decoration: none; }
+.timestamp-link:hover { text-decoration: underline; }
+.message:target { animation: highlight 2s ease-out; }
+@keyframes highlight { 0% { background-color: rgba(25, 118, 210, 0.2); } 100% { background-color: transparent; } }
+.message-content { padding: 16px; }
+.message-content p { margin: 0 0 12px 0; }
+.message-content p:last-child { margin-bottom: 0; }
+.thinking { background: var(--thinking-bg); border: 1px solid var(--thinking-border); border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 0.9rem; color: var(--thinking-text); }
+.thinking-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #f57c00; margin-bottom: 8px; }
+.thinking p { margin: 8px 0; }
+.assistant-text { margin: 8px 0; }
+.tool-use { background: var(--tool-bg); border: 1px solid var(--tool-border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-header { font-weight: 600; color: var(--tool-border); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.tool-icon { font-size: 1.1rem; }
+.tool-description { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
+.tool-result { background: var(--tool-result-bg); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-result.tool-error { background: var(--tool-error-bg); }
+.file-tool { border-radius: 8px; padding: 12px; margin: 12px 0; }
+.write-tool { background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%); border: 1px solid #4caf50; }
+.edit-tool { background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); border: 1px solid #ff9800; }
+.file-tool-header { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.write-header { color: #2e7d32; }
+.edit-header { color: #e65100; }
+.file-tool-icon { font-size: 1rem; }
+.file-tool-path { font-family: monospace; background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 4px; }
+.file-tool-fullpath { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; word-break: break-all; }
+.file-content { margin: 0; }
+.edit-section { display: flex; margin: 4px 0; border-radius: 4px; overflow: hidden; }
+.edit-label { padding: 8px 12px; font-weight: bold; font-family: monospace; display: flex; align-items: flex-start; }
+.edit-old { background: #fce4ec; }
+.edit-old .edit-label { color: #b71c1c; background: #f8bbd9; }
+.edit-old .edit-content { color: #880e4f; }
+.edit-new { background: #e8f5e9; }
+.edit-new .edit-label { color: #1b5e20; background: #a5d6a7; }
+.edit-new .edit-content { color: #1b5e20; }
+.edit-content { margin: 0; flex: 1; background: transparent; font-size: 0.85rem; }
+.edit-replace-all { font-size: 0.75rem; font-weight: normal; color: var(--text-muted); }
+.write-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #e6f4ea); }
+.edit-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff0e5); }
+.todo-list { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border: 1px solid #81c784; border-radius: 8px; padding: 12px; margin: 12px 0; }
+.todo-header { font-weight: 600; color: #2e7d32; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.todo-items { list-style: none; margin: 0; padding: 0; }
+.todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 0.9rem; }
+.todo-item:last-child { border-bottom: none; }
+.todo-icon { flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; }
+.todo-completed .todo-icon { color: #2e7d32; background: rgba(46, 125, 50, 0.15); }
+.todo-completed .todo-content { color: #558b2f; text-decoration: line-through; }
+.todo-in-progress .todo-icon { color: #f57c00; background: rgba(245, 124, 0, 0.15); }
+.todo-in-progress .todo-content { color: #e65100; font-weight: 500; }
+.todo-pending .todo-icon { color: #757575; background: rgba(0,0,0,0.05); }
+.todo-pending .todo-content { color: #616161; }
+pre { background: var(--code-bg); color: var(--code-text); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; margin: 8px 0; white-space: pre-wrap; word-wrap: break-word; }
+pre.json { color: #e0e0e0; }
+code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre code { background: none; padding: 0; }
+.user-content { margin: 0; }
+.truncatable { position: relative; }
+.truncatable.truncated .truncatable-content { max-height: 200px; overflow: hidden; }
+.truncatable.truncated::after { content: ''; position: absolute; bottom: 32px; left: 0; right: 0; height: 60px; background: linear-gradient(to bottom, transparent, var(--card-bg)); pointer-events: none; }
+.message.user .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--user-bg)); }
+.message.tool-reply .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.tool-use .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-bg)); }
+.tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-result-bg)); }
+.expand-btn { display: none; width: 100%; padding: 8px 16px; margin-top: 4px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+.expand-btn:hover { background: rgba(0,0,0,0.1); }
+.truncatable.truncated .expand-btn, .truncatable.expanded .expand-btn { display: block; }
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; flex-wrap: wrap; }
+.pagination a, .pagination span { padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
+.pagination a { background: var(--card-bg); color: var(--user-border); border: 1px solid var(--user-border); }
+.pagination a:hover { background: var(--user-bg); }
+.pagination .current { background: var(--user-border); color: white; }
+.pagination .disabled { color: var(--text-muted); border: 1px solid #ddd; }
+.pagination .index-link { background: var(--user-border); color: white; }
+details.continuation { margin-bottom: 16px; }
+details.continuation summary { cursor: pointer; padding: 12px 16px; background: var(--user-bg); border-left: 4px solid var(--user-border); border-radius: 12px; font-weight: 500; color: var(--text-muted); }
+details.continuation summary:hover { background: rgba(25, 118, 210, 0.15); }
+details.continuation[open] summary { border-radius: 12px 12px 0 0; margin-bottom: 0; }
+.index-item { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.index-item a { display: block; text-decoration: none; color: inherit; }
+.index-item a:hover { background: rgba(25, 118, 210, 0.1); }
+.index-item-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.index-item-number { font-weight: 600; color: var(--user-border); }
+.index-item-content { padding: 16px; }
+.index-item-stats { padding: 8px 16px 12px 32px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid rgba(0,0,0,0.06); }
+.index-item-commit { margin-top: 6px; padding: 4px 8px; background: #fff3e0; border-radius: 4px; font-size: 0.85rem; color: #e65100; }
+.index-item-commit code { background: rgba(0,0,0,0.08); padding: 1px 4px; border-radius: 3px; font-size: 0.8rem; margin-right: 6px; }
+.commit-card { margin: 8px 0; padding: 10px 14px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 6px; }
+.commit-card a { text-decoration: none; color: #5d4037; display: block; }
+.commit-card a:hover { color: #e65100; }
+.commit-card-hash { font-family: monospace; color: #e65100; font-weight: 600; margin-right: 8px; }
+.index-commit { margin-bottom: 12px; padding: 10px 16px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.index-commit a { display: block; text-decoration: none; color: inherit; }
+.index-commit a:hover { background: rgba(255, 152, 0, 0.1); margin: -10px -16px; padding: 10px 16px; border-radius: 8px; }
+.index-commit-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
+.index-commit-hash { font-family: monospace; color: #e65100; font-weight: 600; }
+.index-commit-msg { color: #5d4037; }
+.index-item-long-text { margin-top: 8px; padding: 12px; background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--assistant-border); }
+.index-item-long-text .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--card-bg)); }
+.index-item-long-text-content { color: var(--text-color); }
+#search-box { display: none; align-items: center; gap: 8px; }
+#search-box input { padding: 6px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; width: 180px; }
+#search-box button, #modal-search-btn, #modal-close-btn { background: var(--user-border); color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#search-box button:hover, #modal-search-btn:hover { background: #1565c0; }
+#modal-close-btn { background: var(--text-muted); margin-left: 8px; }
+#modal-close-btn:hover { background: #616161; }
+#search-modal[open] { border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); padding: 0; width: 90vw; max-width: 900px; height: 80vh; max-height: 80vh; display: flex; flex-direction: column; }
+#search-modal::backdrop { background: rgba(0,0,0,0.5); }
+.search-modal-header { display: flex; align-items: center; gap: 8px; padding: 16px; border-bottom: 1px solid var(--assistant-border); background: var(--bg-color); border-radius: 12px 12px 0 0; }
+.search-modal-header input { flex: 1; padding: 8px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; }
+#search-status { padding: 8px 16px; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+#search-results { flex: 1; overflow-y: auto; padding: 16px; }
+.search-result { margin-bottom: 16px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.search-result a { display: block; text-decoration: none; color: inherit; }
+.search-result a:hover { background: rgba(25, 118, 210, 0.05); }
+.search-result-page { padding: 6px 12px; background: rgba(0,0,0,0.03); font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.search-result-content { padding: 12px; }
+.search-result mark { background: #fff59d; padding: 1px 2px; border-radius: 2px; }
+@media (max-width: 600px) { body { padding: 8px; } .message, .index-item { border-radius: 8px; } .message-content, .index-item-content { padding: 12px; } pre { font-size: 0.8rem; padding: 8px; } #search-box input { width: 120px; } #search-modal[open] { width: 95vw; height: 90vh; } }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Claude Code transcript</a> - page 2/4</h1>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-001.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<span class="current">2</span>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-003.html">Next &rarr;</a>
+</div>
+
+        
+<div class="message user" id="msg-2026-03-27T21-10-43-505Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-27T21-10-43-505Z" class="timestamp-link"><time datetime="2026-03-27T21:10:43.505Z" data-timestamp="2026-03-27T21:10:43.505Z">2026-03-27T21:10:43.505Z</time></a></div><div class="message-content">
+<div class="user-content"><p>k</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-10-47-247Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-10-47-247Z" class="timestamp-link"><time datetime="2026-03-27T21:10:47.247Z" data-timestamp="2026-03-27T21:10:47.247Z">2026-03-27T21:10:47.247Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01NHwX7UF7edvk7e74KAbdjt"><div class="tool-header"><span class="tool-icon">⚙</span> TaskCreate</div><div class="tool-description">Write the design doc to docs/superpowers/specs/</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subject&#34;: &#34;Write design spec&#34;,
+  &#34;activeForm&#34;: &#34;Writing design spec&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-10-47-368Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-10-47-368Z" class="timestamp-link"><time datetime="2026-03-27T21:10:47.368Z" data-timestamp="2026-03-27T21:10:47.368Z">2026-03-27T21:10:47.368Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Task #2 created successfully: Write design spec</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-10-50-393Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-10-50-393Z" class="timestamp-link"><time datetime="2026-03-27T21:10:50.393Z" data-timestamp="2026-03-27T21:10:50.393Z">2026-03-27T21:10:50.393Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_0143rwkiMeXXqvRuC5jruWrY"><div class="tool-header"><span class="tool-icon">⚙</span> TaskUpdate</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;taskId&#34;: &#34;2&#34;,
+  &#34;status&#34;: &#34;in_progress&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-10-50-399Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-10-50-399Z" class="timestamp-link"><time datetime="2026-03-27T21:10:50.399Z" data-timestamp="2026-03-27T21:10:50.399Z">2026-03-27T21:10:50.399Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Updated task #2 status</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-10-59-990Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-10-59-990Z" class="timestamp-link"><time datetime="2026-03-27T21:10:59.990Z" data-timestamp="2026-03-27T21:10:59.990Z">2026-03-27T21:10:59.990Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01EM5NJqawJXbnsqWctpbm7t">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Check if docs directory exists</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">ls /Users/scaruso/dev/gossl/docs/ 2&gt;/dev/null || echo &#34;no docs dir&#34;</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-11-00-175Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-11-00-175Z" class="timestamp-link"><time datetime="2026-03-27T21:11:00.175Z" data-timestamp="2026-03-27T21:11:00.175Z">2026-03-27T21:11:00.175Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>001-gossl-cli-design.md
+002-database-model-plan.md
+003-sqlc-bazel-integration.md
+users</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-11-24-701Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-11-24-701Z" class="timestamp-link"><time datetime="2026-03-27T21:11:24.701Z" data-timestamp="2026-03-27T21:11:24.701Z">2026-03-27T21:11:24.701Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_018rTyxY5nrHBEmfttGxc95H">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Check if specs directory exists</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">ls /Users/scaruso/dev/gossl/docs/superpowers/specs/ 2&gt;/dev/null || echo &#34;no specs dir&#34;</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-11-24-775Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-11-24-775Z" class="timestamp-link"><time datetime="2026-03-27T21:11:24.775Z" data-timestamp="2026-03-27T21:11:24.775Z">2026-03-27T21:11:24.775Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>no specs dir</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-11-28-930Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-11-28-930Z" class="timestamp-link"><time datetime="2026-03-27T21:11:28.930Z" data-timestamp="2026-03-27T21:11:28.930Z">2026-03-27T21:11:28.930Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Per the memory note, all docs go under <code>/docs</code> with no nested subdirectories. I'll write the spec there.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-11-48-229Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-11-48-229Z" class="timestamp-link"><time datetime="2026-03-27T21:11:48.229Z" data-timestamp="2026-03-27T21:11:48.229Z">2026-03-27T21:11:48.229Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_01TjqyKkq8LrNYuu2t827xhL">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">004-key-inspect-design.md</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/docs/004-key-inspect-design.md</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content"># Key Inspect &amp; Cert Inspect Public Key Fingerprint
+
+## Summary
+
+Add a `gossl key inspect` command to display private key details including a SHA-256 public key fingerprint. Add the same fingerprint to `gossl cert inspect` output so users can visually match a key to a certificate.
+
+## Motivation
+
+Verifying that a private key matches a certificate is one of the most common mTLS troubleshooting tasks. With openssl, this requires running two separate commands and comparing modulus output manually. gossl should make this a one-glance operation: run `key inspect` and `cert inspect`, compare the `Public Key SHA256` line.
+
+## Commands
+
+### `gossl key inspect &lt;file|-&gt;` (new)
+
+Parses a PEM-encoded private key file (or stdin with `-`) and prints:
+
+```
+Algorithm:         RSA
+Key Size:          4096 bits
+Public Key SHA256: ab:cd:ef:12:34:56:78:...
+```
+
+For ECDSA keys:
+
+```
+Algorithm:         ECDSA
+Curve:             P-256
+Public Key SHA256: ab:cd:ef:12:34:56:78:...
+```
+
+With `--raw`, appends the full public key material:
+
+- RSA: `Modulus: &lt;hex&gt;` (the RSA modulus N in uppercase hex with colon separators)
+- ECDSA: `Public Point: &lt;hex&gt;` (uncompressed EC point in hex with colon separators)
+
+#### Flags
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--raw` | false | Show full modulus or public point in hex |
+
+#### Input
+
+- Positional arg: file path or `-` for stdin
+- Accepts PEM types: `RSA PRIVATE KEY` (PKCS#1), `EC PRIVATE KEY` (SEC 1)
+
+### `gossl cert inspect` (modified)
+
+Add one line to the existing output, after the `Public Key:` line:
+
+```
+Public Key SHA256: ab:cd:ef:12:34:56:78:...
+```
+
+Uses the same fingerprint computation as `key inspect`, so the values are directly comparable.
+
+## Implementation
+
+### Shared helpers in `crypto.go`
+
+- `publicKeyFingerprint(pub any) string` — DER-encodes the public key with `x509.MarshalPKIXPublicKey`, computes SHA-256, formats as colon-separated lowercase hex prefixed with `SHA256:`.
+- `publicKeyRaw(pub any) string` — returns the raw public key material as colon-separated uppercase hex. For RSA, this is the modulus bytes. For ECDSA, this is the uncompressed EC point (`elliptic.Marshal`).
+
+### New file: `internal/cli/key.go`
+
+- `newKeyCmd()` — returns `key` command group, adds `inspect` subcommand.
+- `newKeyInspectCmd()` — defines the `inspect` command with `--raw` flag.
+- `runKeyInspect(args []string, raw bool)` — reads PEM from file/stdin, calls `parsePrivateKey`, extracts public key, prints fields.
+- `printKeyInfo(priv any, raw bool)` — formats and prints key details.
+
+### Modified: `internal/cli/root.go`
+
+Register `newKeyCmd()` on the root command.
+
+### Modified: `internal/cli/cert.go`
+
+In `printCertInfo`, add `publicKeyFingerprint(cert.PublicKey)` output after the existing `Public Key:` line.
+
+### Build files
+
+Run gazelle to regenerate BUILD.bazel files after adding `key.go`.
+
+## Testing
+
+Table-driven tests for:
+- `publicKeyFingerprint` with RSA and ECDSA keys — verify deterministic output.
+- `publicKeyRaw` with RSA and ECDSA keys — verify correct hex encoding.
+- `key inspect` command with RSA and ECDSA PEM files, with and without `--raw`.
+- `cert inspect` output includes `Public Key SHA256:` line.
+- Matching: generate a keypair and cert, verify the fingerprint lines are identical.
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-12-10-711Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-12-10-711Z" class="timestamp-link"><time datetime="2026-03-27T21:12:10.711Z" data-timestamp="2026-03-27T21:12:10.711Z">2026-03-27T21:12:10.711Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>File created successfully at: /Users/scaruso/dev/gossl/docs/004-key-inspect-design.md</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-12-13-994Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-12-13-994Z" class="timestamp-link"><time datetime="2026-03-27T21:12:13.994Z" data-timestamp="2026-03-27T21:12:13.994Z">2026-03-27T21:12:13.994Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Self-review: spec is complete, no TBDs, no contradictions, scope is focused. Let me commit it.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-12-16-851Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-12-16-851Z" class="timestamp-link"><time datetime="2026-03-27T21:12:16.851Z" data-timestamp="2026-03-27T21:12:16.851Z">2026-03-27T21:12:16.851Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_018j2eeEk6okr7rAXbL8iGow">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Commit the design spec</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">git add docs/004-key-inspect-design.md &amp;&amp; git commit -m &#34;$(cat &lt;&lt;&#39;EOF&#39;
+Add design spec for key inspect command and cert inspect fingerprint
+
+Introduces gossl key inspect for displaying private key details with
+SHA-256 public key fingerprint, and adds the same fingerprint to cert
+inspect output for visual key-certificate matching.
+
+Co-Authored-By: Claude Opus 4.6 (1M context) &lt;noreply@anthropic.com&gt;
+EOF
+)&#34;</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-12-17-025Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-12-17-025Z" class="timestamp-link"><time datetime="2026-03-27T21:12:17.025Z" data-timestamp="2026-03-27T21:12:17.025Z">2026-03-27T21:12:17.025Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><div class="commit-card"><span class="commit-card-hash">5e530d0</span> Add design spec for key inspect command and cert inspect fingerprint</div><pre>1 file changed, 90 insertions(+)
+ create mode 100644 docs/004-key-inspect-design.md</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-12-22-056Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-12-22-056Z" class="timestamp-link"><time datetime="2026-03-27T21:12:22.056Z" data-timestamp="2026-03-27T21:12:22.056Z">2026-03-27T21:12:22.056Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01CiNQTLb1FBnkZYJWecma5d"><div class="tool-header"><span class="tool-icon">⚙</span> TaskUpdate</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;taskId&#34;: &#34;2&#34;,
+  &#34;status&#34;: &#34;completed&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-12-22-065Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-12-22-065Z" class="timestamp-link"><time datetime="2026-03-27T21:12:22.065Z" data-timestamp="2026-03-27T21:12:22.065Z">2026-03-27T21:12:22.065Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Updated task #2 status</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-12-27-279Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-12-27-279Z" class="timestamp-link"><time datetime="2026-03-27T21:12:27.279Z" data-timestamp="2026-03-27T21:12:27.279Z">2026-03-27T21:12:27.279Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Spec written and committed to <code>docs/004-key-inspect-design.md</code>. Please review it and let me know if you want to make any changes before we start writing out the implementation plan.</p></div></div></div>
+<div class="message user" id="msg-2026-03-27T21-15-08-539Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-27T21-15-08-539Z" class="timestamp-link"><time datetime="2026-03-27T21:15:08.539Z" data-timestamp="2026-03-27T21:15:08.539Z">2026-03-27T21:15:08.539Z</time></a></div><div class="message-content">
+<div class="user-content"><p>write tests</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-15-11-238Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-15-11-238Z" class="timestamp-link"><time datetime="2026-03-27T21:15:11.238Z" data-timestamp="2026-03-27T21:15:11.238Z">2026-03-27T21:15:11.238Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_017TYWx75kqrZ2J5ZFaQyUig"><div class="tool-header"><span class="tool-icon">⚙</span> Skill</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;skill&#34;: &#34;superpowers:test-driven-development&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-15-11-270Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-15-11-270Z" class="timestamp-link"><time datetime="2026-03-27T21:15:11.270Z" data-timestamp="2026-03-27T21:15:11.270Z">2026-03-27T21:15:11.270Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Launching skill: superpowers:test-driven-development</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message user" id="msg-2026-03-27T21-15-11-269Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-27T21-15-11-269Z" class="timestamp-link"><time datetime="2026-03-27T21:15:11.269Z" data-timestamp="2026-03-27T21:15:11.269Z">2026-03-27T21:15:11.269Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Base directory for this skill: /Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/test-driven-development</p>
+<h1>Test-Driven Development (TDD)</h1>
+<h2>Overview</h2>
+<p>Write the test first. Watch it fail. Write minimal code to pass.</p>
+<p><strong>Core principle:</strong> If you didn't watch the test fail, you don't know if it tests the right thing.</p>
+<p><strong>Violating the letter of the rules is violating the spirit of the rules.</strong></p>
+<h2>When to Use</h2>
+<p><strong>Always:</strong>
+- New features
+- Bug fixes
+- Refactoring
+- Behavior changes</p>
+<p><strong>Exceptions (ask your human partner):</strong>
+- Throwaway prototypes
+- Generated code
+- Configuration files</p>
+<p>Thinking "skip TDD just this once"? Stop. That's rationalization.</p>
+<h2>The Iron Law</h2>
+<pre><code>NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
+</code></pre>
+<p>Write code before the test? Delete it. Start over.</p>
+<p><strong>No exceptions:</strong>
+- Don't keep it as "reference"
+- Don't "adapt" it while writing tests
+- Don't look at it
+- Delete means delete</p>
+<p>Implement fresh from tests. Period.</p>
+<h2>Red-Green-Refactor</h2>
+<pre><code class="language-dot">digraph tdd_cycle {
+    rankdir=LR;
+    red [label=&quot;RED\nWrite failing test&quot;, shape=box, style=filled, fillcolor=&quot;#ffcccc&quot;];
+    verify_red [label=&quot;Verify fails\ncorrectly&quot;, shape=diamond];
+    green [label=&quot;GREEN\nMinimal code&quot;, shape=box, style=filled, fillcolor=&quot;#ccffcc&quot;];
+    verify_green [label=&quot;Verify passes\nAll green&quot;, shape=diamond];
+    refactor [label=&quot;REFACTOR\nClean up&quot;, shape=box, style=filled, fillcolor=&quot;#ccccff&quot;];
+    next [label=&quot;Next&quot;, shape=ellipse];
+
+    red -&gt; verify_red;
+    verify_red -&gt; green [label=&quot;yes&quot;];
+    verify_red -&gt; red [label=&quot;wrong\nfailure&quot;];
+    green -&gt; verify_green;
+    verify_green -&gt; refactor [label=&quot;yes&quot;];
+    verify_green -&gt; green [label=&quot;no&quot;];
+    refactor -&gt; verify_green [label=&quot;stay\ngreen&quot;];
+    verify_green -&gt; next;
+    next -&gt; red;
+}
+</code></pre>
+<h3>RED - Write Failing Test</h3>
+<p>Write one minimal test showing what should happen.</p>
+<p><Good></p>
+<pre><code class="language-typescript">test('retries failed operations 3 times', async () =&gt; {
+  let attempts = 0;
+  const operation = () =&gt; {
+    attempts++;
+    if (attempts &lt; 3) throw new Error('fail');
+    return 'success';
+  };
+
+  const result = await retryOperation(operation);
+
+  expect(result).toBe('success');
+  expect(attempts).toBe(3);
+});
+</code></pre>
+<p>Clear name, tests real behavior, one thing
+</Good></p>
+<p><Bad></p>
+<pre><code class="language-typescript">test('retry works', async () =&gt; {
+  const mock = jest.fn()
+    .mockRejectedValueOnce(new Error())
+    .mockRejectedValueOnce(new Error())
+    .mockResolvedValueOnce('success');
+  await retryOperation(mock);
+  expect(mock).toHaveBeenCalledTimes(3);
+});
+</code></pre>
+<p>Vague name, tests mock not code
+</Bad></p>
+<p><strong>Requirements:</strong>
+- One behavior
+- Clear name
+- Real code (no mocks unless unavoidable)</p>
+<h3>Verify RED - Watch It Fail</h3>
+<p><strong>MANDATORY. Never skip.</strong></p>
+<pre><code class="language-bash">npm test path/to/test.test.ts
+</code></pre>
+<p>Confirm:
+- Test fails (not errors)
+- Failure message is expected
+- Fails because feature missing (not typos)</p>
+<p><strong>Test passes?</strong> You're testing existing behavior. Fix test.</p>
+<p><strong>Test errors?</strong> Fix error, re-run until it fails correctly.</p>
+<h3>GREEN - Minimal Code</h3>
+<p>Write simplest code to pass the test.</p>
+<p><Good></p>
+<pre><code class="language-typescript">async function retryOperation&lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;): Promise&lt;T&gt; {
+  for (let i = 0; i &lt; 3; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      if (i === 2) throw e;
+    }
+  }
+  throw new Error('unreachable');
+}
+</code></pre>
+<p>Just enough to pass
+</Good></p>
+<p><Bad></p>
+<pre><code class="language-typescript">async function retryOperation&lt;T&gt;(
+  fn: () =&gt; Promise&lt;T&gt;,
+  options?: {
+    maxRetries?: number;
+    backoff?: 'linear' | 'exponential';
+    onRetry?: (attempt: number) =&gt; void;
+  }
+): Promise&lt;T&gt; {
+  // YAGNI
+}
+</code></pre>
+<p>Over-engineered
+</Bad></p>
+<p>Don't add features, refactor other code, or "improve" beyond the test.</p>
+<h3>Verify GREEN - Watch It Pass</h3>
+<p><strong>MANDATORY.</strong></p>
+<pre><code class="language-bash">npm test path/to/test.test.ts
+</code></pre>
+<p>Confirm:
+- Test passes
+- Other tests still pass
+- Output pristine (no errors, warnings)</p>
+<p><strong>Test fails?</strong> Fix code, not test.</p>
+<p><strong>Other tests fail?</strong> Fix now.</p>
+<h3>REFACTOR - Clean Up</h3>
+<p>After green only:
+- Remove duplication
+- Improve names
+- Extract helpers</p>
+<p>Keep tests green. Don't add behavior.</p>
+<h3>Repeat</h3>
+<p>Next failing test for next feature.</p>
+<h2>Good Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Quality</th>
+<th>Good</th>
+<th>Bad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Minimal</strong></td>
+<td>One thing. "and" in name? Split it.</td>
+<td><code>test('validates email and domain and whitespace')</code></td>
+</tr>
+<tr>
+<td><strong>Clear</strong></td>
+<td>Name describes behavior</td>
+<td><code>test('test1')</code></td>
+</tr>
+<tr>
+<td><strong>Shows intent</strong></td>
+<td>Demonstrates desired API</td>
+<td>Obscures what code should do</td>
+</tr>
+</tbody>
+</table>
+<h2>Why Order Matters</h2>
+<p><strong>"I'll write tests after to verify it works"</strong></p>
+<p>Tests written after code pass immediately. Passing immediately proves nothing:
+- Might test wrong thing
+- Might test implementation, not behavior
+- Might miss edge cases you forgot
+- You never saw it catch the bug</p>
+<p>Test-first forces you to see the test fail, proving it actually tests something.</p>
+<p><strong>"I already manually tested all the edge cases"</strong></p>
+<p>Manual testing is ad-hoc. You think you tested everything but:
+- No record of what you tested
+- Can't re-run when code changes
+- Easy to forget cases under pressure
+- "It worked when I tried it" ≠ comprehensive</p>
+<p>Automated tests are systematic. They run the same way every time.</p>
+<p><strong>"Deleting X hours of work is wasteful"</strong></p>
+<p>Sunk cost fallacy. The time is already gone. Your choice now:
+- Delete and rewrite with TDD (X more hours, high confidence)
+- Keep it and add tests after (30 min, low confidence, likely bugs)</p>
+<p>The "waste" is keeping code you can't trust. Working code without real tests is technical debt.</p>
+<p><strong>"TDD is dogmatic, being pragmatic means adapting"</strong></p>
+<p>TDD IS pragmatic:
+- Finds bugs before commit (faster than debugging after)
+- Prevents regressions (tests catch breaks immediately)
+- Documents behavior (tests show how to use code)
+- Enables refactoring (change freely, tests catch breaks)</p>
+<p>"Pragmatic" shortcuts = debugging in production = slower.</p>
+<p><strong>"Tests after achieve the same goals - it's spirit not ritual"</strong></p>
+<p>No. Tests-after answer "What does this do?" Tests-first answer "What should this do?"</p>
+<p>Tests-after are biased by your implementation. You test what you built, not what's required. You verify remembered edge cases, not discovered ones.</p>
+<p>Tests-first force edge case discovery before implementing. Tests-after verify you remembered everything (you didn't).</p>
+<p>30 minutes of tests after ≠ TDD. You get coverage, lose proof tests work.</p>
+<h2>Common Rationalizations</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Too simple to test"</td>
+<td>Simple code breaks. Test takes 30 seconds.</td>
+</tr>
+<tr>
+<td>"I'll test after"</td>
+<td>Tests passing immediately prove nothing.</td>
+</tr>
+<tr>
+<td>"Tests after achieve same goals"</td>
+<td>Tests-after = "what does this do?" Tests-first = "what should this do?"</td>
+</tr>
+<tr>
+<td>"Already manually tested"</td>
+<td>Ad-hoc ≠ systematic. No record, can't re-run.</td>
+</tr>
+<tr>
+<td>"Deleting X hours is wasteful"</td>
+<td>Sunk cost fallacy. Keeping unverified code is technical debt.</td>
+</tr>
+<tr>
+<td>"Keep as reference, write tests first"</td>
+<td>You'll adapt it. That's testing after. Delete means delete.</td>
+</tr>
+<tr>
+<td>"Need to explore first"</td>
+<td>Fine. Throw away exploration, start with TDD.</td>
+</tr>
+<tr>
+<td>"Test hard = design unclear"</td>
+<td>Listen to test. Hard to test = hard to use.</td>
+</tr>
+<tr>
+<td>"TDD will slow me down"</td>
+<td>TDD faster than debugging. Pragmatic = test-first.</td>
+</tr>
+<tr>
+<td>"Manual test faster"</td>
+<td>Manual doesn't prove edge cases. You'll re-test every change.</td>
+</tr>
+<tr>
+<td>"Existing code has no tests"</td>
+<td>You're improving it. Add tests for existing code.</td>
+</tr>
+</tbody>
+</table>
+<h2>Red Flags - STOP and Start Over</h2>
+<ul>
+<li>Code before test</li>
+<li>Test after implementation</li>
+<li>Test passes immediately</li>
+<li>Can't explain why test failed</li>
+<li>Tests added "later"</li>
+<li>Rationalizing "just this once"</li>
+<li>"I already manually tested it"</li>
+<li>"Tests after achieve the same purpose"</li>
+<li>"It's about spirit not ritual"</li>
+<li>"Keep as reference" or "adapt existing code"</li>
+<li>"Already spent X hours, deleting is wasteful"</li>
+<li>"TDD is dogmatic, I'm being pragmatic"</li>
+<li>"This is different because..."</li>
+</ul>
+<p><strong>All of these mean: Delete code. Start over with TDD.</strong></p>
+<h2>Example: Bug Fix</h2>
+<p><strong>Bug:</strong> Empty email accepted</p>
+<p><strong>RED</strong></p>
+<pre><code class="language-typescript">test('rejects empty email', async () =&gt; {
+  const result = await submitForm({ email: '' });
+  expect(result.error).toBe('Email required');
+});
+</code></pre>
+<p><strong>Verify RED</strong></p>
+<pre><code class="language-bash">$ npm test
+FAIL: expected 'Email required', got undefined
+</code></pre>
+<p><strong>GREEN</strong></p>
+<pre><code class="language-typescript">function submitForm(data: FormData) {
+  if (!data.email?.trim()) {
+    return { error: 'Email required' };
+  }
+  // ...
+}
+</code></pre>
+<p><strong>Verify GREEN</strong></p>
+<pre><code class="language-bash">$ npm test
+PASS
+</code></pre>
+<p><strong>REFACTOR</strong>
+Extract validation for multiple fields if needed.</p>
+<h2>Verification Checklist</h2>
+<p>Before marking work complete:</p>
+<ul>
+<li>[ ] Every new function/method has a test</li>
+<li>[ ] Watched each test fail before implementing</li>
+<li>[ ] Each test failed for expected reason (feature missing, not typo)</li>
+<li>[ ] Wrote minimal code to pass each test</li>
+<li>[ ] All tests pass</li>
+<li>[ ] Output pristine (no errors, warnings)</li>
+<li>[ ] Tests use real code (mocks only if unavoidable)</li>
+<li>[ ] Edge cases and errors covered</li>
+</ul>
+<p>Can't check all boxes? You skipped TDD. Start over.</p>
+<h2>When Stuck</h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Don't know how to test</td>
+<td>Write wished-for API. Write assertion first. Ask your human partner.</td>
+</tr>
+<tr>
+<td>Test too complicated</td>
+<td>Design too complicated. Simplify interface.</td>
+</tr>
+<tr>
+<td>Must mock everything</td>
+<td>Code too coupled. Use dependency injection.</td>
+</tr>
+<tr>
+<td>Test setup huge</td>
+<td>Extract helpers. Still complex? Simplify design.</td>
+</tr>
+</tbody>
+</table>
+<h2>Debugging Integration</h2>
+<p>Bug found? Write failing test reproducing it. Follow TDD cycle. Test proves fix and prevents regression.</p>
+<p>Never fix bugs without a test.</p>
+<h2>Testing Anti-Patterns</h2>
+<p>When adding mocks or test utilities, read @testing-anti-patterns.md to avoid common pitfalls:
+- Testing mock behavior instead of real behavior
+- Adding test-only methods to production classes
+- Mocking without understanding dependencies</p>
+<h2>Final Rule</h2>
+<pre><code>Production code → test exists and failed first
+Otherwise → not TDD
+</code></pre>
+<p>No exceptions without your human partner's permission.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-15-16-016Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-15-16-016Z" class="timestamp-link"><time datetime="2026-03-27T21:15:16.016Z" data-timestamp="2026-03-27T21:15:16.016Z">2026-03-27T21:15:16.016Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_019qxGUK3tuhVsfoihiuL5iQ"><div class="tool-header"><span class="tool-icon">⚙</span> TaskCreate</div><div class="tool-description">Table-driven tests in crypto_test.go for RSA and ECDSA keys</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subject&#34;: &#34;Write failing tests for publicKeyFingerprint and publicKeyRaw helpers&#34;,
+  &#34;activeForm&#34;: &#34;Writing crypto helper tests&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-15-16-417Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-15-16-417Z" class="timestamp-link"><time datetime="2026-03-27T21:15:16.417Z" data-timestamp="2026-03-27T21:15:16.417Z">2026-03-27T21:15:16.417Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Task #3 created successfully: Write failing tests for publicKeyFingerprint and publicKeyRaw helpers</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-15-17-123Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-15-17-123Z" class="timestamp-link"><time datetime="2026-03-27T21:15:17.123Z" data-timestamp="2026-03-27T21:15:17.123Z">2026-03-27T21:15:17.123Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01AsjzkDfg6wiiPppfQePGHF"><div class="tool-header"><span class="tool-icon">⚙</span> TaskCreate</div><div class="tool-description">Test key inspect with RSA/ECDSA PEM files, with and without --raw flag</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subject&#34;: &#34;Write failing tests for key inspect command&#34;,
+  &#34;activeForm&#34;: &#34;Writing key inspect tests&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-15-17-259Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-15-17-259Z" class="timestamp-link"><time datetime="2026-03-27T21:15:17.259Z" data-timestamp="2026-03-27T21:15:17.259Z">2026-03-27T21:15:17.259Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Task #4 created successfully: Write failing tests for key inspect command</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-15-17-913Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-15-17-913Z" class="timestamp-link"><time datetime="2026-03-27T21:15:17.913Z" data-timestamp="2026-03-27T21:15:17.913Z">2026-03-27T21:15:17.913Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01N62ACWj1gbLbFEHMPwASGC"><div class="tool-header"><span class="tool-icon">⚙</span> TaskCreate</div><div class="tool-description">Test that cert inspect output includes Public Key SHA256 line</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subject&#34;: &#34;Write failing test for cert inspect fingerprint output&#34;,
+  &#34;activeForm&#34;: &#34;Writing cert inspect fingerprint test&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-15-17-987Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-15-17-987Z" class="timestamp-link"><time datetime="2026-03-27T21:15:17.987Z" data-timestamp="2026-03-27T21:15:17.987Z">2026-03-27T21:15:17.987Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Task #5 created successfully: Write failing test for cert inspect fingerprint output</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-15-18-876Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-15-18-876Z" class="timestamp-link"><time datetime="2026-03-27T21:15:18.876Z" data-timestamp="2026-03-27T21:15:18.876Z">2026-03-27T21:15:18.876Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01KgggV8cUqqh8ooyfUH3VcL"><div class="tool-header"><span class="tool-icon">⚙</span> TaskCreate</div><div class="tool-description">Generate keypair + cert, verify fingerprints are identical</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subject&#34;: &#34;Write failing test for key-cert fingerprint matching&#34;,
+  &#34;activeForm&#34;: &#34;Writing matching test&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-15-19-125Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-15-19-125Z" class="timestamp-link"><time datetime="2026-03-27T21:15:19.125Z" data-timestamp="2026-03-27T21:15:19.125Z">2026-03-27T21:15:19.125Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Task #6 created successfully: Write failing test for key-cert fingerprint matching</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-15-22-178Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-15-22-178Z" class="timestamp-link"><time datetime="2026-03-27T21:15:22.178Z" data-timestamp="2026-03-27T21:15:22.178Z">2026-03-27T21:15:22.178Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01NMboXCeqDhBMoFJSJUaqmn"><div class="tool-header"><span class="tool-icon">⚙</span> TaskUpdate</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;taskId&#34;: &#34;3&#34;,
+  &#34;status&#34;: &#34;in_progress&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-15-22-199Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-15-22-199Z" class="timestamp-link"><time datetime="2026-03-27T21:15:22.199Z" data-timestamp="2026-03-27T21:15:22.199Z">2026-03-27T21:15:22.199Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Updated task #3 status</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-15-28-150Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-15-28-150Z" class="timestamp-link"><time datetime="2026-03-27T21:15:28.150Z" data-timestamp="2026-03-27T21:15:28.150Z">2026-03-27T21:15:28.150Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Let me check what test files already exist to follow the project's patterns.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-15-28-270Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-15-28-270Z" class="timestamp-link"><time datetime="2026-03-27T21:15:28.270Z" data-timestamp="2026-03-27T21:15:28.270Z">2026-03-27T21:15:28.270Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01G4m2N7vo7iMD4tQLmsYj26"><div class="tool-header"><span class="tool-icon">⚙</span> Glob</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;pattern&#34;: &#34;internal/cli/*_test.go&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-15-28-643Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-15-28-643Z" class="timestamp-link"><time datetime="2026-03-27T21:15:28.643Z" data-timestamp="2026-03-27T21:15:28.643Z">2026-03-27T21:15:28.643Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>internal/cli/ca_test.go
+internal/cli/cert_sign_test.go
+internal/cli/cert_test.go
+internal/cli/csr_test.go
+internal/cli/sclient_test.go
+internal/cli/serve_test.go</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-15-32-761Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-15-32-761Z" class="timestamp-link"><time datetime="2026-03-27T21:15:32.761Z" data-timestamp="2026-03-27T21:15:32.761Z">2026-03-27T21:15:32.761Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01KcuBstU1E6HSnzGfy4SyJp"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/cert_test.go&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-15-32-983Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-15-32-983Z" class="timestamp-link"><time datetime="2026-03-27T21:15:32.983Z" data-timestamp="2026-03-27T21:15:32.983Z">2026-03-27T21:15:32.983Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→package cli
+     2→
+     3→import (
+     4→	&quot;context&quot;
+     5→	&quot;crypto/x509&quot;
+     6→	&quot;encoding/pem&quot;
+     7→	&quot;os&quot;
+     8→	&quot;path/filepath&quot;
+     9→	&quot;testing&quot;
+    10→
+    11→	&quot;github.com/bejelith/gossl/internal/store&quot;
+    12→)
+    13→
+    14→// setupTestDB creates a DB with root CA, intermediate, and a leaf cert. Returns db path and leaf serial.
+    15→func setupTestDB(t *testing.T) (string, string) {
+    16→	t.Helper()
+    17→	dbPath := filepath.Join(t.TempDir(), &quot;test.db&quot;)
+    18→
+    19→	run := func(args ...string) {
+    20→		t.Helper()
+    21→		cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+    22→		cmd.SetArgs(args)
+    23→		if err := cmd.Execute(); err != nil {
+    24→			t.Fatalf(&quot;gossl %v: %v&quot;, args, err)
+    25→		}
+    26→	}
+    27→
+    28→	run(&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;Test Root CA&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+    29→	run(&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;Test Intermediate&quot;, &quot;--ca&quot;, &quot;Test Root CA&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+    30→	run(&quot;cert&quot;, &quot;issue&quot;, &quot;--cn&quot;, &quot;test.example.com&quot;, &quot;--ca&quot;, &quot;Test Intermediate&quot;,
+    31→		&quot;--san&quot;, &quot;test.example.com,10.0.0.1&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+    32→
+    33→	serial := getCertSerialFromDB(t, dbPath, &quot;test.example.com&quot;)
+    34→	return dbPath, serial
+    35→}
+    36→
+    37→func getCertSerialFromDB(t *testing.T, dbPath, cn string) string {
+    38→	t.Helper()
+    39→	d, err := store.OpenDB(context.Background(), dbPath)
+    40→	if err != nil {
+    41→		t.Fatalf(&quot;OpenDB: %v&quot;, err)
+    42→	}
+    43→	defer d.Close()
+    44→	q := store.New(d.SQLDB())
+    45→	cert, err := q.GetCertByCN(context.Background(), cn)
+    46→	if err != nil {
+    47→		t.Fatalf(&quot;GetCertByCN(%s): %v&quot;, cn, err)
+    48→	}
+    49→	return cert.Serial
+    50→}
+    51→
+    52→func TestCertIssue_Basic(t *testing.T) {
+    53→	dbPath, serial := setupTestDB(t)
+    54→
+    55→	d, err := store.OpenDB(context.Background(), dbPath)
+    56→	if err != nil {
+    57→		t.Fatalf(&quot;OpenDB: %v&quot;, err)
+    58→	}
+    59→	defer d.Close()
+    60→
+    61→	q := store.New(d.SQLDB())
+    62→	cert, err := q.GetCertBySerial(context.Background(), serial)
+    63→	if err != nil {
+    64→		t.Fatalf(&quot;GetCertBySerial: %v&quot;, err)
+    65→	}
+    66→
+    67→	if cert.CommonName != &quot;test.example.com&quot; {
+    68→		t.Errorf(&quot;CommonName = %q, want %q&quot;, cert.CommonName, &quot;test.example.com&quot;)
+    69→	}
+    70→
+    71→	// Verify cert is signed by intermediate
+    72→	x509Cert := parseCertPEMFromString(t, cert.CertPem)
+    73→	if x509Cert.Issuer.CommonName != &quot;Test Intermediate&quot; {
+    74→		t.Errorf(&quot;Issuer = %q, want %q&quot;, x509Cert.Issuer.CommonName, &quot;Test Intermediate&quot;)
+    75→	}
+    76→	if x509Cert.IsCA {
+    77→		t.Error(&quot;leaf cert should not be CA&quot;)
+    78→	}
+    79→}
+    80→
+    81→func TestCertIssue_SANs(t *testing.T) {
+    82→	dbPath, serial := setupTestDB(t)
+    83→
+    84→	d, err := store.OpenDB(context.Background(), dbPath)
+    85→	if err != nil {
+    86→		t.Fatalf(&quot;OpenDB: %v&quot;, err)
+    87→	}
+    88→	defer d.Close()
+    89→
+    90→	q := store.New(d.SQLDB())
+    91→	cert, err := q.GetCertBySerial(context.Background(), serial)
+    92→	if err != nil {
+    93→		t.Fatalf(&quot;GetCertBySerial: %v&quot;, err)
+    94→	}
+    95→
+    96→	x509Cert := parseCertPEMFromString(t, cert.CertPem)
+    97→	if len(x509Cert.DNSNames) != 1 || x509Cert.DNSNames[0] != &quot;test.example.com&quot; {
+    98→		t.Errorf(&quot;DNSNames = %v, want [test.example.com]&quot;, x509Cert.DNSNames)
+    99→	}
+   100→	if len(x509Cert.IPAddresses) != 1 || x509Cert.IPAddresses[0].String() != &quot;10.0.0.1&quot; {
+   101→		t.Errorf(&quot;IPAddresses = %v, want [10.0.0.1]&quot;, x509Cert.IPAddresses)
+   102→	}
+   103→}
+   104→
+   105→func TestCertIssue_DefaultsToRootCA(t *testing.T) {
+   106→	dbPath := filepath.Join(t.TempDir(), &quot;test.db&quot;)
+   107→	cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   108→	cmd.SetArgs([]string{&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;Root&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;})
+   109→	if err := cmd.Execute(); err != nil {
+   110→		t.Fatalf(&quot;ca create: %v&quot;, err)
+   111→	}
+   112→
+   113→	cmd = NewRoot(&quot;test&quot;, &quot;test&quot;)
+   114→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;issue&quot;, &quot;--cn&quot;, &quot;direct.example.com&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;})
+   115→	if err := cmd.Execute(); err != nil {
+   116→		t.Fatalf(&quot;cert issue: %v&quot;, err)
+   117→	}
+   118→
+   119→	d, err := store.OpenDB(context.Background(), dbPath)
+   120→	if err != nil {
+   121→		t.Fatalf(&quot;OpenDB: %v&quot;, err)
+   122→	}
+   123→	defer d.Close()
+   124→	q := store.New(d.SQLDB())
+   125→	cert, err := q.GetCertByCN(context.Background(), &quot;direct.example.com&quot;)
+   126→	if err != nil {
+   127→		t.Fatalf(&quot;GetCertByCN: %v&quot;, err)
+   128→	}
+   129→
+   130→	x509Cert := parseCertPEMFromString(t, cert.CertPem)
+   131→	if x509Cert.Issuer.CommonName != &quot;Root&quot; {
+   132→		t.Errorf(&quot;Issuer = %q, want %q&quot;, x509Cert.Issuer.CommonName, &quot;Root&quot;)
+   133→	}
+   134→}
+   135→
+   136→func TestCertIssue_BadCA(t *testing.T) {
+   137→	dbPath := filepath.Join(t.TempDir(), &quot;test.db&quot;)
+   138→	cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   139→	cmd.SetArgs([]string{&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;Root&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;})
+   140→	if err := cmd.Execute(); err != nil {
+   141→		t.Fatalf(&quot;ca create: %v&quot;, err)
+   142→	}
+   143→
+   144→	cmd = NewRoot(&quot;test&quot;, &quot;test&quot;)
+   145→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;issue&quot;, &quot;--cn&quot;, &quot;bad.example.com&quot;, &quot;--ca&quot;, &quot;NonExistent&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;})
+   146→	if err := cmd.Execute(); err == nil {
+   147→		t.Fatal(&quot;cert issue with bad --ca expected error&quot;)
+   148→	}
+   149→}
+   150→
+   151→func TestCertList(t *testing.T) {
+   152→	dbPath, _ := setupTestDB(t)
+   153→
+   154→	cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   155→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;list&quot;, &quot;--db&quot;, dbPath})
+   156→	if err := cmd.Execute(); err != nil {
+   157→		t.Fatalf(&quot;cert list: %v&quot;, err)
+   158→	}
+   159→}
+   160→
+   161→func TestCertRevoke(t *testing.T) {
+   162→	dbPath, serial := setupTestDB(t)
+   163→
+   164→	cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   165→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;revoke&quot;, &quot;--serial&quot;, serial, &quot;--db&quot;, dbPath})
+   166→	if err := cmd.Execute(); err != nil {
+   167→		t.Fatalf(&quot;cert revoke: %v&quot;, err)
+   168→	}
+   169→
+   170→	// Verify revoked
+   171→	d, err := store.OpenDB(context.Background(), dbPath)
+   172→	if err != nil {
+   173→		t.Fatalf(&quot;OpenDB: %v&quot;, err)
+   174→	}
+   175→	defer d.Close()
+   176→	q := store.New(d.SQLDB())
+   177→	cert, err := q.GetCertBySerial(context.Background(), serial)
+   178→	if err != nil {
+   179→		t.Fatalf(&quot;GetCertBySerial: %v&quot;, err)
+   180→	}
+   181→	if !cert.RevokedAt.Valid {
+   182→		t.Error(&quot;cert should be revoked&quot;)
+   183→	}
+   184→}
+   185→
+   186→func TestCertRevoke_NotFound(t *testing.T) {
+   187→	dbPath := filepath.Join(t.TempDir(), &quot;test.db&quot;)
+   188→	cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   189→	cmd.SetArgs([]string{&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;Root&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;})
+   190→	if err := cmd.Execute(); err != nil {
+   191→		t.Fatalf(&quot;ca create: %v&quot;, err)
+   192→	}
+   193→
+   194→	cmd = NewRoot(&quot;test&quot;, &quot;test&quot;)
+   195→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;revoke&quot;, &quot;--serial&quot;, &quot;NONEXISTENT&quot;, &quot;--db&quot;, dbPath})
+   196→	if err := cmd.Execute(); err == nil {
+   197→		t.Fatal(&quot;cert revoke nonexistent expected error&quot;)
+   198→	}
+   199→}
+   200→
+   201→func TestCertExport(t *testing.T) {
+   202→	dbPath, serial := setupTestDB(t)
+   203→	outPath := filepath.Join(t.TempDir(), &quot;cert.pem&quot;)
+   204→
+   205→	cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   206→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;export&quot;, &quot;--serial&quot;, serial, &quot;--db&quot;, dbPath, &quot;--out&quot;, outPath})
+   207→	if err := cmd.Execute(); err != nil {
+   208→		t.Fatalf(&quot;cert export: %v&quot;, err)
+   209→	}
+   210→
+   211→	data, err := os.ReadFile(outPath)
+   212→	if err != nil {
+   213→		t.Fatalf(&quot;reading exported cert: %v&quot;, err)
+   214→	}
+   215→
+   216→	block, _ := pem.Decode(data)
+   217→	if block == nil {
+   218→		t.Fatal(&quot;exported file is not valid PEM&quot;)
+   219→	}
+   220→}
+   221→
+   222→func TestCertExport_Chain(t *testing.T) {
+   223→	dbPath, serial := setupTestDB(t)
+   224→	outPath := filepath.Join(t.TempDir(), &quot;chain.pem&quot;)
+   225→
+   226→	cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   227→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;export&quot;, &quot;--serial&quot;, serial, &quot;--db&quot;, dbPath, &quot;--out&quot;, outPath, &quot;--chain&quot;})
+   228→	if err := cmd.Execute(); err != nil {
+   229→		t.Fatalf(&quot;cert export --chain: %v&quot;, err)
+   230→	}
+   231→
+   232→	data, err := os.ReadFile(outPath)
+   233→	if err != nil {
+   234→		t.Fatalf(&quot;reading chain: %v&quot;, err)
+   235→	}
+   236→
+   237→	// Should contain 3 certs: leaf + intermediate + root
+   238→	count := 0
+   239→	rest := data
+   240→	for {
+   241→		var block *pem.Block
+   242→		block, rest = pem.Decode(rest)
+   243→		if block == nil {
+   244→			break
+   245→		}
+   246→		count++
+   247→	}
+   248→	if count != 3 {
+   249→		t.Errorf(&quot;chain contains %d certs, want 3&quot;, count)
+   250→	}
+   251→}
+   252→
+   253→func TestCertExport_NoOverwrite(t *testing.T) {
+   254→	dbPath, serial := setupTestDB(t)
+   255→	outPath := filepath.Join(t.TempDir(), &quot;cert.pem&quot;)
+   256→
+   257→	// Create the file first
+   258→	os.WriteFile(outPath, []byte(&quot;existing&quot;), 0644)
+   259→
+   260→	cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   261→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;export&quot;, &quot;--serial&quot;, serial, &quot;--db&quot;, dbPath, &quot;--out&quot;, outPath})
+   262→	if err := cmd.Execute(); err == nil {
+   263→		t.Fatal(&quot;cert export over existing file expected error&quot;)
+   264→	}
+   265→}
+   266→
+   267→func TestCertExport_Force(t *testing.T) {
+   268→	dbPath, serial := setupTestDB(t)
+   269→	outPath := filepath.Join(t.TempDir(), &quot;cert.pem&quot;)
+   270→
+   271→	os.WriteFile(outPath, []byte(&quot;existing&quot;), 0644)
+   272→
+   273→	cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   274→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;export&quot;, &quot;--serial&quot;, serial, &quot;--db&quot;, dbPath, &quot;--out&quot;, outPath, &quot;--force&quot;})
+   275→	if err := cmd.Execute(); err != nil {
+   276→		t.Fatalf(&quot;cert export --force: %v&quot;, err)
+   277→	}
+   278→}
+   279→
+   280→func TestCertInspect_File(t *testing.T) {
+   281→	dbPath, serial := setupTestDB(t)
+   282→	outPath := filepath.Join(t.TempDir(), &quot;cert.pem&quot;)
+   283→
+   284→	cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   285→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;export&quot;, &quot;--serial&quot;, serial, &quot;--db&quot;, dbPath, &quot;--out&quot;, outPath})
+   286→	cmd.Execute()
+   287→
+   288→	cmd = NewRoot(&quot;test&quot;, &quot;test&quot;)
+   289→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;inspect&quot;, outPath})
+   290→	if err := cmd.Execute(); err != nil {
+   291→		t.Fatalf(&quot;cert inspect: %v&quot;, err)
+   292→	}
+   293→}
+   294→
+   295→func TestCertInspect_DB(t *testing.T) {
+   296→	dbPath, serial := setupTestDB(t)
+   297→
+   298→	cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   299→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;inspect&quot;, &quot;--db&quot;, dbPath, &quot;--serial&quot;, serial})
+   300→	if err := cmd.Execute(); err != nil {
+   301→		t.Fatalf(&quot;cert inspect --db: %v&quot;, err)
+   302→	}
+   303→}
+   304→
+   305→func TestCertInspect_NoArgs(t *testing.T) {
+   306→	cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   307→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;inspect&quot;})
+   308→	if err := cmd.Execute(); err == nil {
+   309→		t.Fatal(&quot;cert inspect with no args expected error&quot;)
+   310→	}
+   311→}
+   312→
+   313→func TestCertVerify_ValidChain(t *testing.T) {
+   314→	dbPath, serial := setupTestDB(t)
+   315→	tmpDir := t.TempDir()
+   316→	certPath := filepath.Join(tmpDir, &quot;leaf.pem&quot;)
+   317→	chainPath := filepath.Join(tmpDir, &quot;chain.pem&quot;)
+   318→
+   319→	cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   320→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;export&quot;, &quot;--serial&quot;, serial, &quot;--db&quot;, dbPath, &quot;--out&quot;, certPath})
+   321→	cmd.Execute()
+   322→
+   323→	cmd = NewRoot(&quot;test&quot;, &quot;test&quot;)
+   324→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;export&quot;, &quot;--serial&quot;, serial, &quot;--db&quot;, dbPath, &quot;--out&quot;, chainPath, &quot;--chain&quot;, &quot;--force&quot;})
+   325→	cmd.Execute()
+   326→
+   327→	cmd = NewRoot(&quot;test&quot;, &quot;test&quot;)
+   328→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;verify&quot;, certPath, &quot;--chain&quot;, chainPath})
+   329→	if err := cmd.Execute(); err != nil {
+   330→		t.Fatalf(&quot;cert verify: %v&quot;, err)
+   331→	}
+   332→}
+   333→
+   334→func TestCertVerify_BadChain(t *testing.T) {
+   335→	dbPath, serial := setupTestDB(t)
+   336→	tmpDir := t.TempDir()
+   337→	certPath := filepath.Join(tmpDir, &quot;leaf.pem&quot;)
+   338→
+   339→	cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   340→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;export&quot;, &quot;--serial&quot;, serial, &quot;--db&quot;, dbPath, &quot;--out&quot;, certPath})
+   341→	cmd.Execute()
+   342→
+   343→	// Create a different CA&#x27;s cert as chain — verification should fail
+   344→	otherDBPath := filepath.Join(tmpDir, &quot;other.db&quot;)
+   345→	cmd = NewRoot(&quot;test&quot;, &quot;test&quot;)
+   346→	cmd.SetArgs([]string{&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;Other Root CA&quot;, &quot;--db&quot;, otherDBPath, &quot;--key-size&quot;, &quot;2048&quot;})
+   347→	cmd.Execute()
+   348→
+   349→	otherChainPath := filepath.Join(tmpDir, &quot;other-chain.pem&quot;)
+   350→	d, _ := store.OpenDB(context.Background(), otherDBPath)
+   351→	q := store.New(d.SQLDB())
+   352→	otherCA, _ := q.GetRootCA(context.Background())
+   353→	os.WriteFile(otherChainPath, []byte(otherCA.CertPem), 0644)
+   354→	d.Close()
+   355→
+   356→	cmd = NewRoot(&quot;test&quot;, &quot;test&quot;)
+   357→	cmd.SetArgs([]string{&quot;cert&quot;, &quot;verify&quot;, certPath, &quot;--chain&quot;, otherChainPath})
+   358→	if err := cmd.Execute(); err == nil {
+   359→		t.Fatal(&quot;cert verify with wrong chain expected error&quot;)
+   360→	}
+   361→}
+   362→
+   363→func TestCertIssue_ECDSA(t *testing.T) {
+   364→	dbPath := filepath.Join(t.TempDir(), &quot;test.db&quot;)
+   365→	run := func(args ...string) {
+   366→		t.Helper()
+   367→		cmd := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   368→		cmd.SetArgs(args)
+   369→		if err := cmd.Execute(); err != nil {
+   370→			t.Fatalf(&quot;gossl %v: %v&quot;, args, err)
+   371→		}
+   372→	}
+   373→
+   374→	run(&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;Root&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+   375→	run(&quot;cert&quot;, &quot;issue&quot;, &quot;--cn&quot;, &quot;ecdsa.example.com&quot;, &quot;--db&quot;, dbPath, &quot;--key-algo&quot;, &quot;ecdsa&quot;, &quot;--curve&quot;, &quot;P-256&quot;)
+   376→
+   377→	d, _ := store.OpenDB(context.Background(), dbPath)
+   378→	defer d.Close()
+   379→	q := store.New(d.SQLDB())
+   380→	cert, _ := q.GetCertByCN(context.Background(), &quot;ecdsa.example.com&quot;)
+   381→
+   382→	x509Cert := parseCertPEMFromString(t, cert.CertPem)
+   383→	if x509Cert.PublicKeyAlgorithm != x509.ECDSA {
+   384→		t.Errorf(&quot;PublicKeyAlgorithm = %v, want ECDSA&quot;, x509Cert.PublicKeyAlgorithm)
+   385→	}
+   386→}
+   387→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-15-33-794Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-15-33-794Z" class="timestamp-link"><time datetime="2026-03-27T21:15:33.794Z" data-timestamp="2026-03-27T21:15:33.794Z">2026-03-27T21:15:33.794Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01BjQUZt5GweLUQ83zgLMcHr"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/ca_test.go&#34;,
+  &#34;limit&#34;: 80
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-15-33-809Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-15-33-809Z" class="timestamp-link"><time datetime="2026-03-27T21:15:33.809Z" data-timestamp="2026-03-27T21:15:33.809Z">2026-03-27T21:15:33.809Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→package cli
+     2→
+     3→import (
+     4→	&quot;context&quot;
+     5→	&quot;crypto/ecdsa&quot;
+     6→	&quot;crypto/rsa&quot;
+     7→	&quot;crypto/x509&quot;
+     8→	&quot;encoding/pem&quot;
+     9→	&quot;path/filepath&quot;
+    10→	&quot;testing&quot;
+    11→
+    12→	&quot;github.com/bejelith/gossl/internal/store&quot;
+    13→)
+    14→
+    15→func TestCACreate_RootRSA(t *testing.T) {
+    16→	dbPath := filepath.Join(t.TempDir(), &quot;test.db&quot;)
+    17→
+    18→	err := runCACreate(context.Background(), &quot;Test RSA CA&quot;, dbPath, &quot;&quot;, 365, &quot;rsa&quot;, 2048, &quot;&quot;)
+    19→	if err != nil {
+    20→		t.Fatalf(&quot;runCACreate() error = %v&quot;, err)
+    21→	}
+    22→
+    23→	ca, key := loadRootCAFromDB(t, dbPath)
+    24→	if ca.CommonName != &quot;Test RSA CA&quot; {
+    25→		t.Errorf(&quot;CommonName = %q, want %q&quot;, ca.CommonName, &quot;Test RSA CA&quot;)
+    26→	}
+    27→	if ca.KeyAlgo != &quot;rsa&quot; {
+    28→		t.Errorf(&quot;KeyAlgo = %q, want %q&quot;, ca.KeyAlgo, &quot;rsa&quot;)
+    29→	}
+    30→	if ca.ParentID.Valid {
+    31→		t.Error(&quot;Root CA ParentID should not be valid&quot;)
+    32→	}
+    33→
+    34→	cert := parseCertPEMFromString(t, ca.CertPem)
+    35→	if !cert.IsCA {
+    36→		t.Error(&quot;cert.IsCA = false, want true&quot;)
+    37→	}
+    38→	if cert.Subject.CommonName != &quot;Test RSA CA&quot; {
+    39→		t.Errorf(&quot;cert.Subject.CommonName = %q, want %q&quot;, cert.Subject.CommonName, &quot;Test RSA CA&quot;)
+    40→	}
+    41→	if err := cert.CheckSignatureFrom(cert); err != nil {
+    42→		t.Errorf(&quot;self-signed verification failed: %v&quot;, err)
+    43→	}
+    44→
+    45→	block, _ := pem.Decode(key)
+    46→	if block == nil {
+    47→		t.Fatal(&quot;key PEM decode failed&quot;)
+    48→	}
+    49→	if block.Type != &quot;RSA PRIVATE KEY&quot; {
+    50→		t.Errorf(&quot;key PEM type = %q, want %q&quot;, block.Type, &quot;RSA PRIVATE KEY&quot;)
+    51→	}
+    52→	rsaKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+    53→	if err != nil {
+    54→		t.Fatalf(&quot;ParsePKCS1PrivateKey error = %v&quot;, err)
+    55→	}
+    56→	if rsaKey.N.BitLen() != 2048 {
+    57→		t.Errorf(&quot;RSA key size = %d, want 2048&quot;, rsaKey.N.BitLen())
+    58→	}
+    59→}
+    60→
+    61→func TestCACreate_RootECDSA(t *testing.T) {
+    62→	dbPath := filepath.Join(t.TempDir(), &quot;test.db&quot;)
+    63→
+    64→	err := runCACreate(context.Background(), &quot;Test ECDSA CA&quot;, dbPath, &quot;&quot;, 365, &quot;ecdsa&quot;, 0, &quot;P-384&quot;)
+    65→	if err != nil {
+    66→		t.Fatalf(&quot;runCACreate() error = %v&quot;, err)
+    67→	}
+    68→
+    69→	ca, key := loadRootCAFromDB(t, dbPath)
+    70→	if ca.KeyAlgo != &quot;ecdsa&quot; {
+    71→		t.Errorf(&quot;KeyAlgo = %q, want %q&quot;, ca.KeyAlgo, &quot;ecdsa&quot;)
+    72→	}
+    73→
+    74→	cert := parseCertPEMFromString(t, ca.CertPem)
+    75→	if !cert.IsCA {
+    76→		t.Error(&quot;cert.IsCA = false, want true&quot;)
+    77→	}
+    78→
+    79→	block, _ := pem.Decode(key)
+    80→	if block == nil {</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-15-37-761Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-15-37-761Z" class="timestamp-link"><time datetime="2026-03-27T21:15:37.761Z" data-timestamp="2026-03-27T21:15:37.761Z">2026-03-27T21:15:37.761Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01GSWJtTHwvDnBt91NZa3gm5"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/ca_test.go&#34;,
+  &#34;offset&#34;: 80
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-15-37-771Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-15-37-771Z" class="timestamp-link"><time datetime="2026-03-27T21:15:37.771Z" data-timestamp="2026-03-27T21:15:37.771Z">2026-03-27T21:15:37.771Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>    80→	if block == nil {
+    81→		t.Fatal(&quot;key PEM decode failed&quot;)
+    82→	}
+    83→	ecKey, err := x509.ParseECPrivateKey(block.Bytes)
+    84→	if err != nil {
+    85→		t.Fatalf(&quot;ParseECPrivateKey error = %v&quot;, err)
+    86→	}
+    87→	if ecKey.Curve.Params().Name != &quot;P-384&quot; {
+    88→		t.Errorf(&quot;ECDSA curve = %q, want P-384&quot;, ecKey.Curve.Params().Name)
+    89→	}
+    90→}
+    91→
+    92→func TestCACreate_IntermediateDefaultsToRoot(t *testing.T) {
+    93→	dbPath := filepath.Join(t.TempDir(), &quot;test.db&quot;)
+    94→
+    95→	// Create root
+    96→	err := runCACreate(context.Background(), &quot;Root CA&quot;, dbPath, &quot;&quot;, 365, &quot;rsa&quot;, 2048, &quot;&quot;)
+    97→	if err != nil {
+    98→		t.Fatalf(&quot;root runCACreate() error = %v&quot;, err)
+    99→	}
+   100→
+   101→	// Create intermediate without --ca — should default to root
+   102→	err = runCACreate(context.Background(), &quot;Intermediate CA&quot;, dbPath, &quot;&quot;, 365, &quot;rsa&quot;, 2048, &quot;&quot;)
+   103→	if err != nil {
+   104→		t.Fatalf(&quot;intermediate runCACreate() error = %v&quot;, err)
+   105→	}
+   106→
+   107→	d, err := store.OpenDB(context.Background(), dbPath)
+   108→	if err != nil {
+   109→		t.Fatalf(&quot;OpenDB() error = %v&quot;, err)
+   110→	}
+   111→	defer d.Close()
+   112→
+   113→	q := store.New(d.SQLDB())
+   114→	intCA, err := q.GetCAByCN(context.Background(), &quot;Intermediate CA&quot;)
+   115→	if err != nil {
+   116→		t.Fatalf(&quot;GetCAByCN() error = %v&quot;, err)
+   117→	}
+   118→	if !intCA.ParentID.Valid {
+   119→		t.Fatal(&quot;Intermediate CA should have a parent&quot;)
+   120→	}
+   121→
+   122→	// Verify it&#x27;s signed by root
+   123→	cert := parseCertPEMFromString(t, intCA.CertPem)
+   124→	if cert.Issuer.CommonName != &quot;Root CA&quot; {
+   125→		t.Errorf(&quot;intermediate issuer = %q, want %q&quot;, cert.Issuer.CommonName, &quot;Root CA&quot;)
+   126→	}
+   127→}
+   128→
+   129→func TestCACreate_IntermediateWithExplicitCA(t *testing.T) {
+   130→	dbPath := filepath.Join(t.TempDir(), &quot;test.db&quot;)
+   131→
+   132→	err := runCACreate(context.Background(), &quot;Root CA&quot;, dbPath, &quot;&quot;, 365, &quot;rsa&quot;, 2048, &quot;&quot;)
+   133→	if err != nil {
+   134→		t.Fatalf(&quot;root error = %v&quot;, err)
+   135→	}
+   136→
+   137→	err = runCACreate(context.Background(), &quot;Level 1&quot;, dbPath, &quot;Root CA&quot;, 365, &quot;rsa&quot;, 2048, &quot;&quot;)
+   138→	if err != nil {
+   139→		t.Fatalf(&quot;level1 error = %v&quot;, err)
+   140→	}
+   141→
+   142→	// Create off Level 1
+   143→	err = runCACreate(context.Background(), &quot;Level 2&quot;, dbPath, &quot;Level 1&quot;, 365, &quot;rsa&quot;, 2048, &quot;&quot;)
+   144→	if err != nil {
+   145→		t.Fatalf(&quot;level2 error = %v&quot;, err)
+   146→	}
+   147→
+   148→	d, err := store.OpenDB(context.Background(), dbPath)
+   149→	if err != nil {
+   150→		t.Fatalf(&quot;OpenDB() error = %v&quot;, err)
+   151→	}
+   152→	defer d.Close()
+   153→
+   154→	q := store.New(d.SQLDB())
+   155→	l2, err := q.GetCAByCN(context.Background(), &quot;Level 2&quot;)
+   156→	if err != nil {
+   157→		t.Fatalf(&quot;GetCAByCN() error = %v&quot;, err)
+   158→	}
+   159→
+   160→	cert := parseCertPEMFromString(t, l2.CertPem)
+   161→	if cert.Issuer.CommonName != &quot;Level 1&quot; {
+   162→		t.Errorf(&quot;Level 2 issuer = %q, want %q&quot;, cert.Issuer.CommonName, &quot;Level 1&quot;)
+   163→	}
+   164→}
+   165→
+   166→func TestCACreate_InvalidAlgo(t *testing.T) {
+   167→	dbPath := filepath.Join(t.TempDir(), &quot;test.db&quot;)
+   168→	err := runCACreate(context.Background(), &quot;Bad CA&quot;, dbPath, &quot;&quot;, 365, &quot;ed25519&quot;, 0, &quot;&quot;)
+   169→	if err == nil {
+   170→		t.Fatal(&quot;runCACreate(ed25519) expected error, got nil&quot;)
+   171→	}
+   172→}
+   173→
+   174→func TestCACreate_RSAKeyTooSmall(t *testing.T) {
+   175→	dbPath := filepath.Join(t.TempDir(), &quot;test.db&quot;)
+   176→	err := runCACreate(context.Background(), &quot;Weak CA&quot;, dbPath, &quot;&quot;, 365, &quot;rsa&quot;, 1024, &quot;&quot;)
+   177→	if err == nil {
+   178→		t.Fatal(&quot;runCACreate(rsa 1024) expected error, got nil&quot;)
+   179→	}
+   180→}
+   181→
+   182→func TestCACreate_InvalidCurve(t *testing.T) {
+   183→	dbPath := filepath.Join(t.TempDir(), &quot;test.db&quot;)
+   184→	err := runCACreate(context.Background(), &quot;Bad CA&quot;, dbPath, &quot;&quot;, 365, &quot;ecdsa&quot;, 0, &quot;P-999&quot;)
+   185→	if err == nil {
+   186→		t.Fatal(&quot;runCACreate(P-999) expected error, got nil&quot;)
+   187→	}
+   188→}
+   189→
+   190→func TestCACreate_CertProperties(t *testing.T) {
+   191→	dbPath := filepath.Join(t.TempDir(), &quot;test.db&quot;)
+   192→
+   193→	err := runCACreate(context.Background(), &quot;Prop CA&quot;, dbPath, &quot;&quot;, 730, &quot;rsa&quot;, 2048, &quot;&quot;)
+   194→	if err != nil {
+   195→		t.Fatalf(&quot;runCACreate() error = %v&quot;, err)
+   196→	}
+   197→
+   198→	ca, _ := loadRootCAFromDB(t, dbPath)
+   199→	cert := parseCertPEMFromString(t, ca.CertPem)
+   200→
+   201→	if cert.KeyUsage&amp;x509.KeyUsageCertSign == 0 {
+   202→		t.Error(&quot;cert missing KeyUsageCertSign&quot;)
+   203→	}
+   204→	if cert.KeyUsage&amp;x509.KeyUsageCRLSign == 0 {
+   205→		t.Error(&quot;cert missing KeyUsageCRLSign&quot;)
+   206→	}
+   207→
+   208→	duration := cert.NotAfter.Sub(cert.NotBefore)
+   209→	days := int(duration.Hours() / 24)
+   210→	if days &lt; 729 || days &gt; 731 {
+   211→		t.Errorf(&quot;validity = %d days, want ~730&quot;, days)
+   212→	}
+   213→}
+   214→
+   215→func TestCACreate_CobraCommand(t *testing.T) {
+   216→	dbPath := filepath.Join(t.TempDir(), &quot;test.db&quot;)
+   217→
+   218→	root := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   219→	root.SetArgs([]string{&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;Cobra CA&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;})
+   220→	if err := root.Execute(); err != nil {
+   221→		t.Fatalf(&quot;Execute() error = %v&quot;, err)
+   222→	}
+   223→
+   224→	ca, _ := loadRootCAFromDB(t, dbPath)
+   225→	if ca.CommonName != &quot;Cobra CA&quot; {
+   226→		t.Errorf(&quot;CommonName = %q, want %q&quot;, ca.CommonName, &quot;Cobra CA&quot;)
+   227→	}
+   228→}
+   229→
+   230→func TestCACreate_CobraMissingCN(t *testing.T) {
+   231→	root := NewRoot(&quot;test&quot;, &quot;test&quot;)
+   232→	root.SetArgs([]string{&quot;ca&quot;, &quot;create&quot;, &quot;--db&quot;, filepath.Join(t.TempDir(), &quot;test.db&quot;)})
+   233→	if err := root.Execute(); err == nil {
+   234→		t.Fatal(&quot;Execute() without --cn expected error, got nil&quot;)
+   235→	}
+   236→}
+   237→
+   238→func TestGenerateKey_RSA(t *testing.T) {
+   239→	priv, keyPEM, err := generateKey(&quot;rsa&quot;, 2048, &quot;&quot;)
+   240→	if err != nil {
+   241→		t.Fatalf(&quot;generateKey(rsa) error = %v&quot;, err)
+   242→	}
+   243→	if _, ok := priv.(*rsa.PrivateKey); !ok {
+   244→		t.Errorf(&quot;generateKey(rsa) returned %T, want *rsa.PrivateKey&quot;, priv)
+   245→	}
+   246→	if len(keyPEM) == 0 {
+   247→		t.Error(&quot;generateKey(rsa) returned empty PEM&quot;)
+   248→	}
+   249→}
+   250→
+   251→func TestGenerateKey_ECDSA(t *testing.T) {
+   252→	priv, keyPEM, err := generateKey(&quot;ecdsa&quot;, 0, &quot;P-256&quot;)
+   253→	if err != nil {
+   254→		t.Fatalf(&quot;generateKey(ecdsa) error = %v&quot;, err)
+   255→	}
+   256→	if _, ok := priv.(*ecdsa.PrivateKey); !ok {
+   257→		t.Errorf(&quot;generateKey(ecdsa) returned %T, want *ecdsa.PrivateKey&quot;, priv)
+   258→	}
+   259→	if len(keyPEM) == 0 {
+   260→		t.Error(&quot;generateKey(ecdsa) returned empty PEM&quot;)
+   261→	}
+   262→}
+   263→
+   264→// Helpers
+   265→
+   266→func loadRootCAFromDB(t *testing.T, dbPath string) (store.Ca, []byte) {
+   267→	t.Helper()
+   268→	ctx := context.Background()
+   269→
+   270→	d, err := store.OpenDB(ctx, dbPath)
+   271→	if err != nil {
+   272→		t.Fatalf(&quot;OpenDB() error = %v&quot;, err)
+   273→	}
+   274→	defer d.Close()
+   275→
+   276→	q := store.New(d.SQLDB())
+   277→	ca, err := q.GetRootCA(ctx)
+   278→	if err != nil {
+   279→		t.Fatalf(&quot;GetRootCA() error = %v&quot;, err)
+   280→	}
+   281→
+   282→	key, err := q.LoadKey(ctx, ca.Serial)
+   283→	if err != nil {
+   284→		t.Fatalf(&quot;LoadKey() error = %v&quot;, err)
+   285→	}
+   286→
+   287→	return ca, key
+   288→}
+   289→
+   290→func parseCertPEMFromString(t *testing.T, certPEM string) *x509.Certificate {
+   291→	t.Helper()
+   292→	block, _ := pem.Decode([]byte(certPEM))
+   293→	if block == nil {
+   294→		t.Fatal(&quot;cert PEM decode failed&quot;)
+   295→	}
+   296→	cert, err := x509.ParseCertificate(block.Bytes)
+   297→	if err != nil {
+   298→		t.Fatalf(&quot;ParseCertificate error = %v&quot;, err)
+   299→	}
+   300→	return cert
+   301→}
+   302→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-15-41-841Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-15-41-841Z" class="timestamp-link"><time datetime="2026-03-27T21:15:41.841Z" data-timestamp="2026-03-27T21:15:41.841Z">2026-03-27T21:15:41.841Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Good, I understand the test patterns. Now let me write the tests. I'll start with the crypto helper tests, then command-level tests.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-16-01-325Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-16-01-325Z" class="timestamp-link"><time datetime="2026-03-27T21:16:01.325Z" data-timestamp="2026-03-27T21:16:01.325Z">2026-03-27T21:16:01.325Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_01XvG2rnwNhXRhFDwsk7d6Cx">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">crypto_test.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/crypto_test.go</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content">package cli
+
+import (
+	&#34;crypto/ecdsa&#34;
+	&#34;crypto/elliptic&#34;
+	&#34;crypto/rand&#34;
+	&#34;crypto/rsa&#34;
+	&#34;crypto/sha256&#34;
+	&#34;crypto/x509&#34;
+	&#34;fmt&#34;
+	&#34;strings&#34;
+	&#34;testing&#34;
+)
+
+func TestPublicKeyFingerprint_RSA(t *testing.T) {
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf(&#34;generating RSA key: %v&#34;, err)
+	}
+
+	fp := publicKeyFingerprint(&amp;key.PublicKey)
+
+	if !strings.HasPrefix(fp, &#34;SHA256:&#34;) {
+		t.Errorf(&#34;publicKeyFingerprint() = %q, want SHA256: prefix&#34;, fp)
+	}
+
+	// Verify it&#39;s deterministic.
+	fp2 := publicKeyFingerprint(&amp;key.PublicKey)
+	if fp != fp2 {
+		t.Errorf(&#34;publicKeyFingerprint() not deterministic: %q != %q&#34;, fp, fp2)
+	}
+
+	// Verify format: SHA256: followed by colon-separated lowercase hex bytes.
+	rest := strings.TrimPrefix(fp, &#34;SHA256:&#34;)
+	parts := strings.Split(rest, &#34;:&#34;)
+	if len(parts) != sha256.Size {
+		t.Errorf(&#34;publicKeyFingerprint() has %d hex bytes, want %d&#34;, len(parts), sha256.Size)
+	}
+	for _, p := range parts {
+		if len(p) != 2 {
+			t.Errorf(&#34;publicKeyFingerprint() hex byte %q has len %d, want 2&#34;, p, len(p))
+		}
+		if p != strings.ToLower(p) {
+			t.Errorf(&#34;publicKeyFingerprint() hex byte %q is not lowercase&#34;, p)
+		}
+	}
+}
+
+func TestPublicKeyFingerprint_ECDSA(t *testing.T) {
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf(&#34;generating ECDSA key: %v&#34;, err)
+	}
+
+	fp := publicKeyFingerprint(&amp;key.PublicKey)
+
+	if !strings.HasPrefix(fp, &#34;SHA256:&#34;) {
+		t.Errorf(&#34;publicKeyFingerprint() = %q, want SHA256: prefix&#34;, fp)
+	}
+
+	fp2 := publicKeyFingerprint(&amp;key.PublicKey)
+	if fp != fp2 {
+		t.Errorf(&#34;publicKeyFingerprint() not deterministic: %q != %q&#34;, fp, fp2)
+	}
+}
+
+func TestPublicKeyFingerprint_MatchesKeyAndCert(t *testing.T) {
+	// Generate a key, create a self-signed cert, verify fingerprints match.
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf(&#34;generating RSA key: %v&#34;, err)
+	}
+
+	template := &amp;x509.Certificate{
+		SerialNumber: mustGenerateSerial(t),
+	}
+	certDER, err := x509.CreateCertificate(rand.Reader, template, template, &amp;key.PublicKey, key)
+	if err != nil {
+		t.Fatalf(&#34;creating certificate: %v&#34;, err)
+	}
+	cert, err := x509.ParseCertificate(certDER)
+	if err != nil {
+		t.Fatalf(&#34;parsing certificate: %v&#34;, err)
+	}
+
+	keyFP := publicKeyFingerprint(&amp;key.PublicKey)
+	certFP := publicKeyFingerprint(cert.PublicKey)
+
+	if keyFP != certFP {
+		t.Errorf(&#34;fingerprints differ: key=%q cert=%q&#34;, keyFP, certFP)
+	}
+}
+
+func TestPublicKeyFingerprint_DifferentKeysAreDifferent(t *testing.T) {
+	key1, _ := rsa.GenerateKey(rand.Reader, 2048)
+	key2, _ := rsa.GenerateKey(rand.Reader, 2048)
+
+	fp1 := publicKeyFingerprint(&amp;key1.PublicKey)
+	fp2 := publicKeyFingerprint(&amp;key2.PublicKey)
+
+	if fp1 == fp2 {
+		t.Errorf(&#34;different keys produced same fingerprint: %q&#34;, fp1)
+	}
+}
+
+func TestPublicKeyRaw_RSA(t *testing.T) {
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf(&#34;generating RSA key: %v&#34;, err)
+	}
+
+	raw := publicKeyRaw(&amp;key.PublicKey)
+
+	if raw == &#34;&#34; {
+		t.Fatal(&#34;publicKeyRaw() returned empty string&#34;)
+	}
+
+	// Verify format: colon-separated uppercase hex bytes.
+	parts := strings.Split(raw, &#34;:&#34;)
+	for _, p := range parts {
+		if len(p) != 2 {
+			t.Errorf(&#34;publicKeyRaw() hex byte %q has len %d, want 2&#34;, p, len(p))
+		}
+		if p != strings.ToUpper(p) {
+			t.Errorf(&#34;publicKeyRaw() hex byte %q is not uppercase&#34;, p)
+		}
+	}
+
+	// RSA 2048 modulus is 256 bytes.
+	if len(parts) != 256 {
+		t.Errorf(&#34;publicKeyRaw() has %d bytes, want 256 for RSA 2048&#34;, len(parts))
+	}
+}
+
+func TestPublicKeyRaw_ECDSA(t *testing.T) {
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf(&#34;generating ECDSA key: %v&#34;, err)
+	}
+
+	raw := publicKeyRaw(&amp;key.PublicKey)
+
+	if raw == &#34;&#34; {
+		t.Fatal(&#34;publicKeyRaw() returned empty string&#34;)
+	}
+
+	// P-256 uncompressed point is 65 bytes (0x04 || X || Y).
+	parts := strings.Split(raw, &#34;:&#34;)
+	if len(parts) != 65 {
+		t.Errorf(&#34;publicKeyRaw() has %d bytes, want 65 for P-256 uncompressed point&#34;, len(parts))
+	}
+}
+
+func TestPublicKeyRaw_MatchesBetweenKeyAndCert(t *testing.T) {
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf(&#34;generating RSA key: %v&#34;, err)
+	}
+
+	template := &amp;x509.Certificate{
+		SerialNumber: mustGenerateSerial(t),
+	}
+	certDER, err := x509.CreateCertificate(rand.Reader, template, template, &amp;key.PublicKey, key)
+	if err != nil {
+		t.Fatalf(&#34;creating certificate: %v&#34;, err)
+	}
+	cert, err := x509.ParseCertificate(certDER)
+	if err != nil {
+		t.Fatalf(&#34;parsing certificate: %v&#34;, err)
+	}
+
+	keyRaw := publicKeyRaw(&amp;key.PublicKey)
+	certRaw := publicKeyRaw(cert.PublicKey)
+
+	if keyRaw != certRaw {
+		t.Errorf(&#34;raw values differ: key=%q cert=%q&#34;, keyRaw, certRaw)
+	}
+}
+
+func mustGenerateSerial(t *testing.T) *big.Int {
+	t.Helper()
+	sn, err := generateSerial()
+	if err != nil {
+		t.Fatalf(&#34;generateSerial: %v&#34;, err)
+	}
+	return sn
+}
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-16-09-511Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-16-09-511Z" class="timestamp-link"><time datetime="2026-03-27T21:16:09.511Z" data-timestamp="2026-03-27T21:16:09.511Z">2026-03-27T21:16:09.511Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>File created successfully at: /Users/scaruso/dev/gossl/internal/cli/crypto_test.go</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-16-12-914Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-16-12-914Z" class="timestamp-link"><time datetime="2026-03-27T21:16:12.914Z" data-timestamp="2026-03-27T21:16:12.914Z">2026-03-27T21:16:12.914Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>I need to add the <code>math/big</code> import — let me also check the <code>fmt</code> import isn't needed.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-16-14-388Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-16-14-388Z" class="timestamp-link"><time datetime="2026-03-27T21:16:14.388Z" data-timestamp="2026-03-27T21:16:14.388Z">2026-03-27T21:16:14.388Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_013F8RjRjByDgr5Wnb12tGtF">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">crypto_test.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/crypto_test.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">import (
+	&#34;crypto/ecdsa&#34;
+	&#34;crypto/elliptic&#34;
+	&#34;crypto/rand&#34;
+	&#34;crypto/rsa&#34;
+	&#34;crypto/sha256&#34;
+	&#34;crypto/x509&#34;
+	&#34;fmt&#34;
+	&#34;strings&#34;
+	&#34;testing&#34;
+)</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">import (
+	&#34;crypto/ecdsa&#34;
+	&#34;crypto/elliptic&#34;
+	&#34;crypto/rand&#34;
+	&#34;crypto/rsa&#34;
+	&#34;crypto/sha256&#34;
+	&#34;crypto/x509&#34;
+	&#34;math/big&#34;
+	&#34;strings&#34;
+	&#34;testing&#34;
+)</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-16-17-008Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-16-17-008Z" class="timestamp-link"><time datetime="2026-03-27T21:16:17.008Z" data-timestamp="2026-03-27T21:16:17.008Z">2026-03-27T21:16:17.008Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/crypto_test.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-16-20-836Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-16-20-836Z" class="timestamp-link"><time datetime="2026-03-27T21:16:20.836Z" data-timestamp="2026-03-27T21:16:20.836Z">2026-03-27T21:16:20.836Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now let me write the key inspect command tests and the cert inspect fingerprint test.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-16-49-209Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-16-49-209Z" class="timestamp-link"><time datetime="2026-03-27T21:16:49.209Z" data-timestamp="2026-03-27T21:16:49.209Z">2026-03-27T21:16:49.209Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_013jp2fMq5XzKjHPGpNas5o9">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">key_test.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/key_test.go</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content">package cli
+
+import (
+	&#34;bytes&#34;
+	&#34;context&#34;
+	&#34;crypto/ecdsa&#34;
+	&#34;crypto/elliptic&#34;
+	&#34;crypto/rand&#34;
+	&#34;crypto/rsa&#34;
+	&#34;crypto/x509&#34;
+	&#34;encoding/pem&#34;
+	&#34;os&#34;
+	&#34;path/filepath&#34;
+	&#34;strings&#34;
+	&#34;testing&#34;
+)
+
+func TestKeyInspect_RSA(t *testing.T) {
+	keyPath := writeRSAKeyFile(t, 2048)
+
+	var buf bytes.Buffer
+	cmd := NewRoot(&#34;test&#34;, &#34;test&#34;)
+	cmd.SetOut(&amp;buf)
+	cmd.SetArgs([]string{&#34;key&#34;, &#34;inspect&#34;, keyPath})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf(&#34;key inspect: %v&#34;, err)
+	}
+
+	out := buf.String()
+	for _, want := range []string{
+		&#34;Algorithm:&#34;,
+		&#34;RSA&#34;,
+		&#34;Key Size:&#34;,
+		&#34;2048&#34;,
+		&#34;Public Key SHA256:&#34;,
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf(&#34;output missing %q\nGot:\n%s&#34;, want, out)
+		}
+	}
+
+	// Should NOT contain raw modulus without --raw.
+	if strings.Contains(out, &#34;Modulus:&#34;) {
+		t.Errorf(&#34;output should not contain Modulus without --raw\nGot:\n%s&#34;, out)
+	}
+}
+
+func TestKeyInspect_RSA_Raw(t *testing.T) {
+	keyPath := writeRSAKeyFile(t, 2048)
+
+	var buf bytes.Buffer
+	cmd := NewRoot(&#34;test&#34;, &#34;test&#34;)
+	cmd.SetOut(&amp;buf)
+	cmd.SetArgs([]string{&#34;key&#34;, &#34;inspect&#34;, keyPath, &#34;--raw&#34;})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf(&#34;key inspect --raw: %v&#34;, err)
+	}
+
+	out := buf.String()
+	if !strings.Contains(out, &#34;Modulus:&#34;) {
+		t.Errorf(&#34;output missing Modulus with --raw\nGot:\n%s&#34;, out)
+	}
+}
+
+func TestKeyInspect_ECDSA(t *testing.T) {
+	keyPath := writeECDSAKeyFile(t, elliptic.P256())
+
+	var buf bytes.Buffer
+	cmd := NewRoot(&#34;test&#34;, &#34;test&#34;)
+	cmd.SetOut(&amp;buf)
+	cmd.SetArgs([]string{&#34;key&#34;, &#34;inspect&#34;, keyPath})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf(&#34;key inspect: %v&#34;, err)
+	}
+
+	out := buf.String()
+	for _, want := range []string{
+		&#34;Algorithm:&#34;,
+		&#34;ECDSA&#34;,
+		&#34;Curve:&#34;,
+		&#34;P-256&#34;,
+		&#34;Public Key SHA256:&#34;,
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf(&#34;output missing %q\nGot:\n%s&#34;, want, out)
+		}
+	}
+
+	if strings.Contains(out, &#34;Public Point:&#34;) {
+		t.Errorf(&#34;output should not contain Public Point without --raw\nGot:\n%s&#34;, out)
+	}
+}
+
+func TestKeyInspect_ECDSA_Raw(t *testing.T) {
+	keyPath := writeECDSAKeyFile(t, elliptic.P384())
+
+	var buf bytes.Buffer
+	cmd := NewRoot(&#34;test&#34;, &#34;test&#34;)
+	cmd.SetOut(&amp;buf)
+	cmd.SetArgs([]string{&#34;key&#34;, &#34;inspect&#34;, keyPath, &#34;--raw&#34;})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf(&#34;key inspect --raw: %v&#34;, err)
+	}
+
+	out := buf.String()
+	if !strings.Contains(out, &#34;Public Point:&#34;) {
+		t.Errorf(&#34;output missing Public Point with --raw\nGot:\n%s&#34;, out)
+	}
+}
+
+func TestKeyInspect_NoArgs(t *testing.T) {
+	cmd := NewRoot(&#34;test&#34;, &#34;test&#34;)
+	cmd.SetArgs([]string{&#34;key&#34;, &#34;inspect&#34;})
+	if err := cmd.Execute(); err == nil {
+		t.Fatal(&#34;key inspect with no args expected error&#34;)
+	}
+}
+
+func TestKeyInspect_BadFile(t *testing.T) {
+	badPath := filepath.Join(t.TempDir(), &#34;bad.pem&#34;)
+	os.WriteFile(badPath, []byte(&#34;not a pem&#34;), 0o600)
+
+	cmd := NewRoot(&#34;test&#34;, &#34;test&#34;)
+	cmd.SetArgs([]string{&#34;key&#34;, &#34;inspect&#34;, badPath})
+	if err := cmd.Execute(); err == nil {
+		t.Fatal(&#34;key inspect with bad PEM expected error&#34;)
+	}
+}
+
+func TestKeyInspect_Stdin(t *testing.T) {
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf(&#34;generating key: %v&#34;, err)
+	}
+	keyPEM := pem.EncodeToMemory(&amp;pem.Block{
+		Type:  &#34;RSA PRIVATE KEY&#34;,
+		Bytes: x509.MarshalPKCS1PrivateKey(key),
+	})
+
+	// Replace stdin.
+	oldStdin := os.Stdin
+	r, w, _ := os.Pipe()
+	os.Stdin = r
+	t.Cleanup(func() { os.Stdin = oldStdin })
+
+	go func() {
+		w.Write(keyPEM)
+		w.Close()
+	}()
+
+	var buf bytes.Buffer
+	cmd := NewRoot(&#34;test&#34;, &#34;test&#34;)
+	cmd.SetOut(&amp;buf)
+	cmd.SetArgs([]string{&#34;key&#34;, &#34;inspect&#34;, &#34;-&#34;})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf(&#34;key inspect stdin: %v&#34;, err)
+	}
+
+	if !strings.Contains(buf.String(), &#34;Public Key SHA256:&#34;) {
+		t.Errorf(&#34;stdin output missing fingerprint\nGot:\n%s&#34;, buf.String())
+	}
+}
+
+func TestCertInspect_ContainsFingerprint(t *testing.T) {
+	dbPath, serial := setupTestDB(t)
+	outPath := filepath.Join(t.TempDir(), &#34;cert.pem&#34;)
+
+	cmd := NewRoot(&#34;test&#34;, &#34;test&#34;)
+	cmd.SetArgs([]string{&#34;cert&#34;, &#34;export&#34;, &#34;--serial&#34;, serial, &#34;--db&#34;, dbPath, &#34;--out&#34;, outPath})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf(&#34;cert export: %v&#34;, err)
+	}
+
+	var buf bytes.Buffer
+	cmd = NewRoot(&#34;test&#34;, &#34;test&#34;)
+	cmd.SetOut(&amp;buf)
+	cmd.SetArgs([]string{&#34;cert&#34;, &#34;inspect&#34;, outPath})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf(&#34;cert inspect: %v&#34;, err)
+	}
+
+	if !strings.Contains(buf.String(), &#34;Public Key SHA256:&#34;) {
+		t.Errorf(&#34;cert inspect output missing Public Key SHA256\nGot:\n%s&#34;, buf.String())
+	}
+}
+
+func TestKeyAndCertFingerprint_Match(t *testing.T) {
+	// Issue a cert via gossl, export the key and cert, verify fingerprints match.
+	dbPath := filepath.Join(t.TempDir(), &#34;test.db&#34;)
+	run := func(args ...string) {
+		t.Helper()
+		cmd := NewRoot(&#34;test&#34;, &#34;test&#34;)
+		cmd.SetArgs(args)
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf(&#34;gossl %v: %v&#34;, args, err)
+		}
+	}
+
+	run(&#34;ca&#34;, &#34;create&#34;, &#34;--cn&#34;, &#34;Root CA&#34;, &#34;--db&#34;, dbPath, &#34;--key-size&#34;, &#34;2048&#34;)
+	run(&#34;cert&#34;, &#34;issue&#34;, &#34;--cn&#34;, &#34;match.example.com&#34;, &#34;--db&#34;, dbPath, &#34;--key-size&#34;, &#34;2048&#34;)
+
+	// Load the cert and key from DB to get their fingerprints.
+	serial := getCertSerialFromDB(t, dbPath, &#34;match.example.com&#34;)
+
+	d, err := store.OpenDB(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf(&#34;OpenDB: %v&#34;, err)
+	}
+	defer d.Close()
+
+	q := store.New(d.SQLDB())
+
+	// Get cert fingerprint.
+	certRow, err := q.GetCertBySerial(context.Background(), serial)
+	if err != nil {
+		t.Fatalf(&#34;GetCertBySerial: %v&#34;, err)
+	}
+	x509Cert := parseCertPEMFromString(t, certRow.CertPem)
+	certFP := publicKeyFingerprint(x509Cert.PublicKey)
+
+	// Get key fingerprint.
+	keyPEM, err := q.LoadKey(context.Background(), serial)
+	if err != nil {
+		t.Fatalf(&#34;LoadKey: %v&#34;, err)
+	}
+	privKey, err := parsePrivateKey(keyPEM)
+	if err != nil {
+		t.Fatalf(&#34;parsePrivateKey: %v&#34;, err)
+	}
+	keyFP := publicKeyFingerprint(publicKey(privKey))
+
+	if certFP != keyFP {
+		t.Errorf(&#34;fingerprints differ: cert=%q key=%q&#34;, certFP, keyFP)
+	}
+}
+
+// Helpers
+
+func writeRSAKeyFile(t *testing.T, bits int) string {
+	t.Helper()
+	key, err := rsa.GenerateKey(rand.Reader, bits)
+	if err != nil {
+		t.Fatalf(&#34;generating RSA key: %v&#34;, err)
+	}
+	keyPEM := pem.EncodeToMemory(&amp;pem.Block{
+		Type:  &#34;RSA PRIVATE KEY&#34;,
+		Bytes: x509.MarshalPKCS1PrivateKey(key),
+	})
+	path := filepath.Join(t.TempDir(), &#34;rsa.pem&#34;)
+	if err := os.WriteFile(path, keyPEM, 0o600); err != nil {
+		t.Fatalf(&#34;writing key file: %v&#34;, err)
+	}
+	return path
+}
+
+func writeECDSAKeyFile(t *testing.T, curve elliptic.Curve) string {
+	t.Helper()
+	key, err := ecdsa.GenerateKey(curve, rand.Reader)
+	if err != nil {
+		t.Fatalf(&#34;generating ECDSA key: %v&#34;, err)
+	}
+	der, err := x509.MarshalECPrivateKey(key)
+	if err != nil {
+		t.Fatalf(&#34;marshalling ECDSA key: %v&#34;, err)
+	}
+	keyPEM := pem.EncodeToMemory(&amp;pem.Block{Type: &#34;EC PRIVATE KEY&#34;, Bytes: der})
+	path := filepath.Join(t.TempDir(), &#34;ec.pem&#34;)
+	if err := os.WriteFile(path, keyPEM, 0o600); err != nil {
+		t.Fatalf(&#34;writing key file: %v&#34;, err)
+	}
+	return path
+}
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-16-53-008Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-16-53-008Z" class="timestamp-link"><time datetime="2026-03-27T21:16:53.008Z" data-timestamp="2026-03-27T21:16:53.008Z">2026-03-27T21:16:53.008Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>File created successfully at: /Users/scaruso/dev/gossl/internal/cli/key_test.go</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-16-56-456Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-16-56-456Z" class="timestamp-link"><time datetime="2026-03-27T21:16:56.456Z" data-timestamp="2026-03-27T21:16:56.456Z">2026-03-27T21:16:56.456Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>I need to add the <code>store</code> import to key_test.go.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-16-58-418Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-16-58-418Z" class="timestamp-link"><time datetime="2026-03-27T21:16:58.418Z" data-timestamp="2026-03-27T21:16:58.418Z">2026-03-27T21:16:58.418Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01JZFE6xFgG1827NvtQhuFff">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">key_test.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/key_test.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">import (
+	&#34;bytes&#34;
+	&#34;context&#34;
+	&#34;crypto/ecdsa&#34;
+	&#34;crypto/elliptic&#34;
+	&#34;crypto/rand&#34;
+	&#34;crypto/rsa&#34;
+	&#34;crypto/x509&#34;
+	&#34;encoding/pem&#34;
+	&#34;os&#34;
+	&#34;path/filepath&#34;
+	&#34;strings&#34;
+	&#34;testing&#34;
+)</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">import (
+	&#34;bytes&#34;
+	&#34;context&#34;
+	&#34;crypto/ecdsa&#34;
+	&#34;crypto/elliptic&#34;
+	&#34;crypto/rand&#34;
+	&#34;crypto/rsa&#34;
+	&#34;crypto/x509&#34;
+	&#34;encoding/pem&#34;
+	&#34;os&#34;
+	&#34;path/filepath&#34;
+	&#34;strings&#34;
+	&#34;testing&#34;
+
+	&#34;github.com/bejelith/gossl/internal/store&#34;
+)</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-16-59-386Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-16-59-386Z" class="timestamp-link"><time datetime="2026-03-27T21:16:59.386Z" data-timestamp="2026-03-27T21:16:59.386Z">2026-03-27T21:16:59.386Z</time></a></div><div class="message-content"><div class="tool-result tool-error"><div class="truncatable"><div class="truncatable-content"><pre>The user doesn&#x27;t want to proceed with this tool use. The tool use was rejected (eg. if it was a file edit, the new_string was NOT written to the file). STOP what you are doing and wait for the user to tell you how to proceed.
+
+Note: The user&#x27;s next message may contain a correction or preference. Pay close attention — if they explain what went wrong or how they&#x27;d prefer you to work, consider saving that to memory for future sessions.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message user" id="msg-2026-03-27T21-16-59-387Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-27T21-16-59-387Z" class="timestamp-link"><time datetime="2026-03-27T21:16:59.387Z" data-timestamp="2026-03-27T21:16:59.387Z">2026-03-27T21:16:59.387Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>[Request interrupted by user for tool use]</p></div></div></div>
+<div class="message user" id="msg-2026-03-27T21-17-07-480Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-27T21-17-07-480Z" class="timestamp-link"><time datetime="2026-03-27T21:17:07.480Z" data-timestamp="2026-03-27T21:17:07.480Z">2026-03-27T21:17:07.480Z</time></a></div><div class="message-content">
+<div class="user-content"><p>continue, my bad</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-17-12-504Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-17-12-504Z" class="timestamp-link"><time datetime="2026-03-27T21:17:12.504Z" data-timestamp="2026-03-27T21:17:12.504Z">2026-03-27T21:17:12.504Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01HifUnEkLFgjPeEpTmuukcs">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">key_test.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/key_test.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">import (
+	&#34;bytes&#34;
+	&#34;context&#34;
+	&#34;crypto/ecdsa&#34;
+	&#34;crypto/elliptic&#34;
+	&#34;crypto/rand&#34;
+	&#34;crypto/rsa&#34;
+	&#34;crypto/x509&#34;
+	&#34;encoding/pem&#34;
+	&#34;os&#34;
+	&#34;path/filepath&#34;
+	&#34;strings&#34;
+	&#34;testing&#34;
+)</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">import (
+	&#34;bytes&#34;
+	&#34;context&#34;
+	&#34;crypto/ecdsa&#34;
+	&#34;crypto/elliptic&#34;
+	&#34;crypto/rand&#34;
+	&#34;crypto/rsa&#34;
+	&#34;crypto/x509&#34;
+	&#34;encoding/pem&#34;
+	&#34;os&#34;
+	&#34;path/filepath&#34;
+	&#34;strings&#34;
+	&#34;testing&#34;
+
+	&#34;github.com/bejelith/gossl/internal/store&#34;
+)</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-17-33-794Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-17-33-794Z" class="timestamp-link"><time datetime="2026-03-27T21:17:33.794Z" data-timestamp="2026-03-27T21:17:33.794Z">2026-03-27T21:17:33.794Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/key_test.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-17-37-224Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-17-37-224Z" class="timestamp-link"><time datetime="2026-03-27T21:17:37.224Z" data-timestamp="2026-03-27T21:17:37.224Z">2026-03-27T21:17:37.224Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now let me verify the tests fail (as expected — the functions and commands don't exist yet).</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-17-38-275Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-17-38-275Z" class="timestamp-link"><time datetime="2026-03-27T21:17:38.275Z" data-timestamp="2026-03-27T21:17:38.275Z">2026-03-27T21:17:38.275Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_0139NqooNMhi8CgnCm9xhZmx">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Regenerate BUILD files for new test files</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel run //:gazelle 2&gt;&amp;1 | tail -3</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-17-39-513Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-17-39-513Z" class="timestamp-link"><time datetime="2026-03-27T21:17:39.513Z" data-timestamp="2026-03-27T21:17:39.513Z">2026-03-27T21:17:39.513Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>INFO: 1 process: 69 action cache hit, 1 internal.
+INFO: Build completed successfully, 1 total action
+INFO: Running command line: bazel-bin/gazelle</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-17-43-169Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-17-43-169Z" class="timestamp-link"><time datetime="2026-03-27T21:17:43.169Z" data-timestamp="2026-03-27T21:17:43.169Z">2026-03-27T21:17:43.169Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01T4VmJhSSuVSknm52htrohH">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Run tests to verify they fail</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel test //internal/cli:cli_test 2&gt;&amp;1 | tail -20</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-17-44-440Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-17-44-440Z" class="timestamp-link"><time datetime="2026-03-27T21:17:44.440Z" data-timestamp="2026-03-27T21:17:44.440Z">2026-03-27T21:17:44.440Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>internal/cli/crypto_test.go:21:8: undefined: publicKeyFingerprint
+internal/cli/crypto_test.go:28:9: undefined: publicKeyFingerprint
+internal/cli/crypto_test.go:55:8: undefined: publicKeyFingerprint
+internal/cli/crypto_test.go:61:9: undefined: publicKeyFingerprint
+internal/cli/crypto_test.go:86:11: undefined: publicKeyFingerprint
+internal/cli/crypto_test.go:87:12: undefined: publicKeyFingerprint
+internal/cli/crypto_test.go:98:9: undefined: publicKeyFingerprint
+internal/cli/crypto_test.go:99:9: undefined: publicKeyFingerprint
+internal/cli/crypto_test.go:112:9: undefined: publicKeyRaw
+internal/cli/crypto_test.go:141:9: undefined: publicKeyRaw
+internal/cli/crypto_test.go:141:9: too many errors
+compilepkg: error running subcommand external/rules_go++go_sdk+go_default_sdk/pkg/tool/darwin_arm64/compile: exit status 2
+Target //internal/cli:cli_test failed to build
+Use --verbose_failures to see the command lines of failed build steps.
+INFO: Elapsed time: 1.132s, Critical Path: 0.51s
+INFO: 5 processes: 139 action cache hit, 2 disk cache hit, 2 internal, 1 darwin-sandbox.
+ERROR: Build did NOT complete successfully
+//internal/cli:cli_test                                         FAILED TO BUILD
+
+Executed 0 out of 1 test: 1 fails to build.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-17-47-729Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-17-47-729Z" class="timestamp-link"><time datetime="2026-03-27T21:17:47.729Z" data-timestamp="2026-03-27T21:17:47.729Z">2026-03-27T21:17:47.729Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Tests fail to compile as expected — <code>publicKeyFingerprint</code>, <code>publicKeyRaw</code>, and the <code>key</code> command don't exist yet. This is RED.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-17-48-102Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-17-48-102Z" class="timestamp-link"><time datetime="2026-03-27T21:17:48.102Z" data-timestamp="2026-03-27T21:17:48.102Z">2026-03-27T21:17:48.102Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01CWB8KAKMazEgTm9ZKBQzvY"><div class="tool-header"><span class="tool-icon">⚙</span> TaskUpdate</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;taskId&#34;: &#34;3&#34;,
+  &#34;status&#34;: &#34;completed&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-17-48-110Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-17-48-110Z" class="timestamp-link"><time datetime="2026-03-27T21:17:48.110Z" data-timestamp="2026-03-27T21:17:48.110Z">2026-03-27T21:17:48.110Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Updated task #3 status</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-17-48-548Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-17-48-548Z" class="timestamp-link"><time datetime="2026-03-27T21:17:48.548Z" data-timestamp="2026-03-27T21:17:48.548Z">2026-03-27T21:17:48.548Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01MEWjPxd9RpvhcR2SSrJBFq"><div class="tool-header"><span class="tool-icon">⚙</span> TaskUpdate</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;taskId&#34;: &#34;4&#34;,
+  &#34;status&#34;: &#34;completed&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-17-48-556Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-17-48-556Z" class="timestamp-link"><time datetime="2026-03-27T21:17:48.556Z" data-timestamp="2026-03-27T21:17:48.556Z">2026-03-27T21:17:48.556Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Updated task #4 status</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-17-49-041Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-17-49-041Z" class="timestamp-link"><time datetime="2026-03-27T21:17:49.041Z" data-timestamp="2026-03-27T21:17:49.041Z">2026-03-27T21:17:49.041Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01C8mwyR2dmpXRth1RSCctYA"><div class="tool-header"><span class="tool-icon">⚙</span> TaskUpdate</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;taskId&#34;: &#34;5&#34;,
+  &#34;status&#34;: &#34;completed&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-17-49-046Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-17-49-046Z" class="timestamp-link"><time datetime="2026-03-27T21:17:49.046Z" data-timestamp="2026-03-27T21:17:49.046Z">2026-03-27T21:17:49.046Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Updated task #5 status</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-17-49-215Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-17-49-215Z" class="timestamp-link"><time datetime="2026-03-27T21:17:49.215Z" data-timestamp="2026-03-27T21:17:49.215Z">2026-03-27T21:17:49.215Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01LDPQJ9TzDgkFU1NML7MVZ8"><div class="tool-header"><span class="tool-icon">⚙</span> TaskUpdate</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;taskId&#34;: &#34;6&#34;,
+  &#34;status&#34;: &#34;completed&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-17-49-226Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-17-49-226Z" class="timestamp-link"><time datetime="2026-03-27T21:17:49.226Z" data-timestamp="2026-03-27T21:17:49.226Z">2026-03-27T21:17:49.226Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Updated task #6 status</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-17-58-466Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-17-58-466Z" class="timestamp-link"><time datetime="2026-03-27T21:17:58.466Z" data-timestamp="2026-03-27T21:17:58.466Z">2026-03-27T21:17:58.466Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>All tests written and verified RED:</p>
+<ul>
+<li><strong><code>crypto_test.go</code></strong> — tests for <code>publicKeyFingerprint</code> (RSA, ECDSA, determinism, different-keys-differ) and <code>publicKeyRaw</code> (RSA modulus bytes, ECDSA point bytes, key-cert matching)</li>
+<li><strong><code>key_test.go</code></strong> — tests for <code>key inspect</code> command (RSA, ECDSA, <code>--raw</code>, stdin, no-args error, bad PEM error), <code>cert inspect</code> fingerprint output, and end-to-end key-cert fingerprint matching via the DB</li>
+</ul>
+<p>All fail with <code>undefined</code> errors because the production code doesn't exist yet. Ready for GREEN — want me to implement?</p></div></div></div>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-001.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<span class="current">2</span>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-003.html">Next &rarr;</a>
+</div>
+
+    </div>
+    <script>
+document.querySelectorAll('time[data-timestamp]').forEach(function(el) {
+    const timestamp = el.getAttribute('data-timestamp');
+    const date = new Date(timestamp);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    if (isToday) { el.textContent = timeStr; }
+    else { el.textContent = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + timeStr; }
+});
+document.querySelectorAll('pre.json').forEach(function(el) {
+    let text = el.textContent;
+    text = text.replace(/"([^"]+)":/g, '<span style="color: #ce93d8">"$1"</span>:');
+    text = text.replace(/: "([^"]*)"/g, ': <span style="color: #81d4fa">"$1"</span>');
+    text = text.replace(/: (\d+)/g, ': <span style="color: #ffcc80">$1</span>');
+    text = text.replace(/: (true|false|null)/g, ': <span style="color: #f48fb1">$1</span>');
+    el.innerHTML = text;
+});
+document.querySelectorAll('.truncatable').forEach(function(wrapper) {
+    const content = wrapper.querySelector('.truncatable-content');
+    const btn = wrapper.querySelector('.expand-btn');
+    if (content.scrollHeight > 250) {
+        wrapper.classList.add('truncated');
+        btn.addEventListener('click', function() {
+            if (wrapper.classList.contains('truncated')) { wrapper.classList.remove('truncated'); wrapper.classList.add('expanded'); btn.textContent = 'Show less'; }
+            else { wrapper.classList.remove('expanded'); wrapper.classList.add('truncated'); btn.textContent = 'Show more'; }
+        });
+    }
+});
+</script>
+</body>
+</html>

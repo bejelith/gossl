@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code transcript - page 18</title>
+    <style>
+:root { --bg-color: #f5f5f5; --card-bg: #ffffff; --user-bg: #e3f2fd; --user-border: #1976d2; --assistant-bg: #f5f5f5; --assistant-border: #9e9e9e; --thinking-bg: #fff8e1; --thinking-border: #ffc107; --thinking-text: #666; --tool-bg: #f3e5f5; --tool-border: #9c27b0; --tool-result-bg: #e8f5e9; --tool-error-bg: #ffebee; --text-color: #212121; --text-muted: #757575; --code-bg: #263238; --code-text: #aed581; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 16px; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 24px; padding-bottom: 8px; border-bottom: 2px solid var(--user-border); }
+.header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 2px solid var(--user-border); padding-bottom: 8px; margin-bottom: 24px; }
+.header-row h1 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; flex: 1; min-width: 200px; }
+.message { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.message.user { background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.message.assistant { background: var(--card-bg); border-left: 4px solid var(--assistant-border); }
+.message.tool-reply { background: #fff8e1; border-left: 4px solid #ff9800; }
+.tool-reply .role-label { color: #e65100; }
+.tool-reply .tool-result { background: transparent; padding: 0; margin: 0; }
+.tool-reply .tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.message-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.role-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.user .role-label { color: var(--user-border); }
+time { color: var(--text-muted); font-size: 0.8rem; }
+.timestamp-link { color: inherit; text-decoration: none; }
+.timestamp-link:hover { text-decoration: underline; }
+.message:target { animation: highlight 2s ease-out; }
+@keyframes highlight { 0% { background-color: rgba(25, 118, 210, 0.2); } 100% { background-color: transparent; } }
+.message-content { padding: 16px; }
+.message-content p { margin: 0 0 12px 0; }
+.message-content p:last-child { margin-bottom: 0; }
+.thinking { background: var(--thinking-bg); border: 1px solid var(--thinking-border); border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 0.9rem; color: var(--thinking-text); }
+.thinking-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #f57c00; margin-bottom: 8px; }
+.thinking p { margin: 8px 0; }
+.assistant-text { margin: 8px 0; }
+.tool-use { background: var(--tool-bg); border: 1px solid var(--tool-border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-header { font-weight: 600; color: var(--tool-border); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.tool-icon { font-size: 1.1rem; }
+.tool-description { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
+.tool-result { background: var(--tool-result-bg); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-result.tool-error { background: var(--tool-error-bg); }
+.file-tool { border-radius: 8px; padding: 12px; margin: 12px 0; }
+.write-tool { background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%); border: 1px solid #4caf50; }
+.edit-tool { background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); border: 1px solid #ff9800; }
+.file-tool-header { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.write-header { color: #2e7d32; }
+.edit-header { color: #e65100; }
+.file-tool-icon { font-size: 1rem; }
+.file-tool-path { font-family: monospace; background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 4px; }
+.file-tool-fullpath { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; word-break: break-all; }
+.file-content { margin: 0; }
+.edit-section { display: flex; margin: 4px 0; border-radius: 4px; overflow: hidden; }
+.edit-label { padding: 8px 12px; font-weight: bold; font-family: monospace; display: flex; align-items: flex-start; }
+.edit-old { background: #fce4ec; }
+.edit-old .edit-label { color: #b71c1c; background: #f8bbd9; }
+.edit-old .edit-content { color: #880e4f; }
+.edit-new { background: #e8f5e9; }
+.edit-new .edit-label { color: #1b5e20; background: #a5d6a7; }
+.edit-new .edit-content { color: #1b5e20; }
+.edit-content { margin: 0; flex: 1; background: transparent; font-size: 0.85rem; }
+.edit-replace-all { font-size: 0.75rem; font-weight: normal; color: var(--text-muted); }
+.write-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #e6f4ea); }
+.edit-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff0e5); }
+.todo-list { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border: 1px solid #81c784; border-radius: 8px; padding: 12px; margin: 12px 0; }
+.todo-header { font-weight: 600; color: #2e7d32; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.todo-items { list-style: none; margin: 0; padding: 0; }
+.todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 0.9rem; }
+.todo-item:last-child { border-bottom: none; }
+.todo-icon { flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; }
+.todo-completed .todo-icon { color: #2e7d32; background: rgba(46, 125, 50, 0.15); }
+.todo-completed .todo-content { color: #558b2f; text-decoration: line-through; }
+.todo-in-progress .todo-icon { color: #f57c00; background: rgba(245, 124, 0, 0.15); }
+.todo-in-progress .todo-content { color: #e65100; font-weight: 500; }
+.todo-pending .todo-icon { color: #757575; background: rgba(0,0,0,0.05); }
+.todo-pending .todo-content { color: #616161; }
+pre { background: var(--code-bg); color: var(--code-text); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; margin: 8px 0; white-space: pre-wrap; word-wrap: break-word; }
+pre.json { color: #e0e0e0; }
+code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre code { background: none; padding: 0; }
+.user-content { margin: 0; }
+.truncatable { position: relative; }
+.truncatable.truncated .truncatable-content { max-height: 200px; overflow: hidden; }
+.truncatable.truncated::after { content: ''; position: absolute; bottom: 32px; left: 0; right: 0; height: 60px; background: linear-gradient(to bottom, transparent, var(--card-bg)); pointer-events: none; }
+.message.user .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--user-bg)); }
+.message.tool-reply .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.tool-use .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-bg)); }
+.tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-result-bg)); }
+.expand-btn { display: none; width: 100%; padding: 8px 16px; margin-top: 4px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+.expand-btn:hover { background: rgba(0,0,0,0.1); }
+.truncatable.truncated .expand-btn, .truncatable.expanded .expand-btn { display: block; }
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; flex-wrap: wrap; }
+.pagination a, .pagination span { padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
+.pagination a { background: var(--card-bg); color: var(--user-border); border: 1px solid var(--user-border); }
+.pagination a:hover { background: var(--user-bg); }
+.pagination .current { background: var(--user-border); color: white; }
+.pagination .disabled { color: var(--text-muted); border: 1px solid #ddd; }
+.pagination .index-link { background: var(--user-border); color: white; }
+details.continuation { margin-bottom: 16px; }
+details.continuation summary { cursor: pointer; padding: 12px 16px; background: var(--user-bg); border-left: 4px solid var(--user-border); border-radius: 12px; font-weight: 500; color: var(--text-muted); }
+details.continuation summary:hover { background: rgba(25, 118, 210, 0.15); }
+details.continuation[open] summary { border-radius: 12px 12px 0 0; margin-bottom: 0; }
+.index-item { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.index-item a { display: block; text-decoration: none; color: inherit; }
+.index-item a:hover { background: rgba(25, 118, 210, 0.1); }
+.index-item-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.index-item-number { font-weight: 600; color: var(--user-border); }
+.index-item-content { padding: 16px; }
+.index-item-stats { padding: 8px 16px 12px 32px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid rgba(0,0,0,0.06); }
+.index-item-commit { margin-top: 6px; padding: 4px 8px; background: #fff3e0; border-radius: 4px; font-size: 0.85rem; color: #e65100; }
+.index-item-commit code { background: rgba(0,0,0,0.08); padding: 1px 4px; border-radius: 3px; font-size: 0.8rem; margin-right: 6px; }
+.commit-card { margin: 8px 0; padding: 10px 14px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 6px; }
+.commit-card a { text-decoration: none; color: #5d4037; display: block; }
+.commit-card a:hover { color: #e65100; }
+.commit-card-hash { font-family: monospace; color: #e65100; font-weight: 600; margin-right: 8px; }
+.index-commit { margin-bottom: 12px; padding: 10px 16px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.index-commit a { display: block; text-decoration: none; color: inherit; }
+.index-commit a:hover { background: rgba(255, 152, 0, 0.1); margin: -10px -16px; padding: 10px 16px; border-radius: 8px; }
+.index-commit-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
+.index-commit-hash { font-family: monospace; color: #e65100; font-weight: 600; }
+.index-commit-msg { color: #5d4037; }
+.index-item-long-text { margin-top: 8px; padding: 12px; background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--assistant-border); }
+.index-item-long-text .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--card-bg)); }
+.index-item-long-text-content { color: var(--text-color); }
+#search-box { display: none; align-items: center; gap: 8px; }
+#search-box input { padding: 6px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; width: 180px; }
+#search-box button, #modal-search-btn, #modal-close-btn { background: var(--user-border); color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#search-box button:hover, #modal-search-btn:hover { background: #1565c0; }
+#modal-close-btn { background: var(--text-muted); margin-left: 8px; }
+#modal-close-btn:hover { background: #616161; }
+#search-modal[open] { border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); padding: 0; width: 90vw; max-width: 900px; height: 80vh; max-height: 80vh; display: flex; flex-direction: column; }
+#search-modal::backdrop { background: rgba(0,0,0,0.5); }
+.search-modal-header { display: flex; align-items: center; gap: 8px; padding: 16px; border-bottom: 1px solid var(--assistant-border); background: var(--bg-color); border-radius: 12px 12px 0 0; }
+.search-modal-header input { flex: 1; padding: 8px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; }
+#search-status { padding: 8px 16px; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+#search-results { flex: 1; overflow-y: auto; padding: 16px; }
+.search-result { margin-bottom: 16px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.search-result a { display: block; text-decoration: none; color: inherit; }
+.search-result a:hover { background: rgba(25, 118, 210, 0.05); }
+.search-result-page { padding: 6px 12px; background: rgba(0,0,0,0.03); font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.search-result-content { padding: 12px; }
+.search-result mark { background: #fff59d; padding: 1px 2px; border-radius: 2px; }
+@media (max-width: 600px) { body { padding: 8px; } .message, .index-item { border-radius: 8px; } .message-content, .index-item-content { padding: 12px; } pre { font-size: 0.8rem; padding: 8px; } #search-box input { width: 120px; } #search-modal[open] { width: 95vw; height: 90vh; } }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Claude Code transcript</a> - page 18/28</h1>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-017.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-005.html">5</a>
+<a href="page-006.html">6</a>
+<a href="page-007.html">7</a>
+<a href="page-008.html">8</a>
+<a href="page-009.html">9</a>
+<a href="page-010.html">10</a>
+<a href="page-011.html">11</a>
+<a href="page-012.html">12</a>
+<a href="page-013.html">13</a>
+<a href="page-014.html">14</a>
+<a href="page-015.html">15</a>
+<a href="page-016.html">16</a>
+<a href="page-017.html">17</a>
+<span class="current">18</span>
+<a href="page-019.html">19</a>
+<a href="page-020.html">20</a>
+<a href="page-021.html">21</a>
+<a href="page-022.html">22</a>
+<a href="page-023.html">23</a>
+<a href="page-024.html">24</a>
+<a href="page-025.html">25</a>
+<a href="page-026.html">26</a>
+<a href="page-027.html">27</a>
+<a href="page-028.html">28</a>
+<a href="page-019.html">Next &rarr;</a>
+</div>
+
+        
+<div class="message user" id="msg-2026-03-26T20-55-30-307Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T20-55-30-307Z" class="timestamp-link"><time datetime="2026-03-26T20:55:30.307Z" data-timestamp="2026-03-26T20:55:30.307Z">2026-03-26T20:55:30.307Z</time></a></div><div class="message-content">
+<div class="user-content"><p>i think it s better if do something like <code>gossl sclient</code></p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-55-36-158Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-55-36-158Z" class="timestamp-link"><time datetime="2026-03-26T20:55:36.158Z" data-timestamp="2026-03-26T20:55:36.158Z">2026-03-26T20:55:36.158Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_014KjkBorQWXEtV7Jcf5Zj6h"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/root.go&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-55-36-248Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-55-36-248Z" class="timestamp-link"><time datetime="2026-03-26T20:55:36.248Z" data-timestamp="2026-03-26T20:55:36.248Z">2026-03-26T20:55:36.248Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→// Package cli defines the gossl command-line interface.
+     2→package cli
+     3→
+     4→import (
+     5→	&quot;github.com/spf13/cobra&quot;
+     6→)
+     7→
+     8→// NewRoot returns the root gossl command.
+     9→func NewRoot() *cobra.Command {
+    10→	root := &amp;cobra.Command{
+    11→		Use:   &quot;gossl&quot;,
+    12→		Short: &quot;Simplified TLS certificate management and troubleshooting&quot;,
+    13→	}
+    14→
+    15→	root.AddCommand(newCACmd())
+    16→	root.AddCommand(newCertCmd())
+    17→	root.AddCommand(newCSRCmd())
+    18→	root.AddCommand(newServerCmd())
+    19→	root.AddCommand(newServeCmd())
+    20→
+    21→	return root
+    22→}
+    23→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-55-42-286Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-55-42-286Z" class="timestamp-link"><time datetime="2026-03-26T20:55:42.286Z" data-timestamp="2026-03-26T20:55:42.286Z">2026-03-26T20:55:42.286Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Flatten <code>server check</code> into <code>gossl sclient</code> — drop the <code>server</code> parent command.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-55-43-984Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-55-43-984Z" class="timestamp-link"><time datetime="2026-03-26T20:55:43.984Z" data-timestamp="2026-03-26T20:55:43.984Z">2026-03-26T20:55:43.984Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01RjsE4Y6v9vLosAYb3sHrug">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">server.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/server.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">func newServerCmd() *cobra.Command {
+	cmd := &amp;cobra.Command{
+		Use:   &#34;server&#34;,
+		Short: &#34;Probe remote TLS servers&#34;,
+	}
+	cmd.AddCommand(newServerCheckCmd())
+	return cmd
+}
+
+func newServerCheckCmd() *cobra.Command {</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">func newSClientCmd() *cobra.Command {</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-55-44-040Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-55-44-040Z" class="timestamp-link"><time datetime="2026-03-26T20:55:44.040Z" data-timestamp="2026-03-26T20:55:44.040Z">2026-03-26T20:55:44.040Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/server.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-55-51-382Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-55-51-382Z" class="timestamp-link"><time datetime="2026-03-26T20:55:51.382Z" data-timestamp="2026-03-26T20:55:51.382Z">2026-03-26T20:55:51.382Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01PeKUm6pzKiq6cX4cC8PotF">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">server.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/server.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">	cmd := &amp;cobra.Command{
+		Use:   &#34;check &lt;host:port&gt;&#34;,
+		Short: &#34;Inspect and validate a server&#39;s TLS configuration&#34;,
+		Long: `Connect to a TLS server and display certificate chain, cipher suite,
+protocol version, and chain verification status. Similar to openssl s_client.`,</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">	cmd := &amp;cobra.Command{
+		Use:   &#34;sclient &lt;host:port&gt;&#34;,
+		Short: &#34;Inspect and validate a server&#39;s TLS configuration&#34;,
+		Long: `Connect to a TLS server and display certificate chain, cipher suite,
+protocol version, and chain verification status. Similar to openssl s_client.`,</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-55-51-451Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-55-51-451Z" class="timestamp-link"><time datetime="2026-03-26T20:55:51.451Z" data-timestamp="2026-03-26T20:55:51.451Z">2026-03-26T20:55:51.451Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/server.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-55-58-971Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-55-58-971Z" class="timestamp-link"><time datetime="2026-03-26T20:55:58.971Z" data-timestamp="2026-03-26T20:55:58.971Z">2026-03-26T20:55:58.971Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_016dEg7aDue12a8fPiK3uoF1">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">root.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/root.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">	root.AddCommand(newCACmd())
+	root.AddCommand(newCertCmd())
+	root.AddCommand(newCSRCmd())
+	root.AddCommand(newServerCmd())
+	root.AddCommand(newServeCmd())</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">	root.AddCommand(newCACmd())
+	root.AddCommand(newCertCmd())
+	root.AddCommand(newCSRCmd())
+	root.AddCommand(newSClientCmd())
+	root.AddCommand(newServeCmd())</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-55-59-023Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-55-59-023Z" class="timestamp-link"><time datetime="2026-03-26T20:55:59.023Z" data-timestamp="2026-03-26T20:55:59.023Z">2026-03-26T20:55:59.023Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/root.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-56-06-085Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-56-06-085Z" class="timestamp-link"><time datetime="2026-03-26T20:56:06.085Z" data-timestamp="2026-03-26T20:56:06.085Z">2026-03-26T20:56:06.085Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now update the tests — they reference <code>"server", "check"</code>.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-56-06-311Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-56-06-311Z" class="timestamp-link"><time datetime="2026-03-26T20:56:06.311Z" data-timestamp="2026-03-26T20:56:06.311Z">2026-03-26T20:56:06.311Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01LAgpmiytUg7LkZ7BGiqyXG"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/server_test.go&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-56-06-392Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-56-06-392Z" class="timestamp-link"><time datetime="2026-03-26T20:56:06.392Z" data-timestamp="2026-03-26T20:56:06.392Z">2026-03-26T20:56:06.392Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→package cli
+     2→
+     3→import (
+     4→	&quot;crypto/ecdsa&quot;
+     5→	&quot;crypto/elliptic&quot;
+     6→	&quot;crypto/rand&quot;
+     7→	&quot;crypto/tls&quot;
+     8→	&quot;crypto/x509&quot;
+     9→	&quot;crypto/x509/pkix&quot;
+    10→	&quot;encoding/pem&quot;
+    11→	&quot;fmt&quot;
+    12→	&quot;math/big&quot;
+    13→	&quot;net&quot;
+    14→	&quot;net/http&quot;
+    15→	&quot;os&quot;
+    16→	&quot;path/filepath&quot;
+    17→	&quot;testing&quot;
+    18→	&quot;time&quot;
+    19→)
+    20→
+    21→func TestServerCheck(t *testing.T) {
+    22→	// Start a local TLS server with a self-signed cert
+    23→	cert, certPEM, _ := generateSelfSignedCert(t, &quot;localhost&quot;)
+    24→
+    25→	server := &amp;http.Server{
+    26→		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+    27→			w.WriteHeader(200)
+    28→		}),
+    29→		TLSConfig: &amp;tls.Config{
+    30→			Certificates: []tls.Certificate{cert},
+    31→		},
+    32→	}
+    33→
+    34→	l, err := net.Listen(&quot;tcp&quot;, &quot;localhost:0&quot;)
+    35→	if err != nil {
+    36→		t.Fatalf(&quot;Listen: %v&quot;, err)
+    37→	}
+    38→	port := l.Addr().(*net.TCPAddr).Port
+    39→
+    40→	go server.ServeTLS(l, &quot;&quot;, &quot;&quot;)
+    41→	defer server.Close()
+    42→
+    43→	waitForServer(t, port)
+    44→
+    45→	cmd := NewRoot()
+    46→	cmd.SetArgs([]string{&quot;server&quot;, &quot;check&quot;, fmt.Sprintf(&quot;localhost:%d&quot;, port)})
+    47→	if err := cmd.Execute(); err != nil {
+    48→		t.Fatalf(&quot;server check: %v&quot;, err)
+    49→	}
+    50→
+    51→	// Test with custom CA file
+    52→	caPath := filepath.Join(t.TempDir(), &quot;ca.pem&quot;)
+    53→	os.WriteFile(caPath, certPEM, 0644)
+    54→
+    55→	cmd = NewRoot()
+    56→	cmd.SetArgs([]string{&quot;server&quot;, &quot;check&quot;, fmt.Sprintf(&quot;localhost:%d&quot;, port), &quot;--ca-file&quot;, caPath})
+    57→	if err := cmd.Execute(); err != nil {
+    58→		t.Fatalf(&quot;server check --ca-file: %v&quot;, err)
+    59→	}
+    60→}
+    61→
+    62→func TestServerCheck_WithSNI(t *testing.T) {
+    63→	cert, _, _ := generateSelfSignedCert(t, &quot;custom.example.com&quot;)
+    64→
+    65→	server := &amp;http.Server{
+    66→		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+    67→			w.WriteHeader(200)
+    68→		}),
+    69→		TLSConfig: &amp;tls.Config{
+    70→			Certificates: []tls.Certificate{cert},
+    71→		},
+    72→	}
+    73→
+    74→	l, err := net.Listen(&quot;tcp&quot;, &quot;localhost:0&quot;)
+    75→	if err != nil {
+    76→		t.Fatalf(&quot;Listen: %v&quot;, err)
+    77→	}
+    78→	port := l.Addr().(*net.TCPAddr).Port
+    79→
+    80→	go server.ServeTLS(l, &quot;&quot;, &quot;&quot;)
+    81→	defer server.Close()
+    82→
+    83→	waitForServer(t, port)
+    84→
+    85→	cmd := NewRoot()
+    86→	cmd.SetArgs([]string{&quot;server&quot;, &quot;check&quot;, fmt.Sprintf(&quot;localhost:%d&quot;, port), &quot;--sni&quot;, &quot;custom.example.com&quot;})
+    87→	if err := cmd.Execute(); err != nil {
+    88→		t.Fatalf(&quot;server check --sni: %v&quot;, err)
+    89→	}
+    90→}
+    91→
+    92→func TestServerCheck_Timeout(t *testing.T) {
+    93→	// Use a port that&#x27;s not listening — should timeout quickly
+    94→	cmd := NewRoot()
+    95→	cmd.SetArgs([]string{&quot;server&quot;, &quot;check&quot;, &quot;localhost:1&quot;, &quot;--timeout&quot;, &quot;500ms&quot;})
+    96→	if err := cmd.Execute(); err == nil {
+    97→		t.Fatal(&quot;server check unreachable host expected error&quot;)
+    98→	}
+    99→}
+   100→
+   101→func TestServerCheck_DefaultPort(t *testing.T) {
+   102→	// host without port should default to :443
+   103→	cmd := NewRoot()
+   104→	cmd.SetArgs([]string{&quot;server&quot;, &quot;check&quot;, &quot;localhost&quot;, &quot;--timeout&quot;, &quot;500ms&quot;})
+   105→	// Will fail to connect but exercises the port-defaulting code path
+   106→	cmd.Execute()
+   107→}
+   108→
+   109→func generateSelfSignedCert(t *testing.T, cn string) (tls.Certificate, []byte, []byte) {
+   110→	t.Helper()
+   111→
+   112→	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+   113→	if err != nil {
+   114→		t.Fatalf(&quot;generating key: %v&quot;, err)
+   115→	}
+   116→
+   117→	serial, _ := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
+   118→
+   119→	template := &amp;x509.Certificate{
+   120→		SerialNumber:          serial,
+   121→		Subject:               pkix.Name{CommonName: cn},
+   122→		NotBefore:             time.Now(),
+   123→		NotAfter:              time.Now().Add(time.Hour),
+   124→		DNSNames:              []string{cn, &quot;localhost&quot;},
+   125→		IPAddresses:           []net.IP{net.ParseIP(&quot;127.0.0.1&quot;)},
+   126→		KeyUsage:              x509.KeyUsageDigitalSignature,
+   127→		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+   128→		BasicConstraintsValid: true,
+   129→	}
+   130→
+   131→	certDER, err := x509.CreateCertificate(rand.Reader, template, template, &amp;key.PublicKey, key)
+   132→	if err != nil {
+   133→		t.Fatalf(&quot;CreateCertificate: %v&quot;, err)
+   134→	}
+   135→
+   136→	certPEM := pem.EncodeToMemory(&amp;pem.Block{Type: &quot;CERTIFICATE&quot;, Bytes: certDER})
+   137→	keyDER, _ := x509.MarshalECPrivateKey(key)
+   138→	keyPEM := pem.EncodeToMemory(&amp;pem.Block{Type: &quot;EC PRIVATE KEY&quot;, Bytes: keyDER})
+   139→
+   140→	tlsCert, err := tls.X509KeyPair(certPEM, keyPEM)
+   141→	if err != nil {
+   142→		t.Fatalf(&quot;X509KeyPair: %v&quot;, err)
+   143→	}
+   144→
+   145→	return tlsCert, certPEM, keyPEM
+   146→}
+   147→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-56-12-677Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-56-12-677Z" class="timestamp-link"><time datetime="2026-03-26T20:56:12.677Z" data-timestamp="2026-03-26T20:56:12.677Z">2026-03-26T20:56:12.677Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01BjjNQHKdWraBeGLAaSKpKH">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">server_test.go</span> <span class="edit-replace-all">(replace all)</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/server_test.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">&#34;server&#34;, &#34;check&#34;</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">&#34;sclient&#34;</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-56-12-758Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-56-12-758Z" class="timestamp-link"><time datetime="2026-03-26T20:56:12.758Z" data-timestamp="2026-03-26T20:56:12.758Z">2026-03-26T20:56:12.758Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/server_test.go has been updated. All occurrences were successfully replaced.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-56-17-288Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-56-17-288Z" class="timestamp-link"><time datetime="2026-03-26T20:56:17.288Z" data-timestamp="2026-03-26T20:56:17.288Z">2026-03-26T20:56:17.288Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01XgGgK7Y1a8Utgsq1oNgKk8">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Run tests</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel test //internal/cli:cli_test --test_output=errors 2&gt;&amp;1 | tail -8</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-56-25-016Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-56-25-016Z" class="timestamp-link"><time datetime="2026-03-26T20:56:25.016Z" data-timestamp="2026-03-26T20:56:25.016Z">2026-03-26T20:56:25.016Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>  bazel-bin/internal/cli/cli_test_/cli_test
+INFO: Elapsed time: 7.551s, Critical Path: 6.88s
+INFO: 8 processes: 1 disk cache hit, 2 internal, 5 darwin-sandbox.
+INFO: Build completed successfully, 8 total actions
+//internal/cli:cli_test                                                  PASSED in 5.4s
+
+Executed 1 out of 1 test: 1 test passes.
+There were tests whose specified size is too big. Use the --test_verbose_timeout_warnings command line option to see which ones these are.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-56-30-147Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-56-30-147Z" class="timestamp-link"><time datetime="2026-03-26T20:56:30.147Z" data-timestamp="2026-03-26T20:56:30.147Z">2026-03-26T20:56:30.147Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Done. <code>gossl sclient</code> replaces <code>gossl server check</code>:</p>
+<pre><code>gossl sclient google.com:443
+gossl sclient api.example.com:443 --show-certs
+gossl sclient api.example.com:443 --ca-file ca.pem
+gossl sclient api.example.com:443 --cert client.pem --key client-key.pem
+gossl sclient api.example.com:443 --sni other.com
+gossl sclient api.example.com:443 --alpn h2,http/1.1
+</code></pre></div></div></div>
+<div class="message user" id="msg-2026-03-26T20-56-43-802Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T20-56-43-802Z" class="timestamp-link"><time datetime="2026-03-26T20:56:43.802Z" data-timestamp="2026-03-26T20:56:43.802Z">2026-03-26T20:56:43.802Z</time></a></div><div class="message-content">
+<div class="user-content"><p>add this to system tests</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-56-49-245Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-56-49-245Z" class="timestamp-link"><time datetime="2026-03-26T20:56:49.245Z" data-timestamp="2026-03-26T20:56:49.245Z">2026-03-26T20:56:49.245Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01Bmp3LKpRZRNEbUiRXY2qYH"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/tests/system/mtls_test.go&#34;,
+  &#34;offset&#34;: 195,
+  &#34;limit&#34;: 100
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-56-49-282Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-56-49-282Z" class="timestamp-link"><time datetime="2026-03-26T20:56:49.282Z" data-timestamp="2026-03-26T20:56:49.282Z">2026-03-26T20:56:49.282Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>   195→		cmd := cli.NewRoot()
+   196→		cmd.SetArgs(args)
+   197→		if err := cmd.Execute(); err != nil {
+   198→			t.Fatalf(&quot;gossl %v: %v&quot;, args, err)
+   199→		}
+   200→	}
+   201→
+   202→	run(&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;TLS Root CA&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+   203→	run(&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;TLS Intermediate&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+   204→	run(&quot;cert&quot;, &quot;issue&quot;, &quot;--cn&quot;, &quot;localhost&quot;, &quot;--ca&quot;, &quot;TLS Intermediate&quot;,
+   205→		&quot;--san&quot;, &quot;localhost,127.0.0.1&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+   206→
+   207→	serverCertPath := filepath.Join(tmpDir, &quot;server.pem&quot;)
+   208→	serverKeyPath := filepath.Join(tmpDir, &quot;server-key.pem&quot;)
+   209→	caBundlePath := filepath.Join(tmpDir, &quot;ca-bundle.pem&quot;)
+   210→
+   211→	certSerial := getCertSerial(t, dbPath, &quot;localhost&quot;)
+   212→	run(&quot;cert&quot;, &quot;export&quot;, &quot;--serial&quot;, certSerial, &quot;--db&quot;, dbPath, &quot;--out&quot;, serverCertPath, &quot;--chain&quot;)
+   213→	exportKey(t, dbPath, certSerial, serverKeyPath)
+   214→	exportCABundle(t, dbPath, caBundlePath)
+   215→
+   216→	nginxConf := filepath.Join(tmpDir, &quot;nginx.conf&quot;)
+   217→	writeFile(t, nginxConf, `
+   218→events {}
+   219→http {
+   220→    server {
+   221→        listen 443 ssl;
+   222→        ssl_certificate /etc/nginx/certs/server.pem;
+   223→        ssl_certificate_key /etc/nginx/certs/server-key.pem;
+   224→
+   225→        location / {
+   226→            return 200 &quot;TLS OK\n&quot;;
+   227→            add_header Content-Type text/plain;
+   228→        }
+   229→    }
+   230→}
+   231→`)
+   232→
+   233→	req := testcontainers.ContainerRequest{
+   234→		Image:        &quot;nginx:alpine&quot;,
+   235→		ExposedPorts: []string{&quot;443/tcp&quot;},
+   236→		WaitingFor:   wait.ForListeningPort(&quot;443/tcp&quot;).WithStartupTimeout(30 * time.Second),
+   237→		Files: []testcontainers.ContainerFile{
+   238→			{HostFilePath: serverCertPath, ContainerFilePath: &quot;/etc/nginx/certs/server.pem&quot;},
+   239→			{HostFilePath: serverKeyPath, ContainerFilePath: &quot;/etc/nginx/certs/server-key.pem&quot;},
+   240→			{HostFilePath: nginxConf, ContainerFilePath: &quot;/etc/nginx/nginx.conf&quot;},
+   241→		},
+   242→	}
+   243→
+   244→	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+   245→		ContainerRequest: req,
+   246→		Started:          true,
+   247→	})
+   248→	if err != nil {
+   249→		t.Fatalf(&quot;starting nginx container: %v&quot;, err)
+   250→	}
+   251→	defer container.Terminate(ctx)
+   252→
+   253→	mappedPort, err := container.MappedPort(ctx, &quot;443&quot;)
+   254→	if err != nil {
+   255→		t.Fatalf(&quot;getting mapped port: %v&quot;, err)
+   256→	}
+   257→
+   258→	host, err := container.Host(ctx)
+   259→	if err != nil {
+   260→		t.Fatalf(&quot;getting host: %v&quot;, err)
+   261→	}
+   262→
+   263→	addr := fmt.Sprintf(&quot;https://%s:%s&quot;, host, mappedPort.Port())
+   264→
+   265→	// Connect with our CA bundle as trusted root
+   266→	rootCAs := x509.NewCertPool()
+   267→	caPEM, err := os.ReadFile(caBundlePath)
+   268→	if err != nil {
+   269→		t.Fatalf(&quot;reading CA bundle: %v&quot;, err)
+   270→	}
+   271→	rootCAs.AppendCertsFromPEM(caPEM)
+   272→
+   273→	client := &amp;http.Client{
+   274→		Transport: &amp;http.Transport{
+   275→			TLSClientConfig: &amp;tls.Config{
+   276→				RootCAs:    rootCAs,
+   277→				ServerName: &quot;localhost&quot;,
+   278→			},
+   279→		},
+   280→		Timeout: 5 * time.Second,
+   281→	}
+   282→
+   283→	resp, err := client.Get(addr)
+   284→	if err != nil {
+   285→		t.Fatalf(&quot;GET %s: %v&quot;, addr, err)
+   286→	}
+   287→	defer resp.Body.Close()
+   288→
+   289→	if resp.StatusCode != http.StatusOK {
+   290→		t.Errorf(&quot;status = %d, want 200&quot;, resp.StatusCode)
+   291→	}
+   292→
+   293→	body, err := io.ReadAll(resp.Body)
+   294→	if err != nil {</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-56-53-406Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-56-53-406Z" class="timestamp-link"><time datetime="2026-03-26T20:56:53.406Z" data-timestamp="2026-03-26T20:56:53.406Z">2026-03-26T20:56:53.406Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01YHK2Rws1P4hbMbHBbjykHk"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/tests/system/mtls_test.go&#34;,
+  &#34;offset&#34;: 293,
+  &#34;limit&#34;: 100
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-56-53-456Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-56-53-456Z" class="timestamp-link"><time datetime="2026-03-26T20:56:53.456Z" data-timestamp="2026-03-26T20:56:53.456Z">2026-03-26T20:56:53.456Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>   293→	body, err := io.ReadAll(resp.Body)
+   294→	if err != nil {
+   295→		t.Fatalf(&quot;reading response body: %v&quot;, err)
+   296→	}
+   297→	t.Logf(&quot;Response: %s&quot;, body)
+   298→}
+   299→
+   300→// --- Helpers ---
+   301→
+   302→func getCertSerial(t *testing.T, dbPath, cn string) string {
+   303→	t.Helper()
+   304→	ctx := context.Background()
+   305→
+   306→	d, err := store.OpenDB(ctx, dbPath)
+   307→	if err != nil {
+   308→		t.Fatalf(&quot;OpenDB: %v&quot;, err)
+   309→	}
+   310→	defer d.Close()
+   311→
+   312→	q := store.New(d.SQLDB())
+   313→	cert, err := q.GetCertByCN(ctx, cn)
+   314→	if err != nil {
+   315→		t.Fatalf(&quot;GetCertByCN(%s): %v&quot;, cn, err)
+   316→	}
+   317→	return cert.Serial
+   318→}
+   319→
+   320→func exportKey(t *testing.T, dbPath, serial, outPath string) {
+   321→	t.Helper()
+   322→	ctx := context.Background()
+   323→
+   324→	d, err := store.OpenDB(ctx, dbPath)
+   325→	if err != nil {
+   326→		t.Fatalf(&quot;OpenDB: %v&quot;, err)
+   327→	}
+   328→	defer d.Close()
+   329→
+   330→	q := store.New(d.SQLDB())
+   331→	keyPEM, err := q.LoadKey(ctx, serial)
+   332→	if err != nil {
+   333→		t.Fatalf(&quot;LoadKey(%s): %v&quot;, serial, err)
+   334→	}
+   335→
+   336→	if err := os.WriteFile(outPath, keyPEM, 0o600); err != nil {
+   337→		t.Fatalf(&quot;writing key: %v&quot;, err)
+   338→	}
+   339→}
+   340→
+   341→func exportCABundle(t *testing.T, dbPath, outPath string) {
+   342→	t.Helper()
+   343→	ctx := context.Background()
+   344→
+   345→	d, err := store.OpenDB(ctx, dbPath)
+   346→	if err != nil {
+   347→		t.Fatalf(&quot;OpenDB: %v&quot;, err)
+   348→	}
+   349→	defer d.Close()
+   350→
+   351→	q := store.New(d.SQLDB())
+   352→	cas, err := q.ListCAs(ctx)
+   353→	if err != nil {
+   354→		t.Fatalf(&quot;ListCAs: %v&quot;, err)
+   355→	}
+   356→
+   357→	var bundle string
+   358→	for _, ca := range cas {
+   359→		bundle += ca.CertPem
+   360→	}
+   361→
+   362→	if err := os.WriteFile(outPath, []byte(bundle), 0o644); err != nil {
+   363→		t.Fatalf(&quot;writing CA bundle: %v&quot;, err)
+   364→	}
+   365→}
+   366→
+   367→func buildMTLSClient(t *testing.T, caBundlePath, certPath, keyPath string) *http.Client {
+   368→	t.Helper()
+   369→
+   370→	clientCert, err := tls.LoadX509KeyPair(certPath, keyPath)
+   371→	if err != nil {
+   372→		t.Fatalf(&quot;LoadX509KeyPair: %v&quot;, err)
+   373→	}
+   374→
+   375→	rootCAs := x509.NewCertPool()
+   376→	caPEM, err := os.ReadFile(caBundlePath)
+   377→	if err != nil {
+   378→		t.Fatalf(&quot;reading CA bundle: %v&quot;, err)
+   379→	}
+   380→	rootCAs.AppendCertsFromPEM(caPEM)
+   381→
+   382→	return &amp;http.Client{
+   383→		Transport: &amp;http.Transport{
+   384→			TLSClientConfig: &amp;tls.Config{
+   385→				Certificates: []tls.Certificate{clientCert},
+   386→				RootCAs:      rootCAs,
+   387→				ServerName:   &quot;localhost&quot;,
+   388→			},
+   389→		},
+   390→		Timeout: 5 * time.Second,
+   391→	}
+   392→}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-56-58-554Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-56-58-554Z" class="timestamp-link"><time datetime="2026-03-26T20:56:58.554Z" data-timestamp="2026-03-26T20:56:58.554Z">2026-03-26T20:56:58.554Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>I'll add a new test that uses <code>gossl sclient</code> against the nginx containers. I'll add it after <code>TestTLS_ServerCertVerification</code>.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-57-15-442Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-57-15-442Z" class="timestamp-link"><time datetime="2026-03-26T20:57:15.442Z" data-timestamp="2026-03-26T20:57:15.442Z">2026-03-26T20:57:15.442Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_011rA55dNFS5JHHcJ1TpbPCR">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">mtls_test.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/tests/system/mtls_test.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">// --- Helpers ---</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">// TestSClient_InspectNginx uses gossl sclient to inspect an nginx TLS server.
+func TestSClient_InspectNginx(t *testing.T) {
+	ctx := context.Background()
+	tmpDir := t.TempDir()
+	dbPath := filepath.Join(tmpDir, &#34;test.db&#34;)
+
+	run := func(args ...string) {
+		t.Helper()
+		cmd := cli.NewRoot()
+		cmd.SetArgs(args)
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf(&#34;gossl %v: %v&#34;, args, err)
+		}
+	}
+
+	run(&#34;ca&#34;, &#34;create&#34;, &#34;--cn&#34;, &#34;SClient Root CA&#34;, &#34;--db&#34;, dbPath, &#34;--key-size&#34;, &#34;2048&#34;)
+	run(&#34;ca&#34;, &#34;create&#34;, &#34;--cn&#34;, &#34;SClient Intermediate&#34;, &#34;--db&#34;, dbPath, &#34;--key-size&#34;, &#34;2048&#34;)
+	run(&#34;cert&#34;, &#34;issue&#34;, &#34;--cn&#34;, &#34;localhost&#34;, &#34;--ca&#34;, &#34;SClient Intermediate&#34;,
+		&#34;--san&#34;, &#34;localhost,127.0.0.1&#34;, &#34;--db&#34;, dbPath, &#34;--key-size&#34;, &#34;2048&#34;)
+
+	serverCertPath := filepath.Join(tmpDir, &#34;server.pem&#34;)
+	serverKeyPath := filepath.Join(tmpDir, &#34;server-key.pem&#34;)
+	caBundlePath := filepath.Join(tmpDir, &#34;ca-bundle.pem&#34;)
+
+	certSerial := getCertSerial(t, dbPath, &#34;localhost&#34;)
+	run(&#34;cert&#34;, &#34;export&#34;, &#34;--serial&#34;, certSerial, &#34;--db&#34;, dbPath, &#34;--out&#34;, serverCertPath, &#34;--chain&#34;)
+	exportKey(t, dbPath, certSerial, serverKeyPath)
+	exportCABundle(t, dbPath, caBundlePath)
+
+	// Issue client cert for mTLS sclient test
+	run(&#34;cert&#34;, &#34;issue&#34;, &#34;--cn&#34;, &#34;sclient-user&#34;, &#34;--db&#34;, dbPath, &#34;--key-size&#34;, &#34;2048&#34;)
+	clientSerial := getCertSerial(t, dbPath, &#34;sclient-user&#34;)
+	clientCertPath := filepath.Join(tmpDir, &#34;client.pem&#34;)
+	clientKeyPath := filepath.Join(tmpDir, &#34;client-key.pem&#34;)
+	run(&#34;cert&#34;, &#34;export&#34;, &#34;--serial&#34;, clientSerial, &#34;--db&#34;, dbPath, &#34;--out&#34;, clientCertPath, &#34;--chain&#34;)
+	exportKey(t, dbPath, clientSerial, clientKeyPath)
+
+	// Start nginx with plain TLS
+	nginxConf := filepath.Join(tmpDir, &#34;nginx.conf&#34;)
+	writeFile(t, nginxConf, `
+events {}
+http {
+    server {
+        listen 443 ssl;
+        ssl_certificate /etc/nginx/certs/server.pem;
+        ssl_certificate_key /etc/nginx/certs/server-key.pem;
+        location / { return 200 &#34;ok\n&#34;; }
+    }
+    server {
+        listen 8443 ssl;
+        ssl_certificate /etc/nginx/certs/server.pem;
+        ssl_certificate_key /etc/nginx/certs/server-key.pem;
+        ssl_client_certificate /etc/nginx/certs/ca-bundle.pem;
+        ssl_verify_client on;
+        location / { return 200 &#34;mtls ok\n&#34;; }
+    }
+}
+`)
+
+	req := testcontainers.ContainerRequest{
+		Image:        &#34;nginx:alpine&#34;,
+		ExposedPorts: []string{&#34;443/tcp&#34;, &#34;8443/tcp&#34;},
+		WaitingFor:   wait.ForListeningPort(&#34;443/tcp&#34;).WithStartupTimeout(30 * time.Second),
+		Files: []testcontainers.ContainerFile{
+			{HostFilePath: serverCertPath, ContainerFilePath: &#34;/etc/nginx/certs/server.pem&#34;},
+			{HostFilePath: serverKeyPath, ContainerFilePath: &#34;/etc/nginx/certs/server-key.pem&#34;},
+			{HostFilePath: caBundlePath, ContainerFilePath: &#34;/etc/nginx/certs/ca-bundle.pem&#34;},
+			{HostFilePath: nginxConf, ContainerFilePath: &#34;/etc/nginx/nginx.conf&#34;},
+		},
+	}
+
+	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: req,
+		Started:          true,
+	})
+	if err != nil {
+		t.Fatalf(&#34;starting nginx container: %v&#34;, err)
+	}
+	defer container.Terminate(ctx)
+
+	tlsPort, err := container.MappedPort(ctx, &#34;443&#34;)
+	if err != nil {
+		t.Fatalf(&#34;getting TLS port: %v&#34;, err)
+	}
+	mtlsPort, err := container.MappedPort(ctx, &#34;8443&#34;)
+	if err != nil {
+		t.Fatalf(&#34;getting mTLS port: %v&#34;, err)
+	}
+
+	host, err := container.Host(ctx)
+	if err != nil {
+		t.Fatalf(&#34;getting host: %v&#34;, err)
+	}
+
+	// Test 1: Basic sclient — inspect server cert
+	t.Run(&#34;basic&#34;, func(t *testing.T) {
+		cmd := cli.NewRoot()
+		cmd.SetArgs([]string{&#34;sclient&#34;, fmt.Sprintf(&#34;%s:%s&#34;, host, tlsPort.Port()), &#34;--sni&#34;, &#34;localhost&#34;})
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf(&#34;sclient: %v&#34;, err)
+		}
+	})
+
+	// Test 2: sclient with custom CA — chain should verify
+	t.Run(&#34;custom_ca_verify&#34;, func(t *testing.T) {
+		cmd := cli.NewRoot()
+		cmd.SetArgs([]string{&#34;sclient&#34;, fmt.Sprintf(&#34;%s:%s&#34;, host, tlsPort.Port()), &#34;--sni&#34;, &#34;localhost&#34;, &#34;--ca-file&#34;, caBundlePath})
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf(&#34;sclient --ca-file: %v&#34;, err)
+		}
+	})
+
+	// Test 3: sclient with --show-certs
+	t.Run(&#34;show_certs&#34;, func(t *testing.T) {
+		cmd := cli.NewRoot()
+		cmd.SetArgs([]string{&#34;sclient&#34;, fmt.Sprintf(&#34;%s:%s&#34;, host, tlsPort.Port()), &#34;--sni&#34;, &#34;localhost&#34;, &#34;--show-certs&#34;})
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf(&#34;sclient --show-certs: %v&#34;, err)
+		}
+	})
+
+	// Test 4: sclient with client cert for mTLS
+	t.Run(&#34;mtls_client_cert&#34;, func(t *testing.T) {
+		cmd := cli.NewRoot()
+		cmd.SetArgs([]string{
+			&#34;sclient&#34;, fmt.Sprintf(&#34;%s:%s&#34;, host, mtlsPort.Port()),
+			&#34;--sni&#34;, &#34;localhost&#34;,
+			&#34;--cert&#34;, clientCertPath,
+			&#34;--key&#34;, clientKeyPath,
+		})
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf(&#34;sclient --cert --key: %v&#34;, err)
+		}
+	})
+}
+
+// --- Helpers ---</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-57-15-541Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-57-15-541Z" class="timestamp-link"><time datetime="2026-03-26T20:57:15.541Z" data-timestamp="2026-03-26T20:57:15.541Z">2026-03-26T20:57:15.541Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/tests/system/mtls_test.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-57-23-472Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-57-23-472Z" class="timestamp-link"><time datetime="2026-03-26T20:57:23.472Z" data-timestamp="2026-03-26T20:57:23.472Z">2026-03-26T20:57:23.472Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01Eo4zz2V1wKe1k3fiBdcCRo">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Run system tests with sclient</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel test //tests/system:system_test --test_tag_filters=integration --test_output=streamed 2&gt;&amp;1 | grep -E &#34;^(=|---|\s+mtls|PASS|FAIL|Created|Issued|Exported|OK:|Connected|Chain)&#34; | head -40</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-57-23-923Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-57-23-923Z" class="timestamp-link"><time datetime="2026-03-26T20:57:23.923Z" data-timestamp="2026-03-26T20:57:23.923Z">2026-03-26T20:57:23.923Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>(Bash completed with no output)</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-57-30-139Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-57-30-139Z" class="timestamp-link"><time datetime="2026-03-26T20:57:30.139Z" data-timestamp="2026-03-26T20:57:30.139Z">2026-03-26T20:57:30.139Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01Lzhue3xhNVvHrrYJmQFsnS">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Run system tests</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel test //tests/system:system_test --test_tag_filters=integration --test_output=all 2&gt;&amp;1 | tail -30</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-57-30-475Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-57-30-475Z" class="timestamp-link"><time datetime="2026-03-26T20:57:30.475Z" data-timestamp="2026-03-26T20:57:30.475Z">2026-03-26T20:57:30.475Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>INFO: Invocation ID: 827cd0ed-faa6-4c15-9506-37d847b93b5b
+Computing main repo mapping: 
+Loading: 
+Loading: 0 packages loaded
+ERROR: Skipping &#x27;//tests/system:system_test&#x27;: no such target &#x27;//tests/system:system_test&#x27;: target &#x27;system_test&#x27; not declared in package &#x27;tests/system&#x27; defined by /Users/scaruso/dev/gossl/tests/system/BUILD.bazel
+ERROR: no such target &#x27;//tests/system:system_test&#x27;: target &#x27;system_test&#x27; not declared in package &#x27;tests/system&#x27; defined by /Users/scaruso/dev/gossl/tests/system/BUILD.bazel
+INFO: Elapsed time: 0.174s
+INFO: 0 processes.
+ERROR: Build did NOT complete successfully
+ERROR: Couldn&#x27;t start the build. Unable to run tests</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-57-36-264Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-57-36-264Z" class="timestamp-link"><time datetime="2026-03-26T20:57:36.264Z" data-timestamp="2026-03-26T20:57:36.264Z">2026-03-26T20:57:36.264Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Gazelle must have overwritten the BUILD. Let me fix both issues — rename server.go to sclient.go and fix the BUILD.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-57-38-096Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-57-38-096Z" class="timestamp-link"><time datetime="2026-03-26T20:57:38.096Z" data-timestamp="2026-03-26T20:57:38.096Z">2026-03-26T20:57:38.096Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01AzGwtYDg4jmougUhcs2Eb7">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Rename server files to sclient</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">mv /Users/scaruso/dev/gossl/internal/cli/server.go /Users/scaruso/dev/gossl/internal/cli/sclient.go &amp;&amp; mv /Users/scaruso/dev/gossl/internal/cli/server_test.go /Users/scaruso/dev/gossl/internal/cli/sclient_test.go</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-57-38-231Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-57-38-231Z" class="timestamp-link"><time datetime="2026-03-26T20:57:38.231Z" data-timestamp="2026-03-26T20:57:38.231Z">2026-03-26T20:57:38.231Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>(Bash completed with no output)</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-57-42-838Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-57-42-838Z" class="timestamp-link"><time datetime="2026-03-26T20:57:42.838Z" data-timestamp="2026-03-26T20:57:42.838Z">2026-03-26T20:57:42.838Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01AAV3we6FQDsvcBPqhm1m6L"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/tests/system/BUILD.bazel&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-57-42-882Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-57-42-882Z" class="timestamp-link"><time datetime="2026-03-26T20:57:42.882Z" data-timestamp="2026-03-26T20:57:42.882Z">2026-03-26T20:57:42.882Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>&lt;system-reminder&gt;Warning: the file exists but is shorter than the provided offset (1). The file has 1 lines.&lt;/system-reminder&gt;</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-57-47-950Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-57-47-950Z" class="timestamp-link"><time datetime="2026-03-26T20:57:47.950Z" data-timestamp="2026-03-26T20:57:47.950Z">2026-03-26T20:57:47.950Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Gazelle wiped it. Let me restore it.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-57-50-694Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-57-50-694Z" class="timestamp-link"><time datetime="2026-03-26T20:57:50.694Z" data-timestamp="2026-03-26T20:57:50.694Z">2026-03-26T20:57:50.694Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_014WvdTDVyWrS5pLXuBixN1v">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">BUILD.bazel</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/tests/system/BUILD.bazel</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content">load(&#34;@rules_go//go:def.bzl&#34;, &#34;go_test&#34;)
+
+# gazelle:ignore
+
+go_test(
+    name = &#34;system_test&#34;,
+    srcs = [&#34;mtls_test.go&#34;],
+    gotags = [&#34;integration&#34;],
+    tags = [&#34;integration&#34;],
+    deps = [
+        &#34;//internal/cli&#34;,
+        &#34;//internal/store&#34;,
+        &#34;@com_github_testcontainers_testcontainers_go//:go_default_library&#34;,
+        &#34;@com_github_testcontainers_testcontainers_go//wait:go_default_library&#34;,
+    ],
+)
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-57-50-743Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-57-50-743Z" class="timestamp-link"><time datetime="2026-03-26T20:57:50.743Z" data-timestamp="2026-03-26T20:57:50.743Z">2026-03-26T20:57:50.743Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>File created successfully at: /Users/scaruso/dev/gossl/tests/system/BUILD.bazel</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-57-57-762Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-57-57-762Z" class="timestamp-link"><time datetime="2026-03-26T20:57:57.762Z" data-timestamp="2026-03-26T20:57:57.762Z">2026-03-26T20:57:57.762Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01XmZx7jMSVVnqBpmtueD9m5">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Run system tests</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel run //:gazelle 2&gt;&amp;1 | tail -2 &amp;&amp; bazel test //tests/system:system_test --test_tag_filters=integration --test_output=all 2&gt;&amp;1 | grep -E &#34;(PASS|FAIL|---)&#34; | head -20</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-58-39-338Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-58-39-338Z" class="timestamp-link"><time datetime="2026-03-26T20:58:39.338Z" data-timestamp="2026-03-26T20:58:39.338Z">2026-03-26T20:58:39.338Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>INFO: Build completed successfully, 1 total action
+INFO: Running command line: bazel-bin/gazelle
+Chain Verification: FAILED
+  --- PEM ---
+-----BEGIN CERTIFICATE-----
+-----END CERTIFICATE-----
+  --- PEM ---
+-----BEGIN CERTIFICATE-----
+-----END CERTIFICATE-----
+  --- PEM ---
+-----BEGIN CERTIFICATE-----
+-----END CERTIFICATE-----
+Chain Verification: FAILED
+Chain Verification: FAILED
+PASS
+//tests/system:system_test                                               PASSED in 3.1s</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-58-44-250Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-58-44-250Z" class="timestamp-link"><time datetime="2026-03-26T20:58:44.250Z" data-timestamp="2026-03-26T20:58:44.250Z">2026-03-26T20:58:44.250Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>All pass. Let me fix the function name too.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-58-44-926Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-58-44-926Z" class="timestamp-link"><time datetime="2026-03-26T20:58:44.926Z" data-timestamp="2026-03-26T20:58:44.926Z">2026-03-26T20:58:44.926Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01PVVvmM4MZ6FQvJbF3TrTDe">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">sclient.go</span> <span class="edit-replace-all">(replace all)</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/sclient.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">runServerCheck</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">runSClient</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-58-45-039Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-58-45-039Z" class="timestamp-link"><time datetime="2026-03-26T20:58:45.039Z" data-timestamp="2026-03-26T20:58:45.039Z">2026-03-26T20:58:45.039Z</time></a></div><div class="message-content"><div class="tool-result tool-error"><div class="truncatable"><div class="truncatable-content"><pre>&lt;tool_use_error&gt;File has not been read yet. Read it first before writing to it.&lt;/tool_use_error&gt;</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-58-50-253Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-58-50-253Z" class="timestamp-link"><time datetime="2026-03-26T20:58:50.253Z" data-timestamp="2026-03-26T20:58:50.253Z">2026-03-26T20:58:50.253Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_012FqQMQFRw2ZmnoZ6bRL6jB"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/sclient.go&#34;,
+  &#34;limit&#34;: 50
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-58-50-306Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-58-50-306Z" class="timestamp-link"><time datetime="2026-03-26T20:58:50.306Z" data-timestamp="2026-03-26T20:58:50.306Z">2026-03-26T20:58:50.306Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→package cli
+     2→
+     3→import (
+     4→	&quot;crypto/ecdsa&quot;
+     5→	&quot;crypto/rsa&quot;
+     6→	&quot;crypto/tls&quot;
+     7→	&quot;crypto/x509&quot;
+     8→	&quot;encoding/pem&quot;
+     9→	&quot;fmt&quot;
+    10→	&quot;net&quot;
+    11→	&quot;os&quot;
+    12→	&quot;strings&quot;
+    13→	&quot;time&quot;
+    14→
+    15→	&quot;github.com/spf13/cobra&quot;
+    16→)
+    17→
+    18→func newSClientCmd() *cobra.Command {
+    19→	var (
+    20→		sni       string
+    21→		timeout   time.Duration
+    22→		caFile    string
+    23→		showCerts bool
+    24→		clientCrt string
+    25→		clientKey string
+    26→		alpn      []string
+    27→	)
+    28→
+    29→	cmd := &amp;cobra.Command{
+    30→		Use:   &quot;sclient &lt;host:port&gt;&quot;,
+    31→		Short: &quot;Inspect and validate a server&#x27;s TLS configuration&quot;,
+    32→		Long: `Connect to a TLS server and display certificate chain, cipher suite,
+    33→protocol version, and chain verification status. Similar to openssl s_client.`,
+    34→		Args: cobra.ExactArgs(1),
+    35→		RunE: func(cmd *cobra.Command, args []string) error {
+    36→			return runServerCheck(args[0], sni, timeout, caFile, showCerts, clientCrt, clientKey, alpn)
+    37→		},
+    38→	}
+    39→
+    40→	cmd.Flags().StringVar(&amp;sni, &quot;sni&quot;, &quot;&quot;, &quot;Server name indication override&quot;)
+    41→	cmd.Flags().DurationVar(&amp;timeout, &quot;timeout&quot;, 10*time.Second, &quot;Connection timeout&quot;)
+    42→	cmd.Flags().StringVar(&amp;caFile, &quot;ca-file&quot;, &quot;&quot;, &quot;Custom CA bundle for verification&quot;)
+    43→	cmd.Flags().BoolVar(&amp;showCerts, &quot;show-certs&quot;, false, &quot;Print full PEM-encoded certificates&quot;)
+    44→	cmd.Flags().StringVar(&amp;clientCrt, &quot;cert&quot;, &quot;&quot;, &quot;Client certificate PEM for mTLS&quot;)
+    45→	cmd.Flags().StringVar(&amp;clientKey, &quot;key&quot;, &quot;&quot;, &quot;Client private key PEM for mTLS&quot;)
+    46→	cmd.Flags().StringSliceVar(&amp;alpn, &quot;alpn&quot;, nil, &quot;ALPN protocols (e.g. h2,http/1.1)&quot;)
+    47→
+    48→	return cmd
+    49→}
+    50→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-58-56-303Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-58-56-303Z" class="timestamp-link"><time datetime="2026-03-26T20:58:56.303Z" data-timestamp="2026-03-26T20:58:56.303Z">2026-03-26T20:58:56.303Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01RNk6T6yvSHw2SnG3gFt3un">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">sclient.go</span> <span class="edit-replace-all">(replace all)</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/sclient.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">runServerCheck</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">runSClient</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-58-56-389Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-58-56-389Z" class="timestamp-link"><time datetime="2026-03-26T20:58:56.389Z" data-timestamp="2026-03-26T20:58:56.389Z">2026-03-26T20:58:56.389Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/sclient.go has been updated. All occurrences were successfully replaced.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-59-03-621Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-59-03-621Z" class="timestamp-link"><time datetime="2026-03-26T20:59:03.621Z" data-timestamp="2026-03-26T20:59:03.621Z">2026-03-26T20:59:03.621Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01ASsmADnT7Ecipv6vyDJFyN">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">sclient.go</span> <span class="edit-replace-all">(replace all)</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/sclient.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">printServerCertInfo</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">printSClientCertInfo</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-59-03-692Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-59-03-692Z" class="timestamp-link"><time datetime="2026-03-26T20:59:03.692Z" data-timestamp="2026-03-26T20:59:03.692Z">2026-03-26T20:59:03.692Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/sclient.go has been updated. All occurrences were successfully replaced.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-59-08-609Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-59-08-609Z" class="timestamp-link"><time datetime="2026-03-26T20:59:08.609Z" data-timestamp="2026-03-26T20:59:08.609Z">2026-03-26T20:59:08.609Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01HpGPagN2ndM84UvqQJDCdv">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Run all tests</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel test //... 2&gt;&amp;1 | grep -E &#34;PASSED|FAILED|test&#34;</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-59-19-305Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-59-19-305Z" class="timestamp-link"><time datetime="2026-03-26T20:59:19.305Z" data-timestamp="2026-03-26T20:59:19.305Z">2026-03-26T20:59:19.305Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>[450 / 456] 1 / 3 tests; GoLink cmd/gossl/gossl_/gossl; 1s disk-cache, darwin-sandbox ... (3 actions running)
+INFO: From GoLink internal/cli/cli_test_/cli_test:
+INFO: From GoLink tests/system/system_test_/system_test:
+[456 / 458] 1 / 3 tests; Testing //internal/cli:cli_test; 0s disk-cache, darwin-sandbox ... (2 actions running)
+[456 / 458] 2 / 3 tests; Testing //internal/cli:cli_test; 4s disk-cache, darwin-sandbox ... (2 actions running)
+[457 / 458] 2 / 3 tests; Testing //internal/cli:cli_test; 5s disk-cache, darwin-sandbox
+INFO: Found 19 targets and 3 test targets...
+//internal/store:store_test                                     (cached) PASSED in 1.0s
+//internal/cli:cli_test                                                  PASSED in 5.8s
+//tests/system:system_test                                               PASSED in 3.8s
+Executed 2 out of 3 tests: 3 tests pass.
+There were tests whose specified size is too big. Use the --test_verbose_timeout_warnings command line option to see which ones these are.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-59-26-318Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-59-26-318Z" class="timestamp-link"><time datetime="2026-03-26T20:59:26.318Z" data-timestamp="2026-03-26T20:59:26.318Z">2026-03-26T20:59:26.318Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>All 3 test suites pass. Done:</p>
+<ul>
+<li>Renamed <code>server.go</code> → <code>sclient.go</code>, <code>runServerCheck</code> → <code>runSClient</code>, <code>printServerCertInfo</code> → <code>printSClientCertInfo</code></li>
+<li>System tests now include <code>TestSClient_InspectNginx</code> with 4 subtests:</li>
+<li><strong>basic</strong> — connect and inspect cert chain</li>
+<li><strong>custom_ca_verify</strong> — verify chain against gossl-generated CA bundle</li>
+<li><strong>show_certs</strong> — dump PEM-encoded certs</li>
+<li><strong>mtls_client_cert</strong> — connect with client cert to mTLS-enabled nginx</li>
+</ul></div></div></div>
+<div class="message user" id="msg-2026-03-26T21-06-51-613Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T21-06-51-613Z" class="timestamp-link"><time datetime="2026-03-26T21:06:51.613Z" data-timestamp="2026-03-26T21:06:51.613Z">2026-03-26T21:06:51.613Z</time></a></div><div class="message-content">
+<div class="user-content"><p>u added teh tests to mtls_test.go. pls split them</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-06-56-498Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-06-56-498Z" class="timestamp-link"><time datetime="2026-03-26T21:06:56.498Z" data-timestamp="2026-03-26T21:06:56.498Z">2026-03-26T21:06:56.498Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01EW91K8mfUw69vymuD1h347"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/tests/system/mtls_test.go&#34;,
+  &#34;limit&#34;: 5
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T21-06-56-574Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T21-06-56-574Z" class="timestamp-link"><time datetime="2026-03-26T21:06:56.574Z" data-timestamp="2026-03-26T21:06:56.574Z">2026-03-26T21:06:56.574Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→//go:build integration
+     2→
+     3→package system
+     4→
+     5→import (</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-07-05-285Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-07-05-285Z" class="timestamp-link"><time datetime="2026-03-26T21:07:05.285Z" data-timestamp="2026-03-26T21:07:05.285Z">2026-03-26T21:07:05.285Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_012rARhA1mj9LmTi15JuKLMC"><div class="tool-header"><span class="tool-icon">⚙</span> Grep</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;pattern&#34;: &#34;^func Test&#34;,
+  &#34;path&#34;: &#34;/Users/scaruso/dev/gossl/tests/system/mtls_test.go&#34;,
+  &#34;output_mode&#34;: &#34;content&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T21-07-05-375Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T21-07-05-375Z" class="timestamp-link"><time datetime="2026-03-26T21:07:05.375Z" data-timestamp="2026-03-26T21:07:05.375Z">2026-03-26T21:07:05.375Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>25:func TestMTLS_NginxWithGoSSLCerts(t *testing.T) {
+188:func TestTLS_ServerCertVerification(t *testing.T) {
+301:func TestSClient_InspectNginx(t *testing.T) {</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-07-13-144Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-07-13-144Z" class="timestamp-link"><time datetime="2026-03-26T21:07:13.144Z" data-timestamp="2026-03-26T21:07:13.144Z">2026-03-26T21:07:13.144Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Three tests: mTLS, TLS, SClient. I'll split into 3 files + a shared helpers file.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-07-13-240Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-07-13-240Z" class="timestamp-link"><time datetime="2026-03-26T21:07:13.240Z" data-timestamp="2026-03-26T21:07:13.240Z">2026-03-26T21:07:13.240Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_013sA2NhP3UELExazbbvyZAE"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/tests/system/mtls_test.go&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T21-07-13-490Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T21-07-13-490Z" class="timestamp-link"><time datetime="2026-03-26T21:07:13.490Z" data-timestamp="2026-03-26T21:07:13.490Z">2026-03-26T21:07:13.490Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→//go:build integration
+     2→
+     3→package system
+     4→
+     5→import (
+     6→	&quot;context&quot;
+     7→	&quot;crypto/tls&quot;
+     8→	&quot;crypto/x509&quot;
+     9→	&quot;fmt&quot;
+    10→	&quot;io&quot;
+    11→	&quot;net/http&quot;
+    12→	&quot;os&quot;
+    13→	&quot;path/filepath&quot;
+    14→	&quot;testing&quot;
+    15→	&quot;time&quot;
+    16→
+    17→	&quot;github.com/bejelith/gossl/internal/cli&quot;
+    18→	&quot;github.com/bejelith/gossl/internal/store&quot;
+    19→	&quot;github.com/testcontainers/testcontainers-go&quot;
+    20→	&quot;github.com/testcontainers/testcontainers-go/wait&quot;
+    21→)
+    22→
+    23→// TestMTLS_NginxWithGoSSLCerts creates a full CA hierarchy with gossl,
+    24→// starts an nginx container with mTLS, and verifies client cert auth works.
+    25→func TestMTLS_NginxWithGoSSLCerts(t *testing.T) {
+    26→	ctx := context.Background()
+    27→	tmpDir := t.TempDir()
+    28→	dbPath := filepath.Join(tmpDir, &quot;test.db&quot;)
+    29→
+    30→	// --- Build CA hierarchy and certs via CLI ---
+    31→	run := func(args ...string) {
+    32→		t.Helper()
+    33→		cmd := cli.NewRoot()
+    34→		cmd.SetArgs(args)
+    35→		if err := cmd.Execute(); err != nil {
+    36→			t.Fatalf(&quot;gossl %v: %v&quot;, args, err)
+    37→		}
+    38→	}
+    39→
+    40→	run(&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;Test Root CA&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+    41→	run(&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;Test Intermediate&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+    42→	run(&quot;cert&quot;, &quot;issue&quot;, &quot;--cn&quot;, &quot;localhost&quot;, &quot;--ca&quot;, &quot;Test Intermediate&quot;,
+    43→		&quot;--san&quot;, &quot;localhost,127.0.0.1&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+    44→
+    45→	// Export server cert chain and key
+    46→	serverCertPath := filepath.Join(tmpDir, &quot;server.pem&quot;)
+    47→	serverKeyPath := filepath.Join(tmpDir, &quot;server-key.pem&quot;)
+    48→	caBundlePath := filepath.Join(tmpDir, &quot;ca-bundle.pem&quot;)
+    49→
+    50→	// Get the cert serial from the DB
+    51→	certSerial := getCertSerial(t, dbPath, &quot;localhost&quot;)
+    52→
+    53→	run(&quot;cert&quot;, &quot;export&quot;, &quot;--serial&quot;, certSerial, &quot;--db&quot;, dbPath, &quot;--out&quot;, serverCertPath, &quot;--chain&quot;)
+    54→
+    55→	// Export server private key
+    56→	exportKey(t, dbPath, certSerial, serverKeyPath)
+    57→
+    58→	// Export CA bundle (root + intermediate) for client verification
+    59→	exportCABundle(t, dbPath, caBundlePath)
+    60→
+    61→	// Generate client cert for mTLS
+    62→	run(&quot;cert&quot;, &quot;issue&quot;, &quot;--cn&quot;, &quot;test-client&quot;, &quot;--ca&quot;, &quot;Test Intermediate&quot;,
+    63→		&quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+    64→	clientSerial := getCertSerial(t, dbPath, &quot;test-client&quot;)
+    65→	clientCertPath := filepath.Join(tmpDir, &quot;client.pem&quot;)
+    66→	clientKeyPath := filepath.Join(tmpDir, &quot;client-key.pem&quot;)
+    67→	run(&quot;cert&quot;, &quot;export&quot;, &quot;--serial&quot;, clientSerial, &quot;--db&quot;, dbPath, &quot;--out&quot;, clientCertPath, &quot;--chain&quot;)
+    68→	exportKey(t, dbPath, clientSerial, clientKeyPath)
+    69→
+    70→	// --- Write nginx config ---
+    71→	nginxConf := filepath.Join(tmpDir, &quot;nginx.conf&quot;)
+    72→	writeFile(t, nginxConf, `
+    73→events {}
+    74→http {
+    75→    server {
+    76→        listen 443 ssl;
+    77→        ssl_certificate /etc/nginx/certs/server.pem;
+    78→        ssl_certificate_key /etc/nginx/certs/server-key.pem;
+    79→        ssl_client_certificate /etc/nginx/certs/ca-bundle.pem;
+    80→        ssl_verify_client on;
+    81→
+    82→        location / {
+    83→            return 200 &quot;mTLS OK: $ssl_client_s_dn\n&quot;;
+    84→            add_header Content-Type text/plain;
+    85→        }
+    86→    }
+    87→}
+    88→`)
+    89→
+    90→	// --- Start nginx container ---
+    91→	req := testcontainers.ContainerRequest{
+    92→		Image:        &quot;nginx:alpine&quot;,
+    93→		ExposedPorts: []string{&quot;443/tcp&quot;},
+    94→		WaitingFor:   wait.ForListeningPort(&quot;443/tcp&quot;).WithStartupTimeout(30 * time.Second),
+    95→		Files: []testcontainers.ContainerFile{
+    96→			{HostFilePath: serverCertPath, ContainerFilePath: &quot;/etc/nginx/certs/server.pem&quot;},
+    97→			{HostFilePath: serverKeyPath, ContainerFilePath: &quot;/etc/nginx/certs/server-key.pem&quot;},
+    98→			{HostFilePath: caBundlePath, ContainerFilePath: &quot;/etc/nginx/certs/ca-bundle.pem&quot;},
+    99→			{HostFilePath: nginxConf, ContainerFilePath: &quot;/etc/nginx/nginx.conf&quot;},
+   100→		},
+   101→	}
+   102→
+   103→	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+   104→		ContainerRequest: req,
+   105→		Started:          true,
+   106→	})
+   107→	if err != nil {
+   108→		t.Fatalf(&quot;starting nginx container: %v&quot;, err)
+   109→	}
+   110→	defer container.Terminate(ctx)
+   111→
+   112→	mappedPort, err := container.MappedPort(ctx, &quot;443&quot;)
+   113→	if err != nil {
+   114→		t.Fatalf(&quot;getting mapped port: %v&quot;, err)
+   115→	}
+   116→
+   117→	host, err := container.Host(ctx)
+   118→	if err != nil {
+   119→		t.Fatalf(&quot;getting host: %v&quot;, err)
+   120→	}
+   121→
+   122→	addr := fmt.Sprintf(&quot;https://%s:%s&quot;, host, mappedPort.Port())
+   123→
+   124→	// --- Test 1: mTLS connection with valid client cert ---
+   125→	t.Run(&quot;valid_client_cert&quot;, func(t *testing.T) {
+   126→		client := buildMTLSClient(t, caBundlePath, clientCertPath, clientKeyPath)
+   127→		resp, err := client.Get(addr)
+   128→		if err != nil {
+   129→			t.Fatalf(&quot;GET %s: %v&quot;, addr, err)
+   130→		}
+   131→		defer resp.Body.Close()
+   132→
+   133→		if resp.StatusCode != http.StatusOK {
+   134→			t.Errorf(&quot;status = %d, want 200&quot;, resp.StatusCode)
+   135→		}
+   136→
+   137→		body, err := io.ReadAll(resp.Body)
+   138→		if err != nil {
+   139→			t.Fatalf(&quot;reading response body: %v&quot;, err)
+   140→		}
+   141→		t.Logf(&quot;Response: %s&quot;, body)
+   142→	})
+   143→
+   144→	// --- Test 2: Connection without client cert should be rejected ---
+   145→	t.Run(&quot;no_client_cert&quot;, func(t *testing.T) {
+   146→		rootCAs := x509.NewCertPool()
+   147→		caPEM, err := os.ReadFile(caBundlePath)
+   148→		if err != nil {
+   149→			t.Fatalf(&quot;reading CA bundle: %v&quot;, err)
+   150→		}
+   151→		rootCAs.AppendCertsFromPEM(caPEM)
+   152→
+   153→		client := &amp;http.Client{
+   154→			Transport: &amp;http.Transport{
+   155→				TLSClientConfig: &amp;tls.Config{
+   156→					RootCAs: rootCAs,
+   157→				},
+   158→			},
+   159→			Timeout: 5 * time.Second,
+   160→		}
+   161→
+   162→		resp, err := client.Get(addr)
+   163→		if err != nil {
+   164→			// TLS handshake failure — expected
+   165→			t.Logf(&quot;Expected TLS error: %v&quot;, err)
+   166→			return
+   167→		}
+   168→		defer resp.Body.Close()
+   169→
+   170→		// nginx may accept TLS but return 400 when client cert is missing
+   171→		if resp.StatusCode == http.StatusOK {
+   172→			t.Fatal(&quot;expected rejection without client cert, got 200 OK&quot;)
+   173→		}
+   174→		t.Logf(&quot;Rejected with HTTP %d (no client cert)&quot;, resp.StatusCode)
+   175→	})
+   176→
+   177→	// --- Test 3: Verify cert chain with gossl cert verify ---
+   178→	t.Run(&quot;cert_verify&quot;, func(t *testing.T) {
+   179→		cmd := cli.NewRoot()
+   180→		cmd.SetArgs([]string{&quot;cert&quot;, &quot;verify&quot;, clientCertPath, &quot;--chain&quot;, caBundlePath})
+   181→		if err := cmd.Execute(); err != nil {
+   182→			t.Fatalf(&quot;cert verify: %v&quot;, err)
+   183→		}
+   184→	})
+   185→}
+   186→
+   187→// TestTLS_ServerCertVerification creates certs and verifies TLS works without mTLS.
+   188→func TestTLS_ServerCertVerification(t *testing.T) {
+   189→	ctx := context.Background()
+   190→	tmpDir := t.TempDir()
+   191→	dbPath := filepath.Join(tmpDir, &quot;test.db&quot;)
+   192→
+   193→	run := func(args ...string) {
+   194→		t.Helper()
+   195→		cmd := cli.NewRoot()
+   196→		cmd.SetArgs(args)
+   197→		if err := cmd.Execute(); err != nil {
+   198→			t.Fatalf(&quot;gossl %v: %v&quot;, args, err)
+   199→		}
+   200→	}
+   201→
+   202→	run(&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;TLS Root CA&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+   203→	run(&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;TLS Intermediate&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+   204→	run(&quot;cert&quot;, &quot;issue&quot;, &quot;--cn&quot;, &quot;localhost&quot;, &quot;--ca&quot;, &quot;TLS Intermediate&quot;,
+   205→		&quot;--san&quot;, &quot;localhost,127.0.0.1&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+   206→
+   207→	serverCertPath := filepath.Join(tmpDir, &quot;server.pem&quot;)
+   208→	serverKeyPath := filepath.Join(tmpDir, &quot;server-key.pem&quot;)
+   209→	caBundlePath := filepath.Join(tmpDir, &quot;ca-bundle.pem&quot;)
+   210→
+   211→	certSerial := getCertSerial(t, dbPath, &quot;localhost&quot;)
+   212→	run(&quot;cert&quot;, &quot;export&quot;, &quot;--serial&quot;, certSerial, &quot;--db&quot;, dbPath, &quot;--out&quot;, serverCertPath, &quot;--chain&quot;)
+   213→	exportKey(t, dbPath, certSerial, serverKeyPath)
+   214→	exportCABundle(t, dbPath, caBundlePath)
+   215→
+   216→	nginxConf := filepath.Join(tmpDir, &quot;nginx.conf&quot;)
+   217→	writeFile(t, nginxConf, `
+   218→events {}
+   219→http {
+   220→    server {
+   221→        listen 443 ssl;
+   222→        ssl_certificate /etc/nginx/certs/server.pem;
+   223→        ssl_certificate_key /etc/nginx/certs/server-key.pem;
+   224→
+   225→        location / {
+   226→            return 200 &quot;TLS OK\n&quot;;
+   227→            add_header Content-Type text/plain;
+   228→        }
+   229→    }
+   230→}
+   231→`)
+   232→
+   233→	req := testcontainers.ContainerRequest{
+   234→		Image:        &quot;nginx:alpine&quot;,
+   235→		ExposedPorts: []string{&quot;443/tcp&quot;},
+   236→		WaitingFor:   wait.ForListeningPort(&quot;443/tcp&quot;).WithStartupTimeout(30 * time.Second),
+   237→		Files: []testcontainers.ContainerFile{
+   238→			{HostFilePath: serverCertPath, ContainerFilePath: &quot;/etc/nginx/certs/server.pem&quot;},
+   239→			{HostFilePath: serverKeyPath, ContainerFilePath: &quot;/etc/nginx/certs/server-key.pem&quot;},
+   240→			{HostFilePath: nginxConf, ContainerFilePath: &quot;/etc/nginx/nginx.conf&quot;},
+   241→		},
+   242→	}
+   243→
+   244→	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+   245→		ContainerRequest: req,
+   246→		Started:          true,
+   247→	})
+   248→	if err != nil {
+   249→		t.Fatalf(&quot;starting nginx container: %v&quot;, err)
+   250→	}
+   251→	defer container.Terminate(ctx)
+   252→
+   253→	mappedPort, err := container.MappedPort(ctx, &quot;443&quot;)
+   254→	if err != nil {
+   255→		t.Fatalf(&quot;getting mapped port: %v&quot;, err)
+   256→	}
+   257→
+   258→	host, err := container.Host(ctx)
+   259→	if err != nil {
+   260→		t.Fatalf(&quot;getting host: %v&quot;, err)
+   261→	}
+   262→
+   263→	addr := fmt.Sprintf(&quot;https://%s:%s&quot;, host, mappedPort.Port())
+   264→
+   265→	// Connect with our CA bundle as trusted root
+   266→	rootCAs := x509.NewCertPool()
+   267→	caPEM, err := os.ReadFile(caBundlePath)
+   268→	if err != nil {
+   269→		t.Fatalf(&quot;reading CA bundle: %v&quot;, err)
+   270→	}
+   271→	rootCAs.AppendCertsFromPEM(caPEM)
+   272→
+   273→	client := &amp;http.Client{
+   274→		Transport: &amp;http.Transport{
+   275→			TLSClientConfig: &amp;tls.Config{
+   276→				RootCAs:    rootCAs,
+   277→				ServerName: &quot;localhost&quot;,
+   278→			},
+   279→		},
+   280→		Timeout: 5 * time.Second,
+   281→	}
+   282→
+   283→	resp, err := client.Get(addr)
+   284→	if err != nil {
+   285→		t.Fatalf(&quot;GET %s: %v&quot;, addr, err)
+   286→	}
+   287→	defer resp.Body.Close()
+   288→
+   289→	if resp.StatusCode != http.StatusOK {
+   290→		t.Errorf(&quot;status = %d, want 200&quot;, resp.StatusCode)
+   291→	}
+   292→
+   293→	body, err := io.ReadAll(resp.Body)
+   294→	if err != nil {
+   295→		t.Fatalf(&quot;reading response body: %v&quot;, err)
+   296→	}
+   297→	t.Logf(&quot;Response: %s&quot;, body)
+   298→}
+   299→
+   300→// TestSClient_InspectNginx uses gossl sclient to inspect an nginx TLS server.
+   301→func TestSClient_InspectNginx(t *testing.T) {
+   302→	ctx := context.Background()
+   303→	tmpDir := t.TempDir()
+   304→	dbPath := filepath.Join(tmpDir, &quot;test.db&quot;)
+   305→
+   306→	run := func(args ...string) {
+   307→		t.Helper()
+   308→		cmd := cli.NewRoot()
+   309→		cmd.SetArgs(args)
+   310→		if err := cmd.Execute(); err != nil {
+   311→			t.Fatalf(&quot;gossl %v: %v&quot;, args, err)
+   312→		}
+   313→	}
+   314→
+   315→	run(&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;SClient Root CA&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+   316→	run(&quot;ca&quot;, &quot;create&quot;, &quot;--cn&quot;, &quot;SClient Intermediate&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+   317→	run(&quot;cert&quot;, &quot;issue&quot;, &quot;--cn&quot;, &quot;localhost&quot;, &quot;--ca&quot;, &quot;SClient Intermediate&quot;,
+   318→		&quot;--san&quot;, &quot;localhost,127.0.0.1&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+   319→
+   320→	serverCertPath := filepath.Join(tmpDir, &quot;server.pem&quot;)
+   321→	serverKeyPath := filepath.Join(tmpDir, &quot;server-key.pem&quot;)
+   322→	caBundlePath := filepath.Join(tmpDir, &quot;ca-bundle.pem&quot;)
+   323→
+   324→	certSerial := getCertSerial(t, dbPath, &quot;localhost&quot;)
+   325→	run(&quot;cert&quot;, &quot;export&quot;, &quot;--serial&quot;, certSerial, &quot;--db&quot;, dbPath, &quot;--out&quot;, serverCertPath, &quot;--chain&quot;)
+   326→	exportKey(t, dbPath, certSerial, serverKeyPath)
+   327→	exportCABundle(t, dbPath, caBundlePath)
+   328→
+   329→	// Issue client cert for mTLS sclient test
+   330→	run(&quot;cert&quot;, &quot;issue&quot;, &quot;--cn&quot;, &quot;sclient-user&quot;, &quot;--db&quot;, dbPath, &quot;--key-size&quot;, &quot;2048&quot;)
+   331→	clientSerial := getCertSerial(t, dbPath, &quot;sclient-user&quot;)
+   332→	clientCertPath := filepath.Join(tmpDir, &quot;client.pem&quot;)
+   333→	clientKeyPath := filepath.Join(tmpDir, &quot;client-key.pem&quot;)
+   334→	run(&quot;cert&quot;, &quot;export&quot;, &quot;--serial&quot;, clientSerial, &quot;--db&quot;, dbPath, &quot;--out&quot;, clientCertPath, &quot;--chain&quot;)
+   335→	exportKey(t, dbPath, clientSerial, clientKeyPath)
+   336→
+   337→	// Start nginx with plain TLS
+   338→	nginxConf := filepath.Join(tmpDir, &quot;nginx.conf&quot;)
+   339→	writeFile(t, nginxConf, `
+   340→events {}
+   341→http {
+   342→    server {
+   343→        listen 443 ssl;
+   344→        ssl_certificate /etc/nginx/certs/server.pem;
+   345→        ssl_certificate_key /etc/nginx/certs/server-key.pem;
+   346→        location / { return 200 &quot;ok\n&quot;; }
+   347→    }
+   348→    server {
+   349→        listen 8443 ssl;
+   350→        ssl_certificate /etc/nginx/certs/server.pem;
+   351→        ssl_certificate_key /etc/nginx/certs/server-key.pem;
+   352→        ssl_client_certificate /etc/nginx/certs/ca-bundle.pem;
+   353→        ssl_verify_client on;
+   354→        location / { return 200 &quot;mtls ok\n&quot;; }
+   355→    }
+   356→}
+   357→`)
+   358→
+   359→	req := testcontainers.ContainerRequest{
+   360→		Image:        &quot;nginx:alpine&quot;,
+   361→		ExposedPorts: []string{&quot;443/tcp&quot;, &quot;8443/tcp&quot;},
+   362→		WaitingFor:   wait.ForListeningPort(&quot;443/tcp&quot;).WithStartupTimeout(30 * time.Second),
+   363→		Files: []testcontainers.ContainerFile{
+   364→			{HostFilePath: serverCertPath, ContainerFilePath: &quot;/etc/nginx/certs/server.pem&quot;},
+   365→			{HostFilePath: serverKeyPath, ContainerFilePath: &quot;/etc/nginx/certs/server-key.pem&quot;},
+   366→			{HostFilePath: caBundlePath, ContainerFilePath: &quot;/etc/nginx/certs/ca-bundle.pem&quot;},
+   367→			{HostFilePath: nginxConf, ContainerFilePath: &quot;/etc/nginx/nginx.conf&quot;},
+   368→		},
+   369→	}
+   370→
+   371→	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+   372→		ContainerRequest: req,
+   373→		Started:          true,
+   374→	})
+   375→	if err != nil {
+   376→		t.Fatalf(&quot;starting nginx container: %v&quot;, err)
+   377→	}
+   378→	defer container.Terminate(ctx)
+   379→
+   380→	tlsPort, err := container.MappedPort(ctx, &quot;443&quot;)
+   381→	if err != nil {
+   382→		t.Fatalf(&quot;getting TLS port: %v&quot;, err)
+   383→	}
+   384→	mtlsPort, err := container.MappedPort(ctx, &quot;8443&quot;)
+   385→	if err != nil {
+   386→		t.Fatalf(&quot;getting mTLS port: %v&quot;, err)
+   387→	}
+   388→
+   389→	host, err := container.Host(ctx)
+   390→	if err != nil {
+   391→		t.Fatalf(&quot;getting host: %v&quot;, err)
+   392→	}
+   393→
+   394→	// Test 1: Basic sclient — inspect server cert
+   395→	t.Run(&quot;basic&quot;, func(t *testing.T) {
+   396→		cmd := cli.NewRoot()
+   397→		cmd.SetArgs([]string{&quot;sclient&quot;, fmt.Sprintf(&quot;%s:%s&quot;, host, tlsPort.Port()), &quot;--sni&quot;, &quot;localhost&quot;})
+   398→		if err := cmd.Execute(); err != nil {
+   399→			t.Fatalf(&quot;sclient: %v&quot;, err)
+   400→		}
+   401→	})
+   402→
+   403→	// Test 2: sclient with custom CA — chain should verify
+   404→	t.Run(&quot;custom_ca_verify&quot;, func(t *testing.T) {
+   405→		cmd := cli.NewRoot()
+   406→		cmd.SetArgs([]string{&quot;sclient&quot;, fmt.Sprintf(&quot;%s:%s&quot;, host, tlsPort.Port()), &quot;--sni&quot;, &quot;localhost&quot;, &quot;--ca-file&quot;, caBundlePath})
+   407→		if err := cmd.Execute(); err != nil {
+   408→			t.Fatalf(&quot;sclient --ca-file: %v&quot;, err)
+   409→		}
+   410→	})
+   411→
+   412→	// Test 3: sclient with --show-certs
+   413→	t.Run(&quot;show_certs&quot;, func(t *testing.T) {
+   414→		cmd := cli.NewRoot()
+   415→		cmd.SetArgs([]string{&quot;sclient&quot;, fmt.Sprintf(&quot;%s:%s&quot;, host, tlsPort.Port()), &quot;--sni&quot;, &quot;localhost&quot;, &quot;--show-certs&quot;})
+   416→		if err := cmd.Execute(); err != nil {
+   417→			t.Fatalf(&quot;sclient --show-certs: %v&quot;, err)
+   418→		}
+   419→	})
+   420→
+   421→	// Test 4: sclient with client cert for mTLS
+   422→	t.Run(&quot;mtls_client_cert&quot;, func(t *testing.T) {
+   423→		cmd := cli.NewRoot()
+   424→		cmd.SetArgs([]string{
+   425→			&quot;sclient&quot;, fmt.Sprintf(&quot;%s:%s&quot;, host, mtlsPort.Port()),
+   426→			&quot;--sni&quot;, &quot;localhost&quot;,
+   427→			&quot;--cert&quot;, clientCertPath,
+   428→			&quot;--key&quot;, clientKeyPath,
+   429→		})
+   430→		if err := cmd.Execute(); err != nil {
+   431→			t.Fatalf(&quot;sclient --cert --key: %v&quot;, err)
+   432→		}
+   433→	})
+   434→}
+   435→
+   436→// --- Helpers ---
+   437→
+   438→func getCertSerial(t *testing.T, dbPath, cn string) string {
+   439→	t.Helper()
+   440→	ctx := context.Background()
+   441→
+   442→	d, err := store.OpenDB(ctx, dbPath)
+   443→	if err != nil {
+   444→		t.Fatalf(&quot;OpenDB: %v&quot;, err)
+   445→	}
+   446→	defer d.Close()
+   447→
+   448→	q := store.New(d.SQLDB())
+   449→	cert, err := q.GetCertByCN(ctx, cn)
+   450→	if err != nil {
+   451→		t.Fatalf(&quot;GetCertByCN(%s): %v&quot;, cn, err)
+   452→	}
+   453→	return cert.Serial
+   454→}
+   455→
+   456→func exportKey(t *testing.T, dbPath, serial, outPath string) {
+   457→	t.Helper()
+   458→	ctx := context.Background()
+   459→
+   460→	d, err := store.OpenDB(ctx, dbPath)
+   461→	if err != nil {
+   462→		t.Fatalf(&quot;OpenDB: %v&quot;, err)
+   463→	}
+   464→	defer d.Close()
+   465→
+   466→	q := store.New(d.SQLDB())
+   467→	keyPEM, err := q.LoadKey(ctx, serial)
+   468→	if err != nil {
+   469→		t.Fatalf(&quot;LoadKey(%s): %v&quot;, serial, err)
+   470→	}
+   471→
+   472→	if err := os.WriteFile(outPath, keyPEM, 0o600); err != nil {
+   473→		t.Fatalf(&quot;writing key: %v&quot;, err)
+   474→	}
+   475→}
+   476→
+   477→func exportCABundle(t *testing.T, dbPath, outPath string) {
+   478→	t.Helper()
+   479→	ctx := context.Background()
+   480→
+   481→	d, err := store.OpenDB(ctx, dbPath)
+   482→	if err != nil {
+   483→		t.Fatalf(&quot;OpenDB: %v&quot;, err)
+   484→	}
+   485→	defer d.Close()
+   486→
+   487→	q := store.New(d.SQLDB())
+   488→	cas, err := q.ListCAs(ctx)
+   489→	if err != nil {
+   490→		t.Fatalf(&quot;ListCAs: %v&quot;, err)
+   491→	}
+   492→
+   493→	var bundle string
+   494→	for _, ca := range cas {
+   495→		bundle += ca.CertPem
+   496→	}
+   497→
+   498→	if err := os.WriteFile(outPath, []byte(bundle), 0o644); err != nil {
+   499→		t.Fatalf(&quot;writing CA bundle: %v&quot;, err)
+   500→	}
+   501→}
+   502→
+   503→func buildMTLSClient(t *testing.T, caBundlePath, certPath, keyPath string) *http.Client {
+   504→	t.Helper()
+   505→
+   506→	clientCert, err := tls.LoadX509KeyPair(certPath, keyPath)
+   507→	if err != nil {
+   508→		t.Fatalf(&quot;LoadX509KeyPair: %v&quot;, err)
+   509→	}
+   510→
+   511→	rootCAs := x509.NewCertPool()
+   512→	caPEM, err := os.ReadFile(caBundlePath)
+   513→	if err != nil {
+   514→		t.Fatalf(&quot;reading CA bundle: %v&quot;, err)
+   515→	}
+   516→	rootCAs.AppendCertsFromPEM(caPEM)
+   517→
+   518→	return &amp;http.Client{
+   519→		Transport: &amp;http.Transport{
+   520→			TLSClientConfig: &amp;tls.Config{
+   521→				Certificates: []tls.Certificate{clientCert},
+   522→				RootCAs:      rootCAs,
+   523→				ServerName:   &quot;localhost&quot;,
+   524→			},
+   525→		},
+   526→		Timeout: 5 * time.Second,
+   527→	}
+   528→}
+   529→
+   530→func writeFile(t *testing.T, path, content string) {
+   531→	t.Helper()
+   532→	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+   533→		t.Fatalf(&quot;writing %s: %v&quot;, path, err)
+   534→	}
+   535→}
+   536→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-07-20-106Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-07-20-106Z" class="timestamp-link"><time datetime="2026-03-26T21:07:20.106Z" data-timestamp="2026-03-26T21:07:20.106Z">2026-03-26T21:07:20.106Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now I have the full picture. Split into 4 files:</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-07-33-586Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-07-33-586Z" class="timestamp-link"><time datetime="2026-03-26T21:07:33.586Z" data-timestamp="2026-03-26T21:07:33.586Z">2026-03-26T21:07:33.586Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_01Ag16bhWLJg1anB5tksWyDq">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">helpers_test.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/tests/system/helpers_test.go</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content">//go:build integration
+
+package system
+
+import (
+	&#34;context&#34;
+	&#34;crypto/tls&#34;
+	&#34;crypto/x509&#34;
+	&#34;net/http&#34;
+	&#34;os&#34;
+	&#34;path/filepath&#34;
+	&#34;testing&#34;
+	&#34;time&#34;
+
+	&#34;github.com/bejelith/gossl/internal/cli&#34;
+	&#34;github.com/bejelith/gossl/internal/store&#34;
+)
+
+func gossl(t *testing.T, args ...string) {
+	t.Helper()
+	cmd := cli.NewRoot()
+	cmd.SetArgs(args)
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf(&#34;gossl %v: %v&#34;, args, err)
+	}
+}
+
+func getCertSerial(t *testing.T, dbPath, cn string) string {
+	t.Helper()
+	ctx := context.Background()
+
+	d, err := store.OpenDB(ctx, dbPath)
+	if err != nil {
+		t.Fatalf(&#34;OpenDB: %v&#34;, err)
+	}
+	defer d.Close()
+
+	q := store.New(d.SQLDB())
+	cert, err := q.GetCertByCN(ctx, cn)
+	if err != nil {
+		t.Fatalf(&#34;GetCertByCN(%s): %v&#34;, cn, err)
+	}
+	return cert.Serial
+}
+
+func exportKey(t *testing.T, dbPath, serial, outPath string) {
+	t.Helper()
+	ctx := context.Background()
+
+	d, err := store.OpenDB(ctx, dbPath)
+	if err != nil {
+		t.Fatalf(&#34;OpenDB: %v&#34;, err)
+	}
+	defer d.Close()
+
+	q := store.New(d.SQLDB())
+	keyPEM, err := q.LoadKey(ctx, serial)
+	if err != nil {
+		t.Fatalf(&#34;LoadKey(%s): %v&#34;, serial, err)
+	}
+
+	if err := os.WriteFile(outPath, keyPEM, 0o600); err != nil {
+		t.Fatalf(&#34;writing key: %v&#34;, err)
+	}
+}
+
+func exportCABundle(t *testing.T, dbPath, outPath string) {
+	t.Helper()
+	ctx := context.Background()
+
+	d, err := store.OpenDB(ctx, dbPath)
+	if err != nil {
+		t.Fatalf(&#34;OpenDB: %v&#34;, err)
+	}
+	defer d.Close()
+
+	q := store.New(d.SQLDB())
+	cas, err := q.ListCAs(ctx)
+	if err != nil {
+		t.Fatalf(&#34;ListCAs: %v&#34;, err)
+	}
+
+	var bundle string
+	for _, ca := range cas {
+		bundle += ca.CertPem
+	}
+
+	if err := os.WriteFile(outPath, []byte(bundle), 0o644); err != nil {
+		t.Fatalf(&#34;writing CA bundle: %v&#34;, err)
+	}
+}
+
+func buildMTLSClient(t *testing.T, caBundlePath, certPath, keyPath string) *http.Client {
+	t.Helper()
+
+	clientCert, err := tls.LoadX509KeyPair(certPath, keyPath)
+	if err != nil {
+		t.Fatalf(&#34;LoadX509KeyPair: %v&#34;, err)
+	}
+
+	rootCAs := x509.NewCertPool()
+	caPEM, err := os.ReadFile(caBundlePath)
+	if err != nil {
+		t.Fatalf(&#34;reading CA bundle: %v&#34;, err)
+	}
+	rootCAs.AppendCertsFromPEM(caPEM)
+
+	return &amp;http.Client{
+		Transport: &amp;http.Transport{
+			TLSClientConfig: &amp;tls.Config{
+				Certificates: []tls.Certificate{clientCert},
+				RootCAs:      rootCAs,
+				ServerName:   &#34;localhost&#34;,
+			},
+		},
+		Timeout: 5 * time.Second,
+	}
+}
+
+func writeFile(t *testing.T, path, content string) {
+	t.Helper()
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf(&#34;writing %s: %v&#34;, path, err)
+	}
+}
+
+// setupNginxTLS creates a CA hierarchy, certs, and exports files needed for nginx.
+// Returns (dbPath, serverCertPath, serverKeyPath, caBundlePath).
+func setupNginxTLS(t *testing.T, caName, intName string) (string, string, string, string) {
+	t.Helper()
+	tmpDir := t.TempDir()
+	dbPath := filepath.Join(tmpDir, &#34;test.db&#34;)
+
+	gossl(t, &#34;ca&#34;, &#34;create&#34;, &#34;--cn&#34;, caName, &#34;--db&#34;, dbPath, &#34;--key-size&#34;, &#34;2048&#34;)
+	gossl(t, &#34;ca&#34;, &#34;create&#34;, &#34;--cn&#34;, intName, &#34;--db&#34;, dbPath, &#34;--key-size&#34;, &#34;2048&#34;)
+	gossl(t, &#34;cert&#34;, &#34;issue&#34;, &#34;--cn&#34;, &#34;localhost&#34;, &#34;--ca&#34;, intName,
+		&#34;--san&#34;, &#34;localhost,127.0.0.1&#34;, &#34;--db&#34;, dbPath, &#34;--key-size&#34;, &#34;2048&#34;)
+
+	serverCertPath := filepath.Join(tmpDir, &#34;server.pem&#34;)
+	serverKeyPath := filepath.Join(tmpDir, &#34;server-key.pem&#34;)
+	caBundlePath := filepath.Join(tmpDir, &#34;ca-bundle.pem&#34;)
+
+	certSerial := getCertSerial(t, dbPath, &#34;localhost&#34;)
+	gossl(t, &#34;cert&#34;, &#34;export&#34;, &#34;--serial&#34;, certSerial, &#34;--db&#34;, dbPath, &#34;--out&#34;, serverCertPath, &#34;--chain&#34;)
+	exportKey(t, dbPath, certSerial, serverKeyPath)
+	exportCABundle(t, dbPath, caBundlePath)
+
+	return dbPath, serverCertPath, serverKeyPath, caBundlePath
+}
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T21-07-33-690Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T21-07-33-690Z" class="timestamp-link"><time datetime="2026-03-26T21:07:33.690Z" data-timestamp="2026-03-26T21:07:33.690Z">2026-03-26T21:07:33.690Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>File created successfully at: /Users/scaruso/dev/gossl/tests/system/helpers_test.go</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-07-55-069Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-07-55-069Z" class="timestamp-link"><time datetime="2026-03-26T21:07:55.069Z" data-timestamp="2026-03-26T21:07:55.069Z">2026-03-26T21:07:55.069Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_01KXmwWE72NyGCqMCpYv9rmF">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">mtls_test.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/tests/system/mtls_test.go</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content">//go:build integration
+
+package system
+
+import (
+	&#34;context&#34;
+	&#34;crypto/tls&#34;
+	&#34;crypto/x509&#34;
+	&#34;fmt&#34;
+	&#34;io&#34;
+	&#34;net/http&#34;
+	&#34;os&#34;
+	&#34;path/filepath&#34;
+	&#34;testing&#34;
+	&#34;time&#34;
+
+	&#34;github.com/bejelith/gossl/internal/cli&#34;
+	&#34;github.com/testcontainers/testcontainers-go&#34;
+	&#34;github.com/testcontainers/testcontainers-go/wait&#34;
+)
+
+func TestMTLS_NginxWithGoSSLCerts(t *testing.T) {
+	ctx := context.Background()
+	dbPath, serverCertPath, serverKeyPath, caBundlePath := setupNginxTLS(t, &#34;Test Root CA&#34;, &#34;Test Intermediate&#34;)
+	tmpDir := filepath.Dir(serverCertPath)
+
+	// Generate client cert for mTLS
+	gossl(t, &#34;cert&#34;, &#34;issue&#34;, &#34;--cn&#34;, &#34;test-client&#34;, &#34;--ca&#34;, &#34;Test Intermediate&#34;,
+		&#34;--db&#34;, dbPath, &#34;--key-size&#34;, &#34;2048&#34;)
+	clientSerial := getCertSerial(t, dbPath, &#34;test-client&#34;)
+	clientCertPath := filepath.Join(tmpDir, &#34;client.pem&#34;)
+	clientKeyPath := filepath.Join(tmpDir, &#34;client-key.pem&#34;)
+	gossl(t, &#34;cert&#34;, &#34;export&#34;, &#34;--serial&#34;, clientSerial, &#34;--db&#34;, dbPath, &#34;--out&#34;, clientCertPath, &#34;--chain&#34;)
+	exportKey(t, dbPath, clientSerial, clientKeyPath)
+
+	nginxConf := filepath.Join(tmpDir, &#34;nginx.conf&#34;)
+	writeFile(t, nginxConf, `
+events {}
+http {
+    server {
+        listen 443 ssl;
+        ssl_certificate /etc/nginx/certs/server.pem;
+        ssl_certificate_key /etc/nginx/certs/server-key.pem;
+        ssl_client_certificate /etc/nginx/certs/ca-bundle.pem;
+        ssl_verify_client on;
+
+        location / {
+            return 200 &#34;mTLS OK: $ssl_client_s_dn\n&#34;;
+            add_header Content-Type text/plain;
+        }
+    }
+}
+`)
+
+	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			Image:        &#34;nginx:alpine&#34;,
+			ExposedPorts: []string{&#34;443/tcp&#34;},
+			WaitingFor:   wait.ForListeningPort(&#34;443/tcp&#34;).WithStartupTimeout(30 * time.Second),
+			Files: []testcontainers.ContainerFile{
+				{HostFilePath: serverCertPath, ContainerFilePath: &#34;/etc/nginx/certs/server.pem&#34;},
+				{HostFilePath: serverKeyPath, ContainerFilePath: &#34;/etc/nginx/certs/server-key.pem&#34;},
+				{HostFilePath: caBundlePath, ContainerFilePath: &#34;/etc/nginx/certs/ca-bundle.pem&#34;},
+				{HostFilePath: nginxConf, ContainerFilePath: &#34;/etc/nginx/nginx.conf&#34;},
+			},
+		},
+		Started: true,
+	})
+	if err != nil {
+		t.Fatalf(&#34;starting nginx container: %v&#34;, err)
+	}
+	defer container.Terminate(ctx)
+
+	mappedPort, _ := container.MappedPort(ctx, &#34;443&#34;)
+	host, _ := container.Host(ctx)
+	addr := fmt.Sprintf(&#34;https://%s:%s&#34;, host, mappedPort.Port())
+
+	t.Run(&#34;valid_client_cert&#34;, func(t *testing.T) {
+		client := buildMTLSClient(t, caBundlePath, clientCertPath, clientKeyPath)
+		resp, err := client.Get(addr)
+		if err != nil {
+			t.Fatalf(&#34;GET %s: %v&#34;, addr, err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf(&#34;status = %d, want 200&#34;, resp.StatusCode)
+		}
+		body, _ := io.ReadAll(resp.Body)
+		t.Logf(&#34;Response: %s&#34;, body)
+	})
+
+	t.Run(&#34;no_client_cert&#34;, func(t *testing.T) {
+		rootCAs := x509.NewCertPool()
+		caPEM, _ := os.ReadFile(caBundlePath)
+		rootCAs.AppendCertsFromPEM(caPEM)
+
+		client := &amp;http.Client{
+			Transport: &amp;http.Transport{
+				TLSClientConfig: &amp;tls.Config{RootCAs: rootCAs},
+			},
+			Timeout: 5 * time.Second,
+		}
+
+		resp, err := client.Get(addr)
+		if err != nil {
+			t.Logf(&#34;Expected TLS error: %v&#34;, err)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode == http.StatusOK {
+			t.Fatal(&#34;expected rejection without client cert, got 200 OK&#34;)
+		}
+		t.Logf(&#34;Rejected with HTTP %d (no client cert)&#34;, resp.StatusCode)
+	})
+
+	t.Run(&#34;cert_verify&#34;, func(t *testing.T) {
+		cmd := cli.NewRoot()
+		cmd.SetArgs([]string{&#34;cert&#34;, &#34;verify&#34;, clientCertPath, &#34;--chain&#34;, caBundlePath})
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf(&#34;cert verify: %v&#34;, err)
+		}
+	})
+}
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T21-07-55-120Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T21-07-55-120Z" class="timestamp-link"><time datetime="2026-03-26T21:07:55.120Z" data-timestamp="2026-03-26T21:07:55.120Z">2026-03-26T21:07:55.120Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/tests/system/mtls_test.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-08-05-733Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-08-05-733Z" class="timestamp-link"><time datetime="2026-03-26T21:08:05.733Z" data-timestamp="2026-03-26T21:08:05.733Z">2026-03-26T21:08:05.733Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_01Xba5xLnhAhkNr7sdBTiAHS">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">tls_test.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/tests/system/tls_test.go</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content">//go:build integration
+
+package system
+
+import (
+	&#34;context&#34;
+	&#34;crypto/tls&#34;
+	&#34;crypto/x509&#34;
+	&#34;fmt&#34;
+	&#34;io&#34;
+	&#34;net/http&#34;
+	&#34;os&#34;
+	&#34;path/filepath&#34;
+	&#34;testing&#34;
+	&#34;time&#34;
+
+	&#34;github.com/testcontainers/testcontainers-go&#34;
+	&#34;github.com/testcontainers/testcontainers-go/wait&#34;
+)
+
+func TestTLS_ServerCertVerification(t *testing.T) {
+	ctx := context.Background()
+	_, serverCertPath, serverKeyPath, caBundlePath := setupNginxTLS(t, &#34;TLS Root CA&#34;, &#34;TLS Intermediate&#34;)
+	tmpDir := filepath.Dir(serverCertPath)
+
+	nginxConf := filepath.Join(tmpDir, &#34;nginx.conf&#34;)
+	writeFile(t, nginxConf, `
+events {}
+http {
+    server {
+        listen 443 ssl;
+        ssl_certificate /etc/nginx/certs/server.pem;
+        ssl_certificate_key /etc/nginx/certs/server-key.pem;
+
+        location / {
+            return 200 &#34;TLS OK\n&#34;;
+            add_header Content-Type text/plain;
+        }
+    }
+}
+`)
+
+	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			Image:        &#34;nginx:alpine&#34;,
+			ExposedPorts: []string{&#34;443/tcp&#34;},
+			WaitingFor:   wait.ForListeningPort(&#34;443/tcp&#34;).WithStartupTimeout(30 * time.Second),
+			Files: []testcontainers.ContainerFile{
+				{HostFilePath: serverCertPath, ContainerFilePath: &#34;/etc/nginx/certs/server.pem&#34;},
+				{HostFilePath: serverKeyPath, ContainerFilePath: &#34;/etc/nginx/certs/server-key.pem&#34;},
+				{HostFilePath: nginxConf, ContainerFilePath: &#34;/etc/nginx/nginx.conf&#34;},
+			},
+		},
+		Started: true,
+	})
+	if err != nil {
+		t.Fatalf(&#34;starting nginx container: %v&#34;, err)
+	}
+	defer container.Terminate(ctx)
+
+	mappedPort, _ := container.MappedPort(ctx, &#34;443&#34;)
+	host, _ := container.Host(ctx)
+	addr := fmt.Sprintf(&#34;https://%s:%s&#34;, host, mappedPort.Port())
+
+	rootCAs := x509.NewCertPool()
+	caPEM, _ := os.ReadFile(caBundlePath)
+	rootCAs.AppendCertsFromPEM(caPEM)
+
+	client := &amp;http.Client{
+		Transport: &amp;http.Transport{
+			TLSClientConfig: &amp;tls.Config{
+				RootCAs:    rootCAs,
+				ServerName: &#34;localhost&#34;,
+			},
+		},
+		Timeout: 5 * time.Second,
+	}
+
+	resp, err := client.Get(addr)
+	if err != nil {
+		t.Fatalf(&#34;GET %s: %v&#34;, addr, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf(&#34;status = %d, want 200&#34;, resp.StatusCode)
+	}
+
+	body, _ := io.ReadAll(resp.Body)
+	t.Logf(&#34;Response: %s&#34;, body)
+}
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T21-08-05-900Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T21-08-05-900Z" class="timestamp-link"><time datetime="2026-03-26T21:08:05.900Z" data-timestamp="2026-03-26T21:08:05.900Z">2026-03-26T21:08:05.900Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>File created successfully at: /Users/scaruso/dev/gossl/tests/system/tls_test.go</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-08-21-711Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-08-21-711Z" class="timestamp-link"><time datetime="2026-03-26T21:08:21.711Z" data-timestamp="2026-03-26T21:08:21.711Z">2026-03-26T21:08:21.711Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_01PnJ7Vq1ke35C2CRVkZE1YZ">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">sclient_test.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/tests/system/sclient_test.go</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content">//go:build integration
+
+package system
+
+import (
+	&#34;context&#34;
+	&#34;fmt&#34;
+	&#34;path/filepath&#34;
+	&#34;testing&#34;
+	&#34;time&#34;
+
+	&#34;github.com/bejelith/gossl/internal/cli&#34;
+	&#34;github.com/testcontainers/testcontainers-go&#34;
+	&#34;github.com/testcontainers/testcontainers-go/wait&#34;
+)
+
+func TestSClient_InspectNginx(t *testing.T) {
+	ctx := context.Background()
+	dbPath, serverCertPath, serverKeyPath, caBundlePath := setupNginxTLS(t, &#34;SClient Root CA&#34;, &#34;SClient Intermediate&#34;)
+	tmpDir := filepath.Dir(serverCertPath)
+
+	// Issue client cert for mTLS sclient test
+	gossl(t, &#34;cert&#34;, &#34;issue&#34;, &#34;--cn&#34;, &#34;sclient-user&#34;, &#34;--db&#34;, dbPath, &#34;--key-size&#34;, &#34;2048&#34;)
+	clientSerial := getCertSerial(t, dbPath, &#34;sclient-user&#34;)
+	clientCertPath := filepath.Join(tmpDir, &#34;client.pem&#34;)
+	clientKeyPath := filepath.Join(tmpDir, &#34;client-key.pem&#34;)
+	gossl(t, &#34;cert&#34;, &#34;export&#34;, &#34;--serial&#34;, clientSerial, &#34;--db&#34;, dbPath, &#34;--out&#34;, clientCertPath, &#34;--chain&#34;)
+	exportKey(t, dbPath, clientSerial, clientKeyPath)
+
+	nginxConf := filepath.Join(tmpDir, &#34;nginx.conf&#34;)
+	writeFile(t, nginxConf, `
+events {}
+http {
+    server {
+        listen 443 ssl;
+        ssl_certificate /etc/nginx/certs/server.pem;
+        ssl_certificate_key /etc/nginx/certs/server-key.pem;
+        location / { return 200 &#34;ok\n&#34;; }
+    }
+    server {
+        listen 8443 ssl;
+        ssl_certificate /etc/nginx/certs/server.pem;
+        ssl_certificate_key /etc/nginx/certs/server-key.pem;
+        ssl_client_certificate /etc/nginx/certs/ca-bundle.pem;
+        ssl_verify_client on;
+        location / { return 200 &#34;mtls ok\n&#34;; }
+    }
+}
+`)
+
+	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			Image:        &#34;nginx:alpine&#34;,
+			ExposedPorts: []string{&#34;443/tcp&#34;, &#34;8443/tcp&#34;},
+			WaitingFor:   wait.ForListeningPort(&#34;443/tcp&#34;).WithStartupTimeout(30 * time.Second),
+			Files: []testcontainers.ContainerFile{
+				{HostFilePath: serverCertPath, ContainerFilePath: &#34;/etc/nginx/certs/server.pem&#34;},
+				{HostFilePath: serverKeyPath, ContainerFilePath: &#34;/etc/nginx/certs/server-key.pem&#34;},
+				{HostFilePath: caBundlePath, ContainerFilePath: &#34;/etc/nginx/certs/ca-bundle.pem&#34;},
+				{HostFilePath: nginxConf, ContainerFilePath: &#34;/etc/nginx/nginx.conf&#34;},
+			},
+		},
+		Started: true,
+	})
+	if err != nil {
+		t.Fatalf(&#34;starting nginx container: %v&#34;, err)
+	}
+	defer container.Terminate(ctx)
+
+	tlsPort, _ := container.MappedPort(ctx, &#34;443&#34;)
+	mtlsPort, _ := container.MappedPort(ctx, &#34;8443&#34;)
+	host, _ := container.Host(ctx)
+
+	t.Run(&#34;basic&#34;, func(t *testing.T) {
+		cmd := cli.NewRoot()
+		cmd.SetArgs([]string{&#34;sclient&#34;, fmt.Sprintf(&#34;%s:%s&#34;, host, tlsPort.Port()), &#34;--sni&#34;, &#34;localhost&#34;})
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf(&#34;sclient: %v&#34;, err)
+		}
+	})
+
+	t.Run(&#34;custom_ca_verify&#34;, func(t *testing.T) {
+		cmd := cli.NewRoot()
+		cmd.SetArgs([]string{&#34;sclient&#34;, fmt.Sprintf(&#34;%s:%s&#34;, host, tlsPort.Port()), &#34;--sni&#34;, &#34;localhost&#34;, &#34;--ca-file&#34;, caBundlePath})
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf(&#34;sclient --ca-file: %v&#34;, err)
+		}
+	})
+
+	t.Run(&#34;show_certs&#34;, func(t *testing.T) {
+		cmd := cli.NewRoot()
+		cmd.SetArgs([]string{&#34;sclient&#34;, fmt.Sprintf(&#34;%s:%s&#34;, host, tlsPort.Port()), &#34;--sni&#34;, &#34;localhost&#34;, &#34;--show-certs&#34;})
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf(&#34;sclient --show-certs: %v&#34;, err)
+		}
+	})
+
+	t.Run(&#34;mtls_client_cert&#34;, func(t *testing.T) {
+		cmd := cli.NewRoot()
+		cmd.SetArgs([]string{
+			&#34;sclient&#34;, fmt.Sprintf(&#34;%s:%s&#34;, host, mtlsPort.Port()),
+			&#34;--sni&#34;, &#34;localhost&#34;,
+			&#34;--cert&#34;, clientCertPath,
+			&#34;--key&#34;, clientKeyPath,
+		})
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf(&#34;sclient --cert --key: %v&#34;, err)
+		}
+	})
+}
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T21-08-21-859Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T21-08-21-859Z" class="timestamp-link"><time datetime="2026-03-26T21:08:21.859Z" data-timestamp="2026-03-26T21:08:21.859Z">2026-03-26T21:08:21.859Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>File created successfully at: /Users/scaruso/dev/gossl/tests/system/sclient_test.go</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-08-39-678Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-08-39-678Z" class="timestamp-link"><time datetime="2026-03-26T21:08:39.678Z" data-timestamp="2026-03-26T21:08:39.678Z">2026-03-26T21:08:39.678Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Update the BUILD to include all files.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-08-44-923Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-08-44-923Z" class="timestamp-link"><time datetime="2026-03-26T21:08:44.923Z" data-timestamp="2026-03-26T21:08:44.923Z">2026-03-26T21:08:44.923Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_01DPoinAZdXpyYwgmRoLKpnr">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">BUILD.bazel</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/tests/system/BUILD.bazel</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content">load(&#34;@rules_go//go:def.bzl&#34;, &#34;go_test&#34;)
+
+# gazelle:ignore
+
+go_test(
+    name = &#34;system_test&#34;,
+    srcs = [
+        &#34;helpers_test.go&#34;,
+        &#34;mtls_test.go&#34;,
+        &#34;sclient_test.go&#34;,
+        &#34;tls_test.go&#34;,
+    ],
+    gotags = [&#34;integration&#34;],
+    tags = [&#34;integration&#34;],
+    deps = [
+        &#34;//internal/cli&#34;,
+        &#34;//internal/store&#34;,
+        &#34;@com_github_testcontainers_testcontainers_go//:go_default_library&#34;,
+        &#34;@com_github_testcontainers_testcontainers_go//wait:go_default_library&#34;,
+    ],
+)
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T21-08-44-928Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T21-08-44-928Z" class="timestamp-link"><time datetime="2026-03-26T21:08:44.928Z" data-timestamp="2026-03-26T21:08:44.928Z">2026-03-26T21:08:44.928Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/tests/system/BUILD.bazel has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-08-52-673Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-08-52-673Z" class="timestamp-link"><time datetime="2026-03-26T21:08:52.673Z" data-timestamp="2026-03-26T21:08:52.673Z">2026-03-26T21:08:52.673Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_016AK3TfL9Kgev4144W3qrCB">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Run system tests</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel test //tests/system:system_test --test_tag_filters=integration 2&gt;&amp;1 | grep -E &#34;PASSED|FAILED&#34;</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T21-09-04-447Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T21-09-04-447Z" class="timestamp-link"><time datetime="2026-03-26T21:09:04.447Z" data-timestamp="2026-03-26T21:09:04.447Z">2026-03-26T21:09:04.447Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>//tests/system:system_test                                               PASSED in 4.4s</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-09-13-882Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-09-13-882Z" class="timestamp-link"><time datetime="2026-03-26T21:09:13.882Z" data-timestamp="2026-03-26T21:09:13.882Z">2026-03-26T21:09:13.882Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>All pass. Split into:</p>
+<ul>
+<li><code>helpers_test.go</code> — shared helpers (<code>gossl()</code>, <code>getCertSerial</code>, <code>exportKey</code>, <code>exportCABundle</code>, <code>buildMTLSClient</code>, <code>writeFile</code>, <code>setupNginxTLS</code>)</li>
+<li><code>mtls_test.go</code> — mTLS tests (valid client cert, no client cert, cert verify)</li>
+<li><code>tls_test.go</code> — plain TLS server cert verification</li>
+<li><code>sclient_test.go</code> — sclient tests (basic, custom CA, show-certs, mTLS probing)</li>
+</ul></div></div></div>
+<div class="message user" id="msg-2026-03-26T21-10-08-606Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T21-10-08-606Z" class="timestamp-link"><time datetime="2026-03-26T21:10:08.606Z" data-timestamp="2026-03-26T21:10:08.606Z">2026-03-26T21:10:08.606Z</time></a></div><div class="message-content">
+<div class="user-content"><p>add to README in todo sections.
+1 we ened to support more data in certficicate craeation,like specifing all fields in Subject's. also the ability to add customer OID codes and relative values</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-10-17-347Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-10-17-347Z" class="timestamp-link"><time datetime="2026-03-26T21:10:17.347Z" data-timestamp="2026-03-26T21:10:17.347Z">2026-03-26T21:10:17.347Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_011LpywC9tMsVpjCEaMMrWAk"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/README.md&#34;,
+  &#34;offset&#34;: 115,
+  &#34;limit&#34;: 10
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T21-10-17-462Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T21-10-17-462Z" class="timestamp-link"><time datetime="2026-03-26T21:10:17.462Z" data-timestamp="2026-03-26T21:10:17.462Z">2026-03-26T21:10:17.462Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>   115→
+   116→```bash
+   117→pre-commit install
+   118→```
+   119→
+   120→## Future Work
+   121→
+   122→- **Encryption-at-rest for private keys** — Private keys are currently stored as plaintext PEM in the SQLite database. A passphrase-based encryption layer or OS keychain integration would protect key material if the database file is compromised.
+   123→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-10-25-731Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-10-25-731Z" class="timestamp-link"><time datetime="2026-03-26T21:10:25.731Z" data-timestamp="2026-03-26T21:10:25.731Z">2026-03-26T21:10:25.731Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01RwHhSyYRCqDEF5yQM11faC">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">README.md</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/README.md</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">- **Encryption-at-rest for private keys** — Private keys are currently stored as plaintext PEM in the SQLite database. A passphrase-based encryption layer or OS keychain integration would protect key material if the database file is compromised.</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">- **Full X.509 Subject field support** — Currently only Common Name (`--cn`) is supported. Add flags for Organization (`--o`), Organizational Unit (`--ou`), Country (`--c`), State (`--st`), Locality (`--l`), and other standard Subject fields for CA and certificate creation.
+- **Custom OID extensions** — Support adding arbitrary OID codes and values to certificates and CSRs (e.g. `--ext 1.2.3.4.5=value`), enabling custom certificate policies, proprietary extensions, and compliance with organization-specific PKI requirements.
+- **Encryption-at-rest for private keys** — Private keys are currently stored as plaintext PEM in the SQLite database. A passphrase-based encryption layer or OS keychain integration would protect key material if the database file is compromised.</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T21-10-25-744Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T21-10-25-744Z" class="timestamp-link"><time datetime="2026-03-26T21:10:25.744Z" data-timestamp="2026-03-26T21:10:25.744Z">2026-03-26T21:10:25.744Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/README.md has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-10-29-866Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-10-29-866Z" class="timestamp-link"><time datetime="2026-03-26T21:10:29.866Z" data-timestamp="2026-03-26T21:10:29.866Z">2026-03-26T21:10:29.866Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Done.</p></div></div></div>
+<div class="message user" id="msg-2026-03-26T21-10-36-347Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T21-10-36-347Z" class="timestamp-link"><time datetime="2026-03-26T21:10:36.347Z" data-timestamp="2026-03-26T21:10:36.347Z">2026-03-26T21:10:36.347Z</time></a></div><div class="message-content">
+<div class="user-content"><p>antoher tood is to be able to specific cert/key usages</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-10-43-322Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-10-43-322Z" class="timestamp-link"><time datetime="2026-03-26T21:10:43.322Z" data-timestamp="2026-03-26T21:10:43.322Z">2026-03-26T21:10:43.322Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01UsdJ3TzRdnMSH52LaKcbxi">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">README.md</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/README.md</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">- **Encryption-at-rest for private keys**</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">- **Configurable key usage and extended key usage** — Allow specifying `--key-usage` (e.g. `digitalSignature,keyEncipherment`) and `--ext-key-usage` (e.g. `serverAuth,clientAuth,codeSigning`) flags on certificate creation and CSR signing, instead of using hardcoded defaults.
+- **Encryption-at-rest for private keys**</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T21-10-43-344Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T21-10-43-344Z" class="timestamp-link"><time datetime="2026-03-26T21:10:43.344Z" data-timestamp="2026-03-26T21:10:43.344Z">2026-03-26T21:10:43.344Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/README.md has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T21-10-46-615Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T21-10-46-615Z" class="timestamp-link"><time datetime="2026-03-26T21:10:46.615Z" data-timestamp="2026-03-26T21:10:46.615Z">2026-03-26T21:10:46.615Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Done.</p></div></div></div>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-017.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-005.html">5</a>
+<a href="page-006.html">6</a>
+<a href="page-007.html">7</a>
+<a href="page-008.html">8</a>
+<a href="page-009.html">9</a>
+<a href="page-010.html">10</a>
+<a href="page-011.html">11</a>
+<a href="page-012.html">12</a>
+<a href="page-013.html">13</a>
+<a href="page-014.html">14</a>
+<a href="page-015.html">15</a>
+<a href="page-016.html">16</a>
+<a href="page-017.html">17</a>
+<span class="current">18</span>
+<a href="page-019.html">19</a>
+<a href="page-020.html">20</a>
+<a href="page-021.html">21</a>
+<a href="page-022.html">22</a>
+<a href="page-023.html">23</a>
+<a href="page-024.html">24</a>
+<a href="page-025.html">25</a>
+<a href="page-026.html">26</a>
+<a href="page-027.html">27</a>
+<a href="page-028.html">28</a>
+<a href="page-019.html">Next &rarr;</a>
+</div>
+
+    </div>
+    <script>
+document.querySelectorAll('time[data-timestamp]').forEach(function(el) {
+    const timestamp = el.getAttribute('data-timestamp');
+    const date = new Date(timestamp);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    if (isToday) { el.textContent = timeStr; }
+    else { el.textContent = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + timeStr; }
+});
+document.querySelectorAll('pre.json').forEach(function(el) {
+    let text = el.textContent;
+    text = text.replace(/"([^"]+)":/g, '<span style="color: #ce93d8">"$1"</span>:');
+    text = text.replace(/: "([^"]*)"/g, ': <span style="color: #81d4fa">"$1"</span>');
+    text = text.replace(/: (\d+)/g, ': <span style="color: #ffcc80">$1</span>');
+    text = text.replace(/: (true|false|null)/g, ': <span style="color: #f48fb1">$1</span>');
+    el.innerHTML = text;
+});
+document.querySelectorAll('.truncatable').forEach(function(wrapper) {
+    const content = wrapper.querySelector('.truncatable-content');
+    const btn = wrapper.querySelector('.expand-btn');
+    if (content.scrollHeight > 250) {
+        wrapper.classList.add('truncated');
+        btn.addEventListener('click', function() {
+            if (wrapper.classList.contains('truncated')) { wrapper.classList.remove('truncated'); wrapper.classList.add('expanded'); btn.textContent = 'Show less'; }
+            else { wrapper.classList.remove('expanded'); wrapper.classList.add('truncated'); btn.textContent = 'Show more'; }
+        });
+    }
+});
+</script>
+</body>
+</html>

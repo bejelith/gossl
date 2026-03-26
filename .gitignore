@@ -1,0 +1,42 @@
+# Bazel
+bazel-*
+
+# Go
+vendor/
+
+# SQLite databases
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Private keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.csr
+
+# Credentials and secrets
+.env
+.env.*
+credentials.*
+serviceaccount*.json
+*-credentials.json
+*.secret
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage.out
+coverage.html

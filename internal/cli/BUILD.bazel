@@ -1,0 +1,65 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+# Copy user docs into userdocs/ for go:embed
+genrule(
+    name = "userdocs",
+    srcs = ["//docs/users:docs"],
+    outs = [
+        "userdocs/ca-management.md",
+        "userdocs/certificates.md",
+        "userdocs/csr.md",
+        "userdocs/getting-started.md",
+        "userdocs/graph.md",
+        "userdocs/keys.md",
+        "userdocs/sclient.md",
+        "userdocs/serve.md",
+        "userdocs/troubleshooting.md",
+    ],
+    cmd = "for f in $(locations //docs/users:docs); do cp $$f $(RULEDIR)/userdocs/$$(basename $$f); done",
+)
+
+go_library(
+    name = "cli",
+    srcs = [
+        "ca.go",
+        "cert.go",
+        "crypto.go",
+        "csr.go",
+        "docs.go",
+        "graph.go",
+        "key.go",
+        "root.go",
+        "sclient.go",
+        "serve.go",
+    ],
+    # keep
+    embedsrcs = [":userdocs"],
+    importpath = "github.com/bejelith/gossl/internal/cli",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/store",
+        "@com_github_prometheus_client_golang//prometheus",
+        "@com_github_prometheus_client_golang//prometheus/promhttp",
+        "@com_github_spf13_cobra//:cobra",
+        "@io_opentelemetry_go_otel//attribute",
+        "@io_opentelemetry_go_otel_exporters_prometheus//:prometheus",
+        "@io_opentelemetry_go_otel_metric//:metric",
+        "@io_opentelemetry_go_otel_sdk_metric//:metric",
+    ],
+)
+
+go_test(
+    name = "cli_test",
+    srcs = [
+        "ca_test.go",
+        "cert_sign_test.go",
+        "cert_test.go",
+        "crypto_test.go",
+        "csr_test.go",
+        "key_test.go",
+        "sclient_test.go",
+        "serve_test.go",
+    ],
+    embed = [":cli"],
+    deps = ["//internal/store"],
+)

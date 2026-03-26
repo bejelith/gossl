@@ -1,0 +1,74 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+# gazelle:ignore
+
+_SQLC_YAML = """version: "2"
+sql:
+  - engine: "sqlite"
+    queries:
+      - "queries.sql"
+      - "keystore_queries.sql"
+    schema: "migrations/"
+    gen:
+      go:
+        package: "store"
+        out: "."
+        output_db_file_name: "sqlc_db.go"
+        output_models_file_name: "sqlc_models.go"
+"""
+
+genrule(
+    name = "sqlc_generate",
+    srcs = [
+        "queries.sql",
+        "keystore_queries.sql",
+        "migrations/001_init.sql",
+    ],
+    outs = [
+        "sqlc_db.go",
+        "sqlc_models.go",
+        "queries.sql.go",
+        "keystore_queries.sql.go",
+    ],
+    cmd = " && ".join([
+        "EXECROOT=$$PWD",
+        "SQLC=$$EXECROOT/$(execpath @multitool//tools/sqlc)",
+        "WORK=$$(mktemp -d)",
+        "mkdir -p $$WORK/migrations",
+        "cp $(location migrations/001_init.sql) $$WORK/migrations/",
+        "cp $(location queries.sql) $$WORK/",
+        "cp $(location keystore_queries.sql) $$WORK/",
+        "printf '%s' '{}' > $$WORK/sqlc.yaml".format(_SQLC_YAML.replace("'", "'\\''")),
+        "cd $$WORK",
+        "$$SQLC generate",
+        "cp $$WORK/sqlc_db.go $$EXECROOT/$(location sqlc_db.go)",
+        "cp $$WORK/sqlc_models.go $$EXECROOT/$(location sqlc_models.go)",
+        "cp $$WORK/queries.sql.go $$EXECROOT/$(location queries.sql.go)",
+        "cp $$WORK/keystore_queries.sql.go $$EXECROOT/$(location keystore_queries.sql.go)",
+    ]),
+    tools = ["@multitool//tools/sqlc"],
+)
+
+go_library(
+    name = "store",
+    srcs = [
+        "db.go",
+        ":sqlc_generate",
+    ],
+    embedsrcs = ["migrations/001_init.sql"],
+    importpath = "github.com/bejelith/gossl/internal/store",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "@org_modernc_sqlite//:sqlite",
+    ],
+)
+
+go_test(
+    name = "store_test",
+    srcs = [
+        "certstore_test.go",
+        "db_test.go",
+        "keystore_test.go",
+    ],
+    embed = [":store"],
+)

@@ -1,0 +1,7 @@
+exports_files(["coverage.sh"])
+
+alias(
+    name = "govulncheck",
+    actual = "@org_golang_x_vuln//cmd/govulncheck",
+    visibility = ["//visibility:public"],
+)

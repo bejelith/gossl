@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code transcript - page 4</title>
+    <style>
+:root { --bg-color: #f5f5f5; --card-bg: #ffffff; --user-bg: #e3f2fd; --user-border: #1976d2; --assistant-bg: #f5f5f5; --assistant-border: #9e9e9e; --thinking-bg: #fff8e1; --thinking-border: #ffc107; --thinking-text: #666; --tool-bg: #f3e5f5; --tool-border: #9c27b0; --tool-result-bg: #e8f5e9; --tool-error-bg: #ffebee; --text-color: #212121; --text-muted: #757575; --code-bg: #263238; --code-text: #aed581; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 16px; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 24px; padding-bottom: 8px; border-bottom: 2px solid var(--user-border); }
+.header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 2px solid var(--user-border); padding-bottom: 8px; margin-bottom: 24px; }
+.header-row h1 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; flex: 1; min-width: 200px; }
+.message { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.message.user { background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.message.assistant { background: var(--card-bg); border-left: 4px solid var(--assistant-border); }
+.message.tool-reply { background: #fff8e1; border-left: 4px solid #ff9800; }
+.tool-reply .role-label { color: #e65100; }
+.tool-reply .tool-result { background: transparent; padding: 0; margin: 0; }
+.tool-reply .tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.message-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.role-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.user .role-label { color: var(--user-border); }
+time { color: var(--text-muted); font-size: 0.8rem; }
+.timestamp-link { color: inherit; text-decoration: none; }
+.timestamp-link:hover { text-decoration: underline; }
+.message:target { animation: highlight 2s ease-out; }
+@keyframes highlight { 0% { background-color: rgba(25, 118, 210, 0.2); } 100% { background-color: transparent; } }
+.message-content { padding: 16px; }
+.message-content p { margin: 0 0 12px 0; }
+.message-content p:last-child { margin-bottom: 0; }
+.thinking { background: var(--thinking-bg); border: 1px solid var(--thinking-border); border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 0.9rem; color: var(--thinking-text); }
+.thinking-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #f57c00; margin-bottom: 8px; }
+.thinking p { margin: 8px 0; }
+.assistant-text { margin: 8px 0; }
+.tool-use { background: var(--tool-bg); border: 1px solid var(--tool-border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-header { font-weight: 600; color: var(--tool-border); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.tool-icon { font-size: 1.1rem; }
+.tool-description { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
+.tool-result { background: var(--tool-result-bg); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-result.tool-error { background: var(--tool-error-bg); }
+.file-tool { border-radius: 8px; padding: 12px; margin: 12px 0; }
+.write-tool { background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%); border: 1px solid #4caf50; }
+.edit-tool { background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); border: 1px solid #ff9800; }
+.file-tool-header { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.write-header { color: #2e7d32; }
+.edit-header { color: #e65100; }
+.file-tool-icon { font-size: 1rem; }
+.file-tool-path { font-family: monospace; background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 4px; }
+.file-tool-fullpath { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; word-break: break-all; }
+.file-content { margin: 0; }
+.edit-section { display: flex; margin: 4px 0; border-radius: 4px; overflow: hidden; }
+.edit-label { padding: 8px 12px; font-weight: bold; font-family: monospace; display: flex; align-items: flex-start; }
+.edit-old { background: #fce4ec; }
+.edit-old .edit-label { color: #b71c1c; background: #f8bbd9; }
+.edit-old .edit-content { color: #880e4f; }
+.edit-new { background: #e8f5e9; }
+.edit-new .edit-label { color: #1b5e20; background: #a5d6a7; }
+.edit-new .edit-content { color: #1b5e20; }
+.edit-content { margin: 0; flex: 1; background: transparent; font-size: 0.85rem; }
+.edit-replace-all { font-size: 0.75rem; font-weight: normal; color: var(--text-muted); }
+.write-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #e6f4ea); }
+.edit-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff0e5); }
+.todo-list { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border: 1px solid #81c784; border-radius: 8px; padding: 12px; margin: 12px 0; }
+.todo-header { font-weight: 600; color: #2e7d32; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.todo-items { list-style: none; margin: 0; padding: 0; }
+.todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 0.9rem; }
+.todo-item:last-child { border-bottom: none; }
+.todo-icon { flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; }
+.todo-completed .todo-icon { color: #2e7d32; background: rgba(46, 125, 50, 0.15); }
+.todo-completed .todo-content { color: #558b2f; text-decoration: line-through; }
+.todo-in-progress .todo-icon { color: #f57c00; background: rgba(245, 124, 0, 0.15); }
+.todo-in-progress .todo-content { color: #e65100; font-weight: 500; }
+.todo-pending .todo-icon { color: #757575; background: rgba(0,0,0,0.05); }
+.todo-pending .todo-content { color: #616161; }
+pre { background: var(--code-bg); color: var(--code-text); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; margin: 8px 0; white-space: pre-wrap; word-wrap: break-word; }
+pre.json { color: #e0e0e0; }
+code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre code { background: none; padding: 0; }
+.user-content { margin: 0; }
+.truncatable { position: relative; }
+.truncatable.truncated .truncatable-content { max-height: 200px; overflow: hidden; }
+.truncatable.truncated::after { content: ''; position: absolute; bottom: 32px; left: 0; right: 0; height: 60px; background: linear-gradient(to bottom, transparent, var(--card-bg)); pointer-events: none; }
+.message.user .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--user-bg)); }
+.message.tool-reply .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.tool-use .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-bg)); }
+.tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-result-bg)); }
+.expand-btn { display: none; width: 100%; padding: 8px 16px; margin-top: 4px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+.expand-btn:hover { background: rgba(0,0,0,0.1); }
+.truncatable.truncated .expand-btn, .truncatable.expanded .expand-btn { display: block; }
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; flex-wrap: wrap; }
+.pagination a, .pagination span { padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
+.pagination a { background: var(--card-bg); color: var(--user-border); border: 1px solid var(--user-border); }
+.pagination a:hover { background: var(--user-bg); }
+.pagination .current { background: var(--user-border); color: white; }
+.pagination .disabled { color: var(--text-muted); border: 1px solid #ddd; }
+.pagination .index-link { background: var(--user-border); color: white; }
+details.continuation { margin-bottom: 16px; }
+details.continuation summary { cursor: pointer; padding: 12px 16px; background: var(--user-bg); border-left: 4px solid var(--user-border); border-radius: 12px; font-weight: 500; color: var(--text-muted); }
+details.continuation summary:hover { background: rgba(25, 118, 210, 0.15); }
+details.continuation[open] summary { border-radius: 12px 12px 0 0; margin-bottom: 0; }
+.index-item { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.index-item a { display: block; text-decoration: none; color: inherit; }
+.index-item a:hover { background: rgba(25, 118, 210, 0.1); }
+.index-item-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.index-item-number { font-weight: 600; color: var(--user-border); }
+.index-item-content { padding: 16px; }
+.index-item-stats { padding: 8px 16px 12px 32px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid rgba(0,0,0,0.06); }
+.index-item-commit { margin-top: 6px; padding: 4px 8px; background: #fff3e0; border-radius: 4px; font-size: 0.85rem; color: #e65100; }
+.index-item-commit code { background: rgba(0,0,0,0.08); padding: 1px 4px; border-radius: 3px; font-size: 0.8rem; margin-right: 6px; }
+.commit-card { margin: 8px 0; padding: 10px 14px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 6px; }
+.commit-card a { text-decoration: none; color: #5d4037; display: block; }
+.commit-card a:hover { color: #e65100; }
+.commit-card-hash { font-family: monospace; color: #e65100; font-weight: 600; margin-right: 8px; }
+.index-commit { margin-bottom: 12px; padding: 10px 16px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.index-commit a { display: block; text-decoration: none; color: inherit; }
+.index-commit a:hover { background: rgba(255, 152, 0, 0.1); margin: -10px -16px; padding: 10px 16px; border-radius: 8px; }
+.index-commit-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
+.index-commit-hash { font-family: monospace; color: #e65100; font-weight: 600; }
+.index-commit-msg { color: #5d4037; }
+.index-item-long-text { margin-top: 8px; padding: 12px; background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--assistant-border); }
+.index-item-long-text .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--card-bg)); }
+.index-item-long-text-content { color: var(--text-color); }
+#search-box { display: none; align-items: center; gap: 8px; }
+#search-box input { padding: 6px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; width: 180px; }
+#search-box button, #modal-search-btn, #modal-close-btn { background: var(--user-border); color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#search-box button:hover, #modal-search-btn:hover { background: #1565c0; }
+#modal-close-btn { background: var(--text-muted); margin-left: 8px; }
+#modal-close-btn:hover { background: #616161; }
+#search-modal[open] { border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); padding: 0; width: 90vw; max-width: 900px; height: 80vh; max-height: 80vh; display: flex; flex-direction: column; }
+#search-modal::backdrop { background: rgba(0,0,0,0.5); }
+.search-modal-header { display: flex; align-items: center; gap: 8px; padding: 16px; border-bottom: 1px solid var(--assistant-border); background: var(--bg-color); border-radius: 12px 12px 0 0; }
+.search-modal-header input { flex: 1; padding: 8px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; }
+#search-status { padding: 8px 16px; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+#search-results { flex: 1; overflow-y: auto; padding: 16px; }
+.search-result { margin-bottom: 16px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.search-result a { display: block; text-decoration: none; color: inherit; }
+.search-result a:hover { background: rgba(25, 118, 210, 0.05); }
+.search-result-page { padding: 6px 12px; background: rgba(0,0,0,0.03); font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.search-result-content { padding: 12px; }
+.search-result mark { background: #fff59d; padding: 1px 2px; border-radius: 2px; }
+@media (max-width: 600px) { body { padding: 8px; } .message, .index-item { border-radius: 8px; } .message-content, .index-item-content { padding: 12px; } pre { font-size: 0.8rem; padding: 8px; } #search-box input { width: 120px; } #search-modal[open] { width: 95vw; height: 90vh; } }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Claude Code transcript</a> - page 4/4</h1>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-003.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<span class="current">4</span>
+<span class="disabled">Next &rarr;</span>
+</div>
+
+        
+<div class="message user" id="msg-2026-03-27T21-49-22-397Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-27T21-49-22-397Z" class="timestamp-link"><time datetime="2026-03-27T21:49:22.397Z" data-timestamp="2026-03-27T21:49:22.397Z">2026-03-27T21:49:22.397Z</time></a></div><div class="message-content">
+<div class="user-content"><p>update docs</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-49-31-025Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-49-31-025Z" class="timestamp-link"><time datetime="2026-03-27T21:49:31.025Z" data-timestamp="2026-03-27T21:49:31.025Z">2026-03-27T21:49:31.025Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_013Mdm4umUFAqj593U8kpQpm"><div class="tool-header"><span class="tool-icon">⚙</span> Agent</div><div class="tool-description">Find all doc files to update</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subagent_type&#34;: &#34;Explore&#34;,
+  &#34;prompt&#34;: &#34;Find all documentation files in the gossl project that reference commands, CLI usage, or features. Check docs/, README*, and any other markdown files at the root. I need to know which files mention cert inspect, key commands, or would need updating for new \&#34;key inspect\&#34; and \&#34;key export\&#34; commands. List the files and what sections are relevant. Be quick.&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-49-50-327Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-49-50-327Z" class="timestamp-link"><time datetime="2026-03-27T21:49:50.327Z" data-timestamp="2026-03-27T21:49:50.327Z">2026-03-27T21:49:50.327Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Perfect! I have all the information I need. Let me compile the report:
+
+## Documentation Files Referencing Commands and CLI Features
+
+I&#x27;ve identified all documentation files that currently mention cert/key commands, CLI usage, or would need updates for new &quot;key inspect&quot; and &quot;key export&quot; commands:
+
+### **Files That NEED Updates:**
+
+1. **`/Users/scaruso/dev/gossl/README.md`** (Root project readme)
+   - **Relevant section:** Lines 15-60 (Features section)
+   - **Current content:** Shows `gossl cert inspect` and `gossl cert export` examples
+   - **Update needed:** Add examples for `gossl key inspect` and `gossl key export` in the Troubleshooting and Test CA Management sections
+
+2. **`/Users/scaruso/dev/gossl/docs/001-gossl-cli-design.md`** (CLI Design Spec)
+   - **Relevant section:** Lines 48-71 (Command Surface table)
+   - **Current content:** Documents all commands including `cert inspect`, `cert verify`, `cert export`
+   - **Update needed:** Add new `gossl key inspect` and `gossl key export` commands to the Troubleshooting section with flags and descriptions
+
+3. **`/Users/scaruso/dev/gossl/docs/004-key-inspect-design.md`** (Key Inspect Design Doc)
+   - **Relevant section:** Entire document (this is the design spec)
+   - **Current content:** Complete specification for `gossl key inspect` command with `--raw` flag and modifications to `cert inspect` output
+   - **Status:** This is the design doc—already covers the feature completely. No update needed; use this as reference.
+
+### **Files That REFERENCE Commands BUT DON&#x27;T NEED UPDATES:**
+
+4. **`/Users/scaruso/dev/gossl/docs/users/certificates.md`**
+   - **Relevant section:** Lines 122-143 (Inspecting and Verifying Certificates)
+   - **Current content:** Documents `cert inspect`, `cert verify`, `cert export`, `cert revoke`, `cert list`
+   - **Note:** Focuses on certificate operations; key export would be separate and might need a new section if key export is meant for users
+
+5. **`/Users/scaruso/dev/gossl/docs/users/getting-started.md`**
+   - **Relevant section:** Lines 31-45 (Steps 3-4)
+   - **Current content:** Shows `cert inspect` example workflow
+   - **Note:** Basic intro; may reference key inspect if it becomes a core troubleshooting step
+
+6. **`/Users/scaruso/dev/gossl/docs/users/csr.md`**
+   - **Relevant section:** Entire document
+   - **Current content:** Only documents `csr inspect` command
+   - **Note:** No mention of key commands; no update needed
+
+### **Files with Minor/No CLI References:**
+
+7. **`/Users/scaruso/dev/gossl/docs/002-database-model-plan.md`** — Database schema, not CLI
+8. **`/Users/scaruso/dev/gossl/docs/003-sqlc-bazel-integration.md`** — Build tooling, not CLI
+9. **`/Users/scaruso/dev/gossl/docs/users/ca-management.md`** — CA hierarchy; doesn&#x27;t detail key commands
+10. **`/Users/scaruso/dev/gossl/docs/users/sclient.md`** — Remote server probing command
+11. **`/Users/scaruso/dev/gossl/docs/users/troubleshooting.md`** — General troubleshooting guide
+12. **`/Users/scaruso/dev/gossl/docs/users/serve.md`** — Echo server command
+13. **`/Users/scaruso/dev/gossl/docs/users/graph.md`** — CA hierarchy visualization
+
+### **Summary of Update Priority:**
+
+| Priority | Files | Action |
+|----------|-------|--------|
+| **High** | `README.md`, `001-gossl-cli-design.md` | Add command references + examples |
+| **Medium** | `users/certificates.md`, `users/getting-started.md` | Consider adding key inspect workflow examples |
+| **Reference** | `004-key-inspect-design.md` | Already complete; use as implementation guide |
+| **Skip** | All others | No CLI command updates needed |</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-49-54-468Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-49-54-468Z" class="timestamp-link"><time datetime="2026-03-27T21:49:54.468Z" data-timestamp="2026-03-27T21:49:54.468Z">2026-03-27T21:49:54.468Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01Jz81AA9RcvjwjH1hgKAHWj"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/README.md&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-49-54-486Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-49-54-486Z" class="timestamp-link"><time datetime="2026-03-27T21:49:54.486Z" data-timestamp="2026-03-27T21:49:54.486Z">2026-03-27T21:49:54.486Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>1	# gossl
+2	
+3	A simplified alternative to openssl for engineers working with mTLS-enabled services.
+4	
+5	mTLS is used to authorize requests by trusting the identity associated with the peer certificate. Engineers need effective tools to troubleshoot customer authentication issues — incorrect CSRs, expired certificates, missing intermediates in TLS handshakes that prevent chain-of-trust verification. They also need to manage test CAs for backend system testing. Today, openssl handles this but is overcomplicated and hard to use for newcomers.
+6	
+7	gossl replaces the most common openssl workflows with a single binary backed by a single SQLite file. It offers a command-line interface for scripting and a terminal UI for interactive CA management.
+8	
+9	## Problems we&#x27;re trying to solve
+10	
+11	We struggle with engineers not being able to troubleshoot mTLS issues and general TLS thoroubleshooting, few really understand and/or read the TLS protocol so we had to invest into a lot of OpenSSL wrapper tools to help them. OpenSSL does a lot of things really well but it&#x27;s also really complex and hard to use for newcomers and the documentation is often lacking or confusing.
+12	
+13	The other problem what im trying to solve is educational, this tool should help practive and understand basic concepts without the need of knowing the tool specs by leaveraging LLMs.
+14	
+15	## Features
+16	
+17	### Troubleshooting
+18	
+19	Inspect certificates, validate CSRs, verify chains of trust, and probe live servers — from files, stdin, or remote connections.
+20	
+21	```bash
+22	# Inspect a certificate
+23	gossl cert inspect cert.pem
+24	
+25	# Verify a certificate against a CA bundle
+26	gossl cert verify --chain ca-bundle.pem cert.pem
+27	
+28	# Inspect a CSR
+29	gossl csr inspect request.csr
+30	
+31	# Check a live server&#x27;s TLS configuration
+32	gossl server check api.example.com:443
+33	
+34	# Read from stdin
+35	cat cert.pem | gossl cert inspect -
+36	```
+37	
+38	### Test CA Management
+39	
+40	Create and manage a full CA hierarchy (root CA, intermediates, leaf certs) stored in a single SQLite file.
+41	
+42	```bash
+43	# Create a root CA (initializes the database)
+44	gossl ca create --cn &quot;Test Root CA&quot; --db myca.db
+45	
+46	# Create an intermediate CA
+47	gossl intermediate create --cn &quot;Staging Intermediate&quot; --db myca.db
+48	
+49	# Issue a leaf certificate
+50	gossl cert issue --cn &quot;api.example.com&quot; --intermediate &quot;Staging Intermediate&quot; --san &quot;api.example.com,api.internal&quot; --db myca.db
+51	
+52	# List certificates
+53	gossl cert list --db myca.db
+54	
+55	# Export a certificate (with full chain)
+56	gossl cert export --serial A1B2C3D4 --chain --db myca.db --out client.pem
+57	
+58	# Revoke a certificate
+59	gossl cert revoke --serial A1B2C3D4 --db myca.db
+60	```
+61	
+62	### Echo Server
+63	
+64	Start an HTTPS echo server that streams the request body back. Exposes Prometheus metrics at `/metrics` with TLS handshake latency histograms.
+65	
+66	```bash
+67	# Serve using a cert from the DB
+68	gossl serve --db myca.db --dn &quot;api.example.com&quot;
+69	
+70	# Serve using cert/key files
+71	gossl serve --cert cert.pem --pkey key.pem
+72	
+73	# Require client certs (mTLS) and echo request headers
+74	gossl serve --db myca.db --dn &quot;api.example.com&quot; --mtls -v --port 8443
+75	
+76	# Scrape metrics
+77	curl -k https://localhost:8443/metrics
+78	```
+79	
+80	### CA Hierarchy Visualization
+81	
+82	Generate a diagram of all CAs and certificates in a database.
+83	
+84	```bash
+85	# SVG diagram (default)
+86	gossl graph
+87	
+88	# Text tree to stdout
+89	gossl graph --format text --out /dev/stdout
+90	
+91	# JSON tree
+92	gossl graph --format json --out /dev/stdout
+93	
+94	# Filter to CAs only (no leaf certs)
+95	gossl graph --filter ca,intermediate --format text --out /dev/stdout
+96	```
+97	
+98	Output formats: `svg` (color-coded tree diagram), `json` (nested tree), `text` (ASCII tree).
+99	
+100	### Terminal UI (planned)
+101	
+102	&gt; Not yet implemented. See [Future Work](#future-work).
+103	
+104	Interactive terminal UI for browsing and managing your CA hierarchy.
+105	
+106	## Using gossl with LLMs
+107	
+108	gossl embeds its full documentation and can dump it as context for any LLM.
+109	
+110	### Claude Code
+111	
+112	```bash
+113	# Give Claude full gossl context, then ask a question
+114	gossl docs | claude &quot;I have two services that need mTLS. Walk me through setting up a CA hierarchy and issuing certs for both.&quot;
+115	
+116	# Or use it interactively — paste the docs into the conversation
+117	gossl docs | pbcopy  # macOS
+118	```
+119	
+120	### In a Claude Code session
+121	
+122	```
+123	&gt; ! gossl docs &gt; /tmp/gossl-docs.md
+124	&gt; Read /tmp/gossl-docs.md and help me troubleshoot why my client cert is being rejected by nginx
+125	```
+126	
+127	### Single topic
+128	
+129	```bash
+130	gossl docs sclient | claude &quot;explain what each field in the output means&quot;
+131	gossl docs certificates | claude &quot;how do I sign an external CSR?&quot;
+132	```
+133	
+134	### Example: Multi-region mTLS simulation with Claude Code
+135	
+136	The following prompt demonstrates using Claude Code with `gossl docs` to build and validate a realistic mTLS hierarchy. Paste it into a Claude Code session:
+137	
+138	```
+139	Run `gossl docs` to learn how the tool works, then:
+140	
+141	1. Create a root CA.
+142	2. Create 3 regional intermediates: US, Canada, Mexico.
+143	3. Under US, create sub-intermediates: us-east-1, us-east-2, us-west-1.
+144	   Under Canada and Mexico, create a single sub-intermediate: main-district.
+145	4. For each sub-intermediate, issue a client cert and a server cert with
+146	   associated private key.
+147	5. Verify that a client cert issued under us-west-1 CANNOT connect to a
+148	   server using a cert issued under us-east-1 (different trust boundaries).
+149	6. Verify that a client cert issued under us-east-1 CAN connect to a server
+150	   using a cert issued directly under the US intermediate (shared ancestor).
+151	
+152	Use gossl for all certificate operations.
+153	```
+154	
+155	This exercises the full CA hierarchy, cross-intermediate trust boundaries, and mTLS verification — all driven by an LLM reading gossl&#x27;s embedded docs.
+156	
+157	## Installation
+158	
+159	```bash
+160	curl -sL https://raw.githubusercontent.com/bejelith/gossl/master/install.sh | bash
+161	```
+162	
+163	Or build from source:
+164	
+165	```bash
+166	bazel build //cmd/gossl
+167	```
+168	
+169	## Development
+170	
+171	### Prerequisites
+172	
+173	- [Bazel](https://bazel.build/) 9+
+174	- [pre-commit](https://pre-commit.com/)
+175	
+176	### Build
+177	
+178	```bash
+179	bazel build //...
+180	```
+181	
+182	### Test
+183	
+184	```bash
+185	# Unit tests
+186	bazel test //...
+187	
+188	# Integration tests (requires Docker)
+189	bazel test //... --test_tag_filters=integration
+190	```
+191	
+192	### Format
+193	
+194	```bash
+195	bazel run //tools/format:format
+196	```
+197	
+198	### Setup
+199	
+200	```bash
+201	pre-commit install
+202	```
+203	
+204	## Future Work
+205	
+206	- **Full X.509 Subject field support** — Currently only Common Name (`--cn`) is supported. Add flags for Organization (`--o`), Organizational Unit (`--ou`), Country (`--c`), State (`--st`), Locality (`--l`), and other standard Subject fields for CA and certificate creation.
+207	- **Custom OID extensions** — Support adding arbitrary OID codes and values to certificates and CSRs (e.g. `--ext 1.2.3.4.5=value`), enabling custom certificate policies, proprietary extensions, and compliance with organization-specific PKI requirements.
+208	- **Configurable key usage and extended key usage** — Allow specifying `--key-usage` (e.g. `digitalSignature,keyEncipherment`) and `--ext-key-usage` (e.g. `serverAuth,clientAuth,codeSigning`) flags on certificate creation and CSR signing, instead of using hardcoded defaults.
+209	- **Charm terminal UI** — Interactive terminal UI (`gossl ui --db myca.db`) built with [Bubble Tea](https://github.com/charmbracelet/bubbletea) for browsing and managing the CA hierarchy, issuing certificates, and inspecting the trust chain visually.
+210	- **CI pipeline for pull requests** — GitHub Actions workflow that runs `bazel test //...` on every PR and triggers AI-powered code review using Claude Code agents with the code-review skills.
+211	- **Remote Bazel cache** — Set up remote caching (e.g. [BuildBuddy](https://www.buildbuddy.io/) free tier or [EngFlow](https://www.engflow.com/)) to speed up CI builds and share cache between developers.
+212	- **CI test log archiving** — Upload Bazel test logs (`bazel-testlogs/`) as GitHub Actions artifacts on failure so they can be downloaded and inspected after a failed run.
+213	- **ACME server** — Embed an ACME (RFC 8555) server that issues certificates from any intermediate CA in the database, enabling automated cert provisioning for test environments using standard ACME clients like certbot or Caddy.
+214	- **Encryption-at-rest for private keys** — Private keys are currently stored as plaintext PEM in the SQLite database. A passphrase-based encryption layer or OS keychain integration would protect key material if the database file is compromised.
+215	</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-49-54-932Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-49-54-932Z" class="timestamp-link"><time datetime="2026-03-27T21:49:54.932Z" data-timestamp="2026-03-27T21:49:54.932Z">2026-03-27T21:49:54.932Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01TuRbUk7dkZ3SqeNVvmPRCh"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/docs/001-gossl-cli-design.md&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-49-54-942Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-49-54-942Z" class="timestamp-link"><time datetime="2026-03-27T21:49:54.942Z" data-timestamp="2026-03-27T21:49:54.942Z">2026-03-27T21:49:54.942Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>1	# gossl CLI Design Spec
+2	
+3	## Overview
+4	
+5	gossl is a simplified alternative to openssl for engineers working with mTLS-enabled services. It provides two core capabilities:
+6	
+7	1. **Troubleshooting** — inspect certs, CSRs, verify chains, probe live servers
+8	2. **Test CA management** — create and manage a CA hierarchy (root CA, intermediates, leaf certs) backed by a single SQLite file
+9	
+10	The tool offers a Cobra-based CLI for text commands and a Bubble Tea TUI for interactive CA management.
+11	
+12	## Architecture
+13	
+14	```
+15	cmd/gossl/              # binary entry point (thin — no business logic)
+16	internal/
+17	  ca/                   # CA + intermediate creation, cert issuance/revocation
+18	  cert/                 # x509 parsing, inspection, chain verification
+19	  csr/                  # CSR parsing + validation
+20	  tls/                  # remote server probing (TLS handshake, chain retrieval)
+21	  store/
+22	    certstore/          # SQLite — certs, CAs, intermediates, metadata
+23	    keystore/           # KV API — private keys (SQLite-backed for now)
+24	```
+25	
+26	### Layer Rules
+27	
+28	- **CLI/TUI are thin.** They parse input and call into `internal/` packages. No business logic in `cmd/`.
+29	- **Packages are independent.** `cert` does not import `ca`. `ca` imports `cert` and `store`.
+30	- **Store is behind interfaces.** `certstore` and `keystore` interfaces are defined in `internal/ca/` (consumer side), implemented in `internal/store/`.
+31	- **Nothing is exported.** All packages live under `internal/`. This is a CLI tool, not a library.
+32	
+33	## Command Surface
+34	
+35	### CA Management (DB-backed)
+36	
+37	| Command | Key Flags | Description |
+38	|---|---|---|
+39	| `gossl ca create` | `--cn`, `--db`, `--days`, `--key-algo`, `--key-size`, `--curve` | Create root CA, initialize DB file |
+40	| `gossl ca list` | `--db` | Show root CA info |
+41	| `gossl intermediate create` | `--cn`, `--db`, `--days`, `--key-algo`, `--key-size`, `--curve` | Create intermediate signed by root CA |
+42	| `gossl intermediate list` | `--db` | List all intermediates |
+43	| `gossl cert issue` | `--cn`, `--db`, `--intermediate`, `--days`, `--san`, `--key-algo`, `--key-size`, `--curve` | Issue cert signed by an intermediate |
+44	| `gossl cert list` | `--db` | List all issued certs |
+45	| `gossl cert revoke` | `--serial`, `--db` | Mark cert as revoked |
+46	| `gossl cert export` | `--serial`, `--db`, `--out`, `--chain`, `--force` | Export cert PEM to file (optionally full chain) |
+47	
+48	### Troubleshooting (file / stdin / remote)
+49	
+50	| Command | Args / Flags | Description |
+51	|---|---|---|
+52	| `gossl cert inspect` | `&lt;file\|-&gt;`, `--db --serial` | Display cert details: subject, issuer, SANs, expiry, key algo, fingerprint |
+53	| `gossl cert verify` | `&lt;file\|-&gt;`, `--chain &lt;ca-bundle-file&gt;` | Verify cert against a CA bundle file, report errors |
+54	| `gossl csr inspect` | `&lt;file\|-&gt;` | Display CSR details |
+55	| `gossl server check` | `&lt;host:port&gt;`, `--sni`, `--timeout`, `--ca-file`, `--db` | Connect, show cert chain, verify trust, flag issues |
+56	
+57	### Echo Server
+58	
+59	| Command | Key Flags | Description |
+60	|---|---|---|
+61	| `gossl serve` | `--db`, `--dn`, `--port`, `--mtls`, `-v` | Start HTTPS echo server using cert from DB (by common name) |
+62	| `gossl serve` | `--cert`, `--pkey`, `--port`, `--mtls`, `-v` | Start HTTPS echo server using cert/key files |
+63	
+64	- `--db`/`--dn` and `--cert`/`--pkey` are mutually exclusive flag groups.
+65	- `--dn` matches against cert common names in the DB.
+66	- Default port: 8443.
+67	- Without `--mtls`: accepts client certs if offered, does not require them.
+68	- With `--mtls`: requires and verifies client cert against the CA chain in `--db` (or system trust store for file mode).
+69	- Response body: URI, form data, body. With `-v`: also includes request headers.
+70	- If a client presents a cert, the response always includes parsed peer cert info (subject, issuer, serial, expiry).
+71	
+72	### TUI
+73	
+74	| Command | Flags | Description |
+75	|---|---|---|
+76	| `gossl ui` | `--db` | Launch Bubble Tea TUI for interactive CA management |
+77	
+78	### Input Conventions
+79	
+80	- All DB commands default to `--db gossl.db` in the current directory if not specified.
+81	- Stdin is indicated by `-` or absence of a file arg when piped.
+82	- `--key-algo` supports `rsa` (default) and `ecdsa`.
+83	- `--key-size` defaults: RSA 4096. Ignored for ECDSA.
+84	- `--curve` defaults: P-256. Ignored for RSA.
+85	- `--days` defaults: CA 3650 (10 years), intermediate 1825 (5 years), cert 365 (1 year).
+86	- `--timeout` defaults: 10s for `server check`.
+87	- `--force` on export overwrites existing files. Without it, export fails if file exists.
+88	- Output format is PEM. RSA keys use PKCS#1 encoding. ECDSA keys use SEC 1 (EC PRIVATE KEY PEM block).
+89	- Serial numbers are uppercase hex without colons (e.g., `A1B2C3D4`).
+90	
+91	## Storage
+92	
+93	### SQLite Schema (certstore)
+94	
+95	One root CA per database. Multiple intermediates per CA. Multiple certs per intermediate.
+96	
+97	Schema version is tracked via SQLite `user_version` pragma. On open, gossl checks the version and refuses to open a mismatched DB with a clear error message. No automatic migrations in v1.
+98	
+99	```sql
+100	PRAGMA user_version = 1;
+101	
+102	CREATE TABLE ca (
+103	    id          INTEGER PRIMARY KEY CHECK (id = 1),
+104	    common_name TEXT NOT NULL,
+105	    serial      TEXT NOT NULL UNIQUE,
+106	    key_algo    TEXT NOT NULL,
+107	    cert_pem    TEXT NOT NULL,
+108	    not_before  DATETIME NOT NULL,
+109	    not_after   DATETIME NOT NULL,
+110	    created_at  DATETIME NOT NULL
+111	);
+112	
+113	CREATE TABLE intermediate (
+114	    id          INTEGER PRIMARY KEY,
+115	    ca_id       INTEGER NOT NULL REFERENCES ca(id),
+116	    common_name TEXT NOT NULL,
+117	    serial      TEXT NOT NULL UNIQUE,
+118	    key_algo    TEXT NOT NULL,
+119	    cert_pem    TEXT NOT NULL,
+120	    not_before  DATETIME NOT NULL,
+121	    not_after   DATETIME NOT NULL,
+122	    created_at  DATETIME NOT NULL
+123	);
+124	
+125	CREATE TABLE cert (
+126	    id              INTEGER PRIMARY KEY,
+127	    intermediate_id INTEGER NOT NULL REFERENCES intermediate(id),
+128	    common_name     TEXT NOT NULL,
+129	    serial          TEXT NOT NULL UNIQUE,
+130	    key_algo        TEXT NOT NULL,
+131	    cert_pem        TEXT NOT NULL,
+132	    not_before      DATETIME NOT NULL,
+133	    not_after       DATETIME NOT NULL,
+134	    revoked_at      DATETIME,
+135	    created_at      DATETIME NOT NULL
+136	);
+137	```
+138	
+139	### KeyStore (KV API)
+140	
+141	Private keys are stored separately behind a KV interface to allow future migration to Vault, KMS, or HSM.
+142	
+143	```go
+144	type KeyStore interface {
+145	    Store(ctx context.Context, id string, keyPEM []byte) error
+146	    Load(ctx context.Context, id string) ([]byte, error)
+147	    Delete(ctx context.Context, id string) error
+148	}
+149	```
+150	
+151	Keys are referenced by the serial number of the associated cert/CA/intermediate. The initial SQLite implementation uses a `(id TEXT PRIMARY KEY, key_pem BLOB)` table in the same DB file.
+152	
+153	`Delete` exists on the interface for future key rotation/destruction workflows. No CLI command calls it in v1.
+154	
+155	### Code Generation
+156	
+157	SQL queries are written in `.sql` files and compiled to Go code using sqlc. sqlc runs as a Bazel build step via multitool — generated code is not committed to the repository.
+158	
+159	```
+160	internal/store/
+161	  schema.sql      # CREATE TABLE statements
+162	  queries.sql     # named queries
+163	  sqlc.yaml       # sqlc configuration
+164	```
+165	
+166	## Dependencies
+167	
+168	| Dependency | Purpose |
+169	|---|---|
+170	| `github.com/spf13/cobra` | CLI command routing, flags, shell completions |
+171	| `github.com/charmbracelet/bubbletea` | TUI framework |
+172	| `github.com/charmbracelet/bubbles` | TUI components (tables, text inputs) |
+173	| `github.com/charmbracelet/lipgloss` | TUI styling |
+174	| `modernc.org/sqlite` | Pure-Go SQLite driver (no CGO) |
+175	| `sqlc` (build tool) | SQL-to-Go code generation |
+176	
+177	Pure-Go SQLite (`modernc.org/sqlite`) is chosen over `mattn/go-sqlite3` to avoid CGO. This keeps the Bazel build hermetic and simplifies cross-compilation.
+178	
+179	## Error Handling
+180	
+181	### Library Errors (internal/)
+182	
+183	Typed sentinel errors that callers can inspect:
+184	
+185	```go
+186	var (
+187	    ErrExpired         = errors.New(&quot;certificate has expired&quot;)
+188	    ErrChainIncomplete = errors.New(&quot;chain of trust is incomplete&quot;)
+189	    ErrInvalidCSR      = errors.New(&quot;invalid certificate signing request&quot;)
+190	)
+191	```
+192	
+193	Errors are wrapped with context: `fmt.Errorf(&quot;verifying %s: %w&quot;, cn, ErrChainIncomplete)`
+194	
+195	### CLI Exit Codes
+196	
+197	| Exit Code | Meaning |
+198	|---|---|
+199	| 0 | Success |
+200	| 1 | General error (bad flags, file not found) |
+201	| 2 | Cert validation failure (expired, bad chain, invalid CSR) |
+202	| 3 | DB error (corrupt, missing, schema mismatch) |
+203	
+204	No panics. All errors are returned and handled at the Cobra command level.
+205	
+206	## Out of Scope (v1)
+207	
+208	- CRL generation / OCSP responder
+209	- Automatic schema migrations
+210	- PKCS#12 / DER output formats
+211	- Key rotation / destruction CLI commands
+212	
+213	## Testing
+214	
+215	### Unit Tests (target: 80%+ coverage)
+216	
+217	- `internal/cert/` — parse, inspect, verify against fixture PEM files in `testdata/`
+218	- `internal/csr/` — parse, validate against fixture CSR files in `testdata/`
+219	- `internal/ca/` — cert issuance and revocation using in-memory SQLite
+220	- `internal/store/` — CRUD operations against in-memory SQLite
+221	- `internal/tls/` — mock `net.Conn` for TLS handshake parsing
+222	
+223	### Integration Tests (complete coverage)
+224	
+225	- `internal/tls/` — testcontainers running nginx/envoy with mTLS, verify `server check` against real TLS endpoints
+226	- End-to-end CLI tests — run the `gossl` binary, create CA, issue certs, inspect, verify chains, check against testcontainer servers
+227	
+228	### Test Conventions
+229	
+230	- Unit tests colocated with source: `foo_test.go` next to `foo.go`
+231	- Table-driven tests with descriptive failure messages: `Foo(%q) = %d, want %d`
+232	- Integration tests tagged with `//go:build integration` and a separate Bazel test target
+233	- `bazel test //...` runs unit tests by default
+234	- `bazel test //... --test_tag_filters=integration` runs integration tests
+235	- External dependencies provisioned via testcontainers-go (no mocking infrastructure)
+236	</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-49-55-349Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-49-55-349Z" class="timestamp-link"><time datetime="2026-03-27T21:49:55.349Z" data-timestamp="2026-03-27T21:49:55.349Z">2026-03-27T21:49:55.349Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01RTLyRHNeUcXDXEs22fmLxf"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/docs/users/certificates.md&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-49-55-357Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-49-55-357Z" class="timestamp-link"><time datetime="2026-03-27T21:49:55.357Z" data-timestamp="2026-03-27T21:49:55.357Z">2026-03-27T21:49:55.357Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>1	# Certificates
+2	
+3	## Issuing a Certificate
+4	
+5	```
+6	gossl cert issue --cn &quot;server.example.com&quot; --san &quot;DNS:server.example.com,IP:192.168.1.10&quot;
+7	```
+8	
+9	Without `--ca`, the cert is signed by the root CA. PEM output goes to stdout.
+10	
+11	### Options
+12	
+13	| Flag | Default | Description |
+14	|------|---------|-------------|
+15	| `--cn` | required | Common name |
+16	| `--ca` | root CA | Signing CA common name |
+17	| `--db` | `gossl.db` | Path to the SQLite database |
+18	| `--days` | 365 | Validity in days |
+19	| `--san` | (none) | Subject alternative names (comma-separated) |
+20	| `--key-algo` | `rsa` | Key algorithm: `rsa` or `ecdsa` |
+21	| `--key-size` | `2048` | RSA key size in bits |
+22	| `--curve` | `P-256` | ECDSA curve |
+23	
+24	SAN format: `DNS:hostname`, `IP:1.2.3.4`, `EMAIL:user@example.com`, `URI:https://example.com`
+25	
+26	```
+27	gossl cert issue \
+28	  --cn &quot;api.example.com&quot; \
+29	  --ca &quot;Issuing CA&quot; \
+30	  --san &quot;DNS:api.example.com,DNS:api-internal.example.com,IP:10.0.0.5&quot; \
+31	  --days 90
+32	```
+33	
+34	## Signing an External CSR
+35	
+36	Sign a CSR generated outside gossl:
+37	
+38	```
+39	gossl cert sign request.csr --ca &quot;Issuing CA&quot; --days 365
+40	```
+41	
+42	Write the signed certificate to a file:
+43	
+44	```
+45	gossl cert sign request.csr --ca &quot;Issuing CA&quot; --out signed.pem
+46	```
+47	
+48	Overwrite an existing output file:
+49	
+50	```
+51	gossl cert sign request.csr --ca &quot;Issuing CA&quot; --out signed.pem --force
+52	```
+53	
+54	### Key Strength Validation
+55	
+56	`cert sign` validates the key in the CSR before signing. RSA keys must be at least 2048 bits. CSRs with weaker keys are rejected.
+57	
+58	### Options
+59	
+60	| Flag | Default | Description |
+61	|------|---------|-------------|
+62	| `--ca` | root CA | Signing CA common name |
+63	| `--db` | `gossl.db` | Path to the SQLite database |
+64	| `--days` | 365 | Validity in days |
+65	| `--out` | stdout | Output file path |
+66	| `--force` | false | Overwrite existing output file |
+67	
+68	## Listing Certificates
+69	
+70	```
+71	gossl cert list
+72	gossl cert list --db /path/to/other.db
+73	```
+74	
+75	Prints serial, common name, CA, expiry, and revocation status for every certificate in the database.
+76	
+77	## Revoking a Certificate
+78	
+79	```
+80	gossl cert revoke --serial 0A1B2C3D
+81	```
+82	
+83	Marks the certificate as revoked in the database. The serial is the hex serial number shown in `cert list` or `cert inspect`.
+84	
+85	### Options
+86	
+87	| Flag | Default | Description |
+88	|------|---------|-------------|
+89	| `--serial` | required | Hex serial number of the certificate |
+90	| `--db` | `gossl.db` | Path to the SQLite database |
+91	
+92	## Exporting a Certificate
+93	
+94	Retrieve a certificate from the database by serial number:
+95	
+96	```
+97	gossl cert export --serial 0A1B2C3D
+98	```
+99	
+100	Write to a file:
+101	
+102	```
+103	gossl cert export --serial 0A1B2C3D --out cert.pem
+104	```
+105	
+106	Include the full chain (certificate + all intermediate CA certs up to root):
+107	
+108	```
+109	gossl cert export --serial 0A1B2C3D --out chain.pem --chain
+110	```
+111	
+112	### Options
+113	
+114	| Flag | Default | Description |
+115	|------|---------|-------------|
+116	| `--serial` | required | Hex serial number |
+117	| `--db` | `gossl.db` | Path to the SQLite database |
+118	| `--out` | stdout | Output file path |
+119	| `--chain` | false | Include full certificate chain |
+120	| `--force` | false | Overwrite existing output file |
+121	
+122	## Inspecting a Certificate
+123	
+124	From a file:
+125	
+126	```
+127	gossl cert inspect server.pem
+128	```
+129	
+130	From stdin:
+131	
+132	```
+133	cat server.pem | gossl cert inspect -
+134	openssl s_client -connect host:443 &lt;/dev/null | gossl cert inspect -
+135	```
+136	
+137	From the database by serial:
+138	
+139	```
+140	gossl cert inspect --db gossl.db --serial 0A1B2C3D
+141	```
+142	
+143	Prints subject, issuer, serial, validity dates, key algorithm and size, SANs, and basic constraints.
+144	
+145	## Verifying a Certificate
+146	
+147	Check that a certificate is valid against a chain:
+148	
+149	```
+150	gossl cert verify server.pem
+151	gossl cert verify server.pem --chain chain.pem
+152	cat server.pem | gossl cert verify -
+153	```
+154	
+155	`--chain` provides intermediate or root certs to build the trust path. Without it, only the certificate&#x27;s self-consistency is checked.
+156	</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-49-55-956Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-49-55-956Z" class="timestamp-link"><time datetime="2026-03-27T21:49:55.956Z" data-timestamp="2026-03-27T21:49:55.956Z">2026-03-27T21:49:55.956Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_019kJJTHWv4iAA3YoQhNoNsJ"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/docs/users/getting-started.md&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-49-55-967Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-49-55-967Z" class="timestamp-link"><time datetime="2026-03-27T21:49:55.967Z" data-timestamp="2026-03-27T21:49:55.967Z">2026-03-27T21:49:55.967Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>1	# Getting Started
+2	
+3	## Installation
+4	
+5	Build from source using Bazel:
+6	
+7	```
+8	bazel build //cmd/gossl
+9	```
+10	
+11	The binary is written to `bazel-bin/cmd/gossl/gossl`. Add it to your PATH or invoke it directly.
+12	
+13	## Quick Start
+14	
+15	### 1. Create a CA
+16	
+17	```
+18	gossl ca create --cn &quot;My Root CA&quot;
+19	```
+20	
+21	This creates `gossl.db` in the current directory and registers the root CA. The first CA created is always the root.
+22	
+23	### 2. Issue a Certificate
+24	
+25	```
+26	gossl cert issue --cn &quot;server.example.com&quot; --san &quot;DNS:server.example.com,IP:127.0.0.1&quot;
+27	```
+28	
+29	Without `--ca`, the cert is issued under the root CA. Output is PEM to stdout.
+30	
+31	### 3. Inspect a Remote Server
+32	
+33	```
+34	gossl sclient server.example.com:443
+35	```
+36	
+37	Connects to the host, performs a TLS handshake, and prints certificate details for the server&#x27;s chain.
+38	
+39	### 4. Verify a Certificate File
+40	
+41	```
+42	gossl cert inspect server.pem
+43	```
+44	
+45	Prints the subject, issuer, validity period, SANs, and key info from a local PEM file.
+46	
+47	## The Database
+48	
+49	gossl stores all CA and certificate state in a single SQLite file. The default is `gossl.db` in the current working directory. Every command that reads or writes PKI state accepts `--db` to point at a different file.
+50	
+51	```
+52	gossl ca create --cn &quot;Prod Root CA&quot; --db /etc/pki/prod.db
+53	gossl cert issue --cn &quot;api.prod.example.com&quot; --db /etc/pki/prod.db
+54	```
+55	
+56	The database contains:
+57	- A unified CA table where root CAs have `parent_id = NULL` and intermediates reference their parent.
+58	- A certificate table with serial numbers, PEM data, and revocation status.
+59	
+60	Keep the database file backed up. Losing it means losing the ability to sign or revoke certificates under those CAs.
+61	
+62	## Output Format
+63	
+64	Private keys are written in PEM format. RSA keys use PKCS#1 encoding; ECDSA keys use SEC 1 encoding. Certificates are standard PEM X.509.
+65	
+66	Most commands write PEM to stdout unless `--out` is provided.
+67	</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-49-56-138Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-49-56-138Z" class="timestamp-link"><time datetime="2026-03-27T21:49:56.138Z" data-timestamp="2026-03-27T21:49:56.138Z">2026-03-27T21:49:56.138Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01W6omEug5AXS2CGBCyiGd4b"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/docs/users/troubleshooting.md&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-49-56-146Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-49-56-146Z" class="timestamp-link"><time datetime="2026-03-27T21:49:56.146Z" data-timestamp="2026-03-27T21:49:56.146Z">2026-03-27T21:49:56.146Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>1	# Troubleshooting
+2	
+3	## mTLS: Client Certificate Rejected
+4	
+5	**Symptom:** TLS handshake fails with `certificate required`, `bad certificate`, or `unknown CA`.
+6	
+7	**Causes and fixes:**
+8	
+9	1. The client certificate was not signed by a CA that the server trusts. Confirm the server is using a trust store that includes the issuing CA. In gossl serve, the trusted pool comes from the database — ensure the client cert was issued by a CA in that database.
+10	
+11	2. The client is not presenting a certificate at all. Check that `--cert` and `--key` are passed to the connecting tool.
+12	
+13	3. The client certificate has been revoked. Check `gossl cert list` and look for `revoked` status on the relevant serial.
+14	
+15	## Expired Certificate
+16	
+17	**Symptom:** TLS error `certificate has expired` or `x509: certificate has expired or is not yet valid`.
+18	
+19	**Fix:** Issue a new certificate:
+20	
+21	```
+22	gossl cert issue --cn &quot;service.example.com&quot; --san &quot;DNS:service.example.com&quot; --ca &quot;Issuing CA&quot;
+23	```
+24	
+25	Check expiry of any certificate:
+26	
+27	```
+28	gossl cert inspect service.pem
+29	gossl cert inspect --db gossl.db --serial 0A1B2C3D
+30	```
+31	
+32	Check expiry of CA certificates:
+33	
+34	```
+35	gossl ca list
+36	```
+37	
+38	## Missing Intermediate CA
+39	
+40	**Symptom:** Chain validation fails even though the end-entity certificate is valid.
+41	
+42	**Symptom detail:** `x509: certificate signed by unknown authority` when the root is trusted but an intermediate is not in the presented chain.
+43	
+44	**Fix:** Export the full chain and use it when serving or connecting:
+45	
+46	```
+47	gossl cert export --serial &lt;end-entity-serial&gt; --chain --out fullchain.pem
+48	```
+49	
+50	Verify the chain is complete:
+51	
+52	```
+53	gossl cert verify fullchain.pem
+54	```
+55	
+56	## Wrong CA Trust Store
+57	
+58	**Symptom:** `gossl sclient` or a browser reports `certificate signed by unknown authority` against an internal server.
+59	
+60	**Fix:** Pass the correct root CA to the client:
+61	
+62	```
+63	gossl sclient internal.corp:8443 --ca-file root-ca.pem
+64	```
+65	
+66	Export the root CA certificate from the database:
+67	
+68	```
+69	gossl cert export --serial &lt;root-ca-serial&gt; --out root-ca.pem
+70	```
+71	
+72	The root CA serial is visible in `gossl ca list`.
+73	
+74	## Weak Key in CSR Rejected
+75	
+76	**Symptom:** `gossl cert sign` fails with a message about key strength.
+77	
+78	**Cause:** `cert sign` enforces a minimum RSA key size of 2048 bits. CSRs with 1024-bit RSA keys are rejected.
+79	
+80	**Fix:** Regenerate the CSR with a stronger key:
+81	
+82	```
+83	openssl genrsa -out key.pem 2048
+84	openssl req -new -key key.pem -subj &quot;/CN=example.com&quot; -out request.csr
+85	gossl cert sign request.csr --ca &quot;Issuing CA&quot;
+86	```
+87	
+88	Inspect the key size in an existing CSR before signing:
+89	
+90	```
+91	gossl csr inspect request.csr
+92	```
+93	
+94	## SNI Mismatch
+95	
+96	**Symptom:** Server presents a certificate for the wrong hostname, or `gossl sclient` shows a certificate whose subject does not match the host you connected to.
+97	
+98	**Cause:** The server is returning a default certificate because the SNI hostname in the ClientHello did not match any configured virtual host, or the certificate simply has the wrong SANs.
+99	
+100	**Fix — if connecting by IP:** Override SNI to send the expected hostname:
+101	
+102	```
+103	gossl sclient 10.0.0.5:443 --sni api.example.com
+104	```
+105	
+106	**Fix — if the certificate is missing SANs:** Reissue with correct SANs:
+107	
+108	```
+109	gossl cert issue --cn &quot;api.example.com&quot; \
+110	  --san &quot;DNS:api.example.com,DNS:api-internal.example.com&quot; \
+111	  --ca &quot;Issuing CA&quot;
+112	```
+113	
+114	Note: Modern TLS stacks match on SANs, not CN. Always include `DNS:` entries in `--san`.
+115	
+116	## Connection Timeout / Hang
+117	
+118	**Symptom:** `gossl sclient` hangs indefinitely.
+119	
+120	**Fix:** Set an explicit timeout:
+121	
+122	```
+123	gossl sclient host:443 --timeout 5s
+124	```
+125	
+126	Check that the port is reachable and not firewalled before debugging TLS.
+127	
+128	## Certificate Issued but Not Visible in List
+129	
+130	**Symptom:** `gossl cert list` does not show a certificate just issued.
+131	
+132	**Cause:** A different database file was used for issuance and listing.
+133	
+134	**Fix:** Always pass `--db` consistently, or rely on the same working directory when using the default `gossl.db`:
+135	
+136	```
+137	gossl cert issue --cn &quot;example.com&quot; --db /path/to/pki.db
+138	gossl cert list --db /path/to/pki.db
+139	```
+140	</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-50-01-273Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-50-01-273Z" class="timestamp-link"><time datetime="2026-03-27T21:50:01.273Z" data-timestamp="2026-03-27T21:50:01.273Z">2026-03-27T21:50:01.273Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now I have full context. Let me update all the docs in parallel.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-50-07-434Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-50-07-434Z" class="timestamp-link"><time datetime="2026-03-27T21:50:07.434Z" data-timestamp="2026-03-27T21:50:07.434Z">2026-03-27T21:50:07.434Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01UM7ZMskRC3LRTSYDTqaysB">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">README.md</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/README.md</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">### Troubleshooting
+
+Inspect certificates, validate CSRs, verify chains of trust, and probe live servers — from files, stdin, or remote connections.
+
+```bash
+# Inspect a certificate
+gossl cert inspect cert.pem
+
+# Verify a certificate against a CA bundle
+gossl cert verify --chain ca-bundle.pem cert.pem
+
+# Inspect a CSR
+gossl csr inspect request.csr
+
+# Check a live server&#39;s TLS configuration
+gossl server check api.example.com:443
+
+# Read from stdin
+cat cert.pem | gossl cert inspect -
+```</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">### Troubleshooting
+
+Inspect certificates, validate CSRs, verify chains of trust, and probe live servers — from files, stdin, or remote connections.
+
+```bash
+# Inspect a certificate
+gossl cert inspect cert.pem
+
+# Inspect a private key
+gossl key inspect key.pem
+
+# Check if a key matches a cert (compare the Public Key SHA256 line)
+gossl cert inspect cert.pem
+gossl key inspect key.pem
+
+# Show the full RSA modulus or ECDSA public point
+gossl key inspect key.pem --raw
+
+# Verify a certificate against a CA bundle
+gossl cert verify --chain ca-bundle.pem cert.pem
+
+# Inspect a CSR
+gossl csr inspect request.csr
+
+# Check a live server&#39;s TLS configuration
+gossl sclient api.example.com:443
+
+# Read from stdin
+cat cert.pem | gossl cert inspect -
+```</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-50-14-753Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-50-14-753Z" class="timestamp-link"><time datetime="2026-03-27T21:50:14.753Z" data-timestamp="2026-03-27T21:50:14.753Z">2026-03-27T21:50:14.753Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/README.md has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-50-21-730Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-50-21-730Z" class="timestamp-link"><time datetime="2026-03-27T21:50:21.730Z" data-timestamp="2026-03-27T21:50:21.730Z">2026-03-27T21:50:21.730Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_018Mdk96oWLyaWAr4Tv6GP9B">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">README.md</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/README.md</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content"># List certificates
+gossl cert list --db myca.db
+
+# Export a certificate (with full chain)
+gossl cert export --serial A1B2C3D4 --chain --db myca.db --out client.pem
+
+# Revoke a certificate
+gossl cert revoke --serial A1B2C3D4 --db myca.db
+```</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content"># List certificates
+gossl cert list --db myca.db
+
+# Export a certificate (with full chain)
+gossl cert export --serial A1B2C3D4 --chain --db myca.db --out client.pem
+
+# Export a private key by certificate common name
+gossl key export --cn &#34;api.example.com&#34; --db myca.db --out key.pem
+
+# Revoke a certificate
+gossl cert revoke --serial A1B2C3D4 --db myca.db
+```</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-51-32-932Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-51-32-932Z" class="timestamp-link"><time datetime="2026-03-27T21:51:32.932Z" data-timestamp="2026-03-27T21:51:32.932Z">2026-03-27T21:51:32.932Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/README.md has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-51-43-706Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-51-43-706Z" class="timestamp-link"><time datetime="2026-03-27T21:51:43.706Z" data-timestamp="2026-03-27T21:51:43.706Z">2026-03-27T21:51:43.706Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01Ssr1wH3piuxTMkDALgVNsx">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">001-gossl-cli-design.md</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/docs/001-gossl-cli-design.md</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">### Troubleshooting (file / stdin / remote)
+
+| Command | Args / Flags | Description |
+|---|---|---|
+| `gossl cert inspect` | `&lt;file\|-&gt;`, `--db --serial` | Display cert details: subject, issuer, SANs, expiry, key algo, fingerprint |
+| `gossl cert verify` | `&lt;file\|-&gt;`, `--chain &lt;ca-bundle-file&gt;` | Verify cert against a CA bundle file, report errors |
+| `gossl csr inspect` | `&lt;file\|-&gt;` | Display CSR details |
+| `gossl server check` | `&lt;host:port&gt;`, `--sni`, `--timeout`, `--ca-file`, `--db` | Connect, show cert chain, verify trust, flag issues |</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">### Key Management
+
+| Command | Key Flags | Description |
+|---|---|---|
+| `gossl key inspect` | `&lt;file\|-&gt;`, `--raw` | Display private key details: algorithm, size/curve, public key SHA-256 fingerprint. `--raw` shows full modulus (RSA) or public point (ECDSA) |
+| `gossl key export` | `--cn`, `--db`, `--out`, `--force` | Export private key from database by certificate common name |
+
+### Troubleshooting (file / stdin / remote)
+
+| Command | Args / Flags | Description |
+|---|---|---|
+| `gossl cert inspect` | `&lt;file\|-&gt;`, `--db --serial` | Display cert details: subject, issuer, SANs, expiry, key algo, public key SHA-256 fingerprint |
+| `gossl cert verify` | `&lt;file\|-&gt;`, `--chain &lt;ca-bundle-file&gt;` | Verify cert against a CA bundle file, report errors |
+| `gossl csr inspect` | `&lt;file\|-&gt;` | Display CSR details |
+| `gossl server check` | `&lt;host:port&gt;`, `--sni`, `--timeout`, `--ca-file`, `--db` | Connect, show cert chain, verify trust, flag issues |</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-51-50-498Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-51-50-498Z" class="timestamp-link"><time datetime="2026-03-27T21:51:50.498Z" data-timestamp="2026-03-27T21:51:50.498Z">2026-03-27T21:51:50.498Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/docs/001-gossl-cli-design.md has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-51-56-704Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-51-56-704Z" class="timestamp-link"><time datetime="2026-03-27T21:51:56.704Z" data-timestamp="2026-03-27T21:51:56.704Z">2026-03-27T21:51:56.704Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_012vhhgFucTuknRpfdC51ebm">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">certificates.md</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/docs/users/certificates.md</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">Prints subject, issuer, serial, validity dates, key algorithm and size, SANs, and basic constraints.
+
+## Verifying a Certificate</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">Prints subject, issuer, serial, validity dates, key algorithm and size, SANs, public key SHA-256 fingerprint, and basic constraints.
+
+The `Public Key SHA256` line can be compared with the output of `gossl key inspect` to verify that a certificate and private key match.
+
+## Verifying a Certificate</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-52-00-650Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-52-00-650Z" class="timestamp-link"><time datetime="2026-03-27T21:52:00.650Z" data-timestamp="2026-03-27T21:52:00.650Z">2026-03-27T21:52:00.650Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/docs/users/certificates.md has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-52-04-999Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-52-04-999Z" class="timestamp-link"><time datetime="2026-03-27T21:52:04.999Z" data-timestamp="2026-03-27T21:52:04.999Z">2026-03-27T21:52:04.999Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now add a new doc for the key commands.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-52-12-870Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-52-12-870Z" class="timestamp-link"><time datetime="2026-03-27T21:52:12.870Z" data-timestamp="2026-03-27T21:52:12.870Z">2026-03-27T21:52:12.870Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_01UHD1g8irVhwR4Q5P9Rqcq2">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">keys.md</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/docs/users/keys.md</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content"># Private Keys
+
+## Inspecting a Private Key
+
+From a file:
+
+```
+gossl key inspect key.pem
+```
+
+From stdin:
+
+```
+cat key.pem | gossl key inspect -
+```
+
+Output for an RSA key:
+
+```
+Algorithm:         RSA
+Key Size:          2048 bits
+Public Key SHA256: SHA256:ab:cd:ef:12:34:56:78:...
+```
+
+Output for an ECDSA key:
+
+```
+Algorithm:         ECDSA
+Curve:             P-256
+Public Key SHA256: SHA256:ab:cd:ef:12:34:56:78:...
+```
+
+### Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--raw` | false | Show full modulus (RSA) or public point (ECDSA) in hex |
+
+With `--raw`, an additional line is printed:
+
+- RSA: `Modulus: &lt;colon-separated uppercase hex&gt;`
+- ECDSA: `Public Point: &lt;colon-separated uppercase hex&gt;`
+
+## Exporting a Private Key
+
+Export the private key for a certificate by common name:
+
+```
+gossl key export --cn &#34;server.example.com&#34;
+```
+
+Write to a file:
+
+```
+gossl key export --cn &#34;server.example.com&#34; --out key.pem
+```
+
+Overwrite an existing file:
+
+```
+gossl key export --cn &#34;server.example.com&#34; --out key.pem --force
+```
+
+Without `--out`, the PEM key is written to stdout.
+
+### Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--cn` | required | Certificate common name |
+| `--db` | `gossl.db` | Path to the SQLite database |
+| `--out` | stdout | Output file path |
+| `--force` | false | Overwrite existing output file |
+
+## Verifying a Key Matches a Certificate
+
+Both `gossl key inspect` and `gossl cert inspect` print a `Public Key SHA256` line. If the fingerprints match, the key and certificate are a pair.
+
+```
+gossl cert inspect cert.pem
+gossl key inspect key.pem
+```
+
+Compare the `Public Key SHA256` lines — if they are identical, the key matches the certificate.
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-52-15-911Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-52-15-911Z" class="timestamp-link"><time datetime="2026-03-27T21:52:15.911Z" data-timestamp="2026-03-27T21:52:15.911Z">2026-03-27T21:52:15.911Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>File created successfully at: /Users/scaruso/dev/gossl/docs/users/keys.md</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-52-24-989Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-52-24-989Z" class="timestamp-link"><time datetime="2026-03-27T21:52:24.989Z" data-timestamp="2026-03-27T21:52:24.989Z">2026-03-27T21:52:24.989Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now add the key-cert matching to the troubleshooting doc.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-52-28-403Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-52-28-403Z" class="timestamp-link"><time datetime="2026-03-27T21:52:28.403Z" data-timestamp="2026-03-27T21:52:28.403Z">2026-03-27T21:52:28.403Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01DYKC1ZTaUtkR5Aa7NFeHyv">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">troubleshooting.md</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/docs/users/troubleshooting.md</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">## mTLS: Client Certificate Rejected</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">## Private Key Does Not Match Certificate
+
+**Symptom:** TLS server fails to start, or handshake fails with `private key does not match public key` or similar error.
+
+**Fix:** Verify the key and certificate are a pair by comparing their public key fingerprints:
+
+```
+gossl cert inspect cert.pem
+gossl key inspect key.pem
+```
+
+If the `Public Key SHA256` lines differ, the key and certificate do not match. Export the correct key from the database:
+
+```
+gossl key export --cn &#34;server.example.com&#34; --out key.pem
+```
+
+## mTLS: Client Certificate Rejected</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-52-43-513Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-52-43-513Z" class="timestamp-link"><time datetime="2026-03-27T21:52:43.513Z" data-timestamp="2026-03-27T21:52:43.513Z">2026-03-27T21:52:43.513Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/docs/users/troubleshooting.md has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-52-48-372Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-52-48-372Z" class="timestamp-link"><time datetime="2026-03-27T21:52:48.372Z" data-timestamp="2026-03-27T21:52:48.372Z">2026-03-27T21:52:48.372Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now update the <code>docs</code> command to include the new keys doc. Let me check how docs are embedded.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-52-49-713Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-52-49-713Z" class="timestamp-link"><time datetime="2026-03-27T21:52:49.713Z" data-timestamp="2026-03-27T21:52:49.713Z">2026-03-27T21:52:49.713Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01MLj9GWYZ1ZjxghyBPKYEzW"><div class="tool-header"><span class="tool-icon">⚙</span> Grep</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;pattern&#34;: &#34;certificates\\\\.md|docs.*embed|newDocsCmd\&#34;&#34;,
+  &#34;path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli&#34;,
+  &#34;output_mode&#34;: &#34;files_with_matches&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-52-49-752Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-52-49-752Z" class="timestamp-link"><time datetime="2026-03-27T21:52:49.752Z" data-timestamp="2026-03-27T21:52:49.752Z">2026-03-27T21:52:49.752Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Found 2 files
+internal/cli/BUILD.bazel
+internal/cli/docs.go</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-52-53-668Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-52-53-668Z" class="timestamp-link"><time datetime="2026-03-27T21:52:53.668Z" data-timestamp="2026-03-27T21:52:53.668Z">2026-03-27T21:52:53.668Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01HfoFMTB7MLSeQeqQ4Q1Czz"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/docs.go&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-52-53-853Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-52-53-853Z" class="timestamp-link"><time datetime="2026-03-27T21:52:53.853Z" data-timestamp="2026-03-27T21:52:53.853Z">2026-03-27T21:52:53.853Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>1	package cli
+2	
+3	import (
+4		&quot;embed&quot;
+5		&quot;fmt&quot;
+6		&quot;io/fs&quot;
+7		&quot;sort&quot;
+8		&quot;strings&quot;
+9	
+10		&quot;github.com/spf13/cobra&quot;
+11	)
+12	
+13	//go:embed userdocs/*.md
+14	var docsFS embed.FS
+15	
+16	func newDocsCmd() *cobra.Command {
+17		cmd := &amp;cobra.Command{
+18			Use:   &quot;docs [topic]&quot;,
+19			Short: &quot;Print built-in documentation (useful for LLM context)&quot;,
+20			Long: `Dump embedded user documentation to stdout. Without arguments, prints all docs.
+21	With a topic, prints only that section.
+22	
+23	Topics: getting-started, ca-management, certificates, csr, sclient, serve, troubleshooting
+24	
+25	Designed to be piped into an LLM prompt for context:
+26	  gossl docs | llm &quot;how do I set up mTLS with gossl?&quot;`,
+27			RunE: func(cmd *cobra.Command, args []string) error {
+28				topic := &quot;&quot;
+29				if len(args) &gt; 0 {
+30					topic = args[0]
+31				}
+32				return runDocs(topic)
+33			},
+34		}
+35	
+36		return cmd
+37	}
+38	
+39	func runDocs(topic string) error {
+40		entries, err := fs.ReadDir(docsFS, &quot;userdocs&quot;)
+41		if err != nil {
+42			return fmt.Errorf(&quot;reading embedded docs: %w&quot;, err)
+43		}
+44	
+45		// Filter to .md files only
+46		var mdFiles []fs.DirEntry
+47		for _, e := range entries {
+48			if strings.HasSuffix(e.Name(), &quot;.md&quot;) {
+49				mdFiles = append(mdFiles, e)
+50			}
+51		}
+52	
+53		sort.Slice(mdFiles, func(i, j int) bool {
+54			return mdFiles[i].Name() &lt; mdFiles[j].Name()
+55		})
+56	
+57		if topic != &quot;&quot; {
+58			target := topic + &quot;.md&quot;
+59			for _, e := range mdFiles {
+60				if e.Name() == target {
+61					return printDoc(e.Name())
+62				}
+63			}
+64			for _, e := range mdFiles {
+65				if strings.Contains(e.Name(), topic) {
+66					return printDoc(e.Name())
+67				}
+68			}
+69			return fmt.Errorf(&quot;unknown topic %q. Available: %s&quot;, topic, listTopics(mdFiles))
+70		}
+71	
+72		fmt.Println(&quot;# gossl Documentation&quot;)
+73		fmt.Println()
+74		fmt.Println(&quot;The following is the complete documentation for gossl, a simplified&quot;)
+75		fmt.Println(&quot;alternative to openssl for mTLS certificate management and troubleshooting.&quot;)
+76		fmt.Println()
+77	
+78		for _, e := range mdFiles {
+79			if err := printDoc(e.Name()); err != nil {
+80				return err
+81			}
+82			fmt.Println()
+83			fmt.Println(&quot;---&quot;)
+84			fmt.Println()
+85		}
+86	
+87		return nil
+88	}
+89	
+90	func printDoc(name string) error {
+91		data, err := docsFS.ReadFile(&quot;userdocs/&quot; + name)
+92		if err != nil {
+93			return fmt.Errorf(&quot;reading %s: %w&quot;, name, err)
+94		}
+95		fmt.Print(string(data))
+96		return nil
+97	}
+98	
+99	func listTopics(entries []fs.DirEntry) string {
+100		var topics []string
+101		for _, e := range entries {
+102			name := strings.TrimSuffix(e.Name(), &quot;.md&quot;)
+103			topics = append(topics, name)
+104		}
+105		return strings.Join(topics, &quot;, &quot;)
+106	}
+107	</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-52-57-638Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-52-57-638Z" class="timestamp-link"><time datetime="2026-03-27T21:52:57.638Z" data-timestamp="2026-03-27T21:52:57.638Z">2026-03-27T21:52:57.638Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>It embeds from <code>userdocs/</code> not <code>docs/users/</code>. Let me check.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-52-57-688Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-52-57-688Z" class="timestamp-link"><time datetime="2026-03-27T21:52:57.688Z" data-timestamp="2026-03-27T21:52:57.688Z">2026-03-27T21:52:57.688Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01JWgVk5An93xuybABA2DWLC"><div class="tool-header"><span class="tool-icon">⚙</span> Glob</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;pattern&#34;: &#34;internal/cli/userdocs/*.md&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-52-57-794Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-52-57-794Z" class="timestamp-link"><time datetime="2026-03-27T21:52:57.794Z" data-timestamp="2026-03-27T21:52:57.794Z">2026-03-27T21:52:57.794Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>No files found</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-53-01-486Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-53-01-486Z" class="timestamp-link"><time datetime="2026-03-27T21:53:01.486Z" data-timestamp="2026-03-27T21:53:01.486Z">2026-03-27T21:53:01.486Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01UkeXkQZrwFknz6YJDb1ysL"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/cli/BUILD.bazel&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-53-01-502Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-53-01-502Z" class="timestamp-link"><time datetime="2026-03-27T21:53:01.502Z" data-timestamp="2026-03-27T21:53:01.502Z">2026-03-27T21:53:01.502Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>1	load(&quot;@rules_go//go:def.bzl&quot;, &quot;go_library&quot;, &quot;go_test&quot;)
+2	
+3	# Copy user docs into userdocs/ for go:embed
+4	genrule(
+5	    name = &quot;userdocs&quot;,
+6	    srcs = [&quot;//docs/users:docs&quot;],
+7	    outs = [
+8	        &quot;userdocs/ca-management.md&quot;,
+9	        &quot;userdocs/certificates.md&quot;,
+10	        &quot;userdocs/csr.md&quot;,
+11	        &quot;userdocs/getting-started.md&quot;,
+12	        &quot;userdocs/graph.md&quot;,
+13	        &quot;userdocs/sclient.md&quot;,
+14	        &quot;userdocs/serve.md&quot;,
+15	        &quot;userdocs/troubleshooting.md&quot;,
+16	    ],
+17	    cmd = &quot;for f in $(locations //docs/users:docs); do cp $$f $(RULEDIR)/userdocs/$$(basename $$f); done&quot;,
+18	)
+19	
+20	go_library(
+21	    name = &quot;cli&quot;,
+22	    srcs = [
+23	        &quot;ca.go&quot;,
+24	        &quot;cert.go&quot;,
+25	        &quot;crypto.go&quot;,
+26	        &quot;csr.go&quot;,
+27	        &quot;docs.go&quot;,
+28	        &quot;graph.go&quot;,
+29	        &quot;key.go&quot;,
+30	        &quot;root.go&quot;,
+31	        &quot;sclient.go&quot;,
+32	        &quot;serve.go&quot;,
+33	    ],
+34	    # keep
+35	    embedsrcs = [&quot;:userdocs&quot;],
+36	    importpath = &quot;github.com/bejelith/gossl/internal/cli&quot;,
+37	    visibility = [&quot;//:__subpackages__&quot;],
+38	    deps = [
+39	        &quot;//internal/store&quot;,
+40	        &quot;@com_github_prometheus_client_golang//prometheus&quot;,
+41	        &quot;@com_github_prometheus_client_golang//prometheus/promhttp&quot;,
+42	        &quot;@com_github_spf13_cobra//:cobra&quot;,
+43	        &quot;@io_opentelemetry_go_otel//attribute&quot;,
+44	        &quot;@io_opentelemetry_go_otel_exporters_prometheus//:prometheus&quot;,
+45	        &quot;@io_opentelemetry_go_otel_metric//:metric&quot;,
+46	        &quot;@io_opentelemetry_go_otel_sdk_metric//:metric&quot;,
+47	    ],
+48	)
+49	
+50	go_test(
+51	    name = &quot;cli_test&quot;,
+52	    srcs = [
+53	        &quot;ca_test.go&quot;,
+54	        &quot;cert_sign_test.go&quot;,
+55	        &quot;cert_test.go&quot;,
+56	        &quot;crypto_test.go&quot;,
+57	        &quot;csr_test.go&quot;,
+58	        &quot;key_test.go&quot;,
+59	        &quot;sclient_test.go&quot;,
+60	        &quot;serve_test.go&quot;,
+61	    ],
+62	    embed = [&quot;:cli&quot;],
+63	    deps = [&quot;//internal/store&quot;],
+64	)
+65	</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-53-05-326Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-53-05-326Z" class="timestamp-link"><time datetime="2026-03-27T21:53:05.326Z" data-timestamp="2026-03-27T21:53:05.326Z">2026-03-27T21:53:05.326Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>I need to add <code>keys.md</code> to the BUILD.bazel genrule and update the docs command topic list. Let me also check the docs/users BUILD file.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-53-05-326Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-53-05-326Z" class="timestamp-link"><time datetime="2026-03-27T21:53:05.326Z" data-timestamp="2026-03-27T21:53:05.326Z">2026-03-27T21:53:05.326Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_011gDCYmPdLA5unFvnbjFZR5"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/docs/users/BUILD.bazel&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-53-05-341Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-53-05-341Z" class="timestamp-link"><time datetime="2026-03-27T21:53:05.341Z" data-timestamp="2026-03-27T21:53:05.341Z">2026-03-27T21:53:05.341Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>1	filegroup(
+2	    name = &quot;docs&quot;,
+3	    srcs = glob([&quot;*.md&quot;]),
+4	    visibility = [&quot;//visibility:public&quot;],
+5	)
+6	</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-53-09-374Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-53-09-374Z" class="timestamp-link"><time datetime="2026-03-27T21:53:09.374Z" data-timestamp="2026-03-27T21:53:09.374Z">2026-03-27T21:53:09.374Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Good, the <code>docs/users</code> BUILD uses a glob, so <code>keys.md</code> is automatically included. I just need to add it to the <code>internal/cli/BUILD.bazel</code> genrule outs.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-53-11-816Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-53-11-816Z" class="timestamp-link"><time datetime="2026-03-27T21:53:11.816Z" data-timestamp="2026-03-27T21:53:11.816Z">2026-03-27T21:53:11.816Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01SVrz36LYpUpwyUXJkVdDAj">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">BUILD.bazel</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/BUILD.bazel</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">    outs = [
+        &#34;userdocs/ca-management.md&#34;,
+        &#34;userdocs/certificates.md&#34;,
+        &#34;userdocs/csr.md&#34;,
+        &#34;userdocs/getting-started.md&#34;,
+        &#34;userdocs/graph.md&#34;,
+        &#34;userdocs/sclient.md&#34;,
+        &#34;userdocs/serve.md&#34;,
+        &#34;userdocs/troubleshooting.md&#34;,
+    ],</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">    outs = [
+        &#34;userdocs/ca-management.md&#34;,
+        &#34;userdocs/certificates.md&#34;,
+        &#34;userdocs/csr.md&#34;,
+        &#34;userdocs/getting-started.md&#34;,
+        &#34;userdocs/graph.md&#34;,
+        &#34;userdocs/keys.md&#34;,
+        &#34;userdocs/sclient.md&#34;,
+        &#34;userdocs/serve.md&#34;,
+        &#34;userdocs/troubleshooting.md&#34;,
+    ],</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T21-53-19-725Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T21-53-19-725Z" class="timestamp-link"><time datetime="2026-03-27T21:53:19.725Z" data-timestamp="2026-03-27T21:53:19.725Z">2026-03-27T21:53:19.725Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/BUILD.bazel has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-53-22-245Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-53-22-245Z" class="timestamp-link"><time datetime="2026-03-27T21:53:22.245Z" data-timestamp="2026-03-27T21:53:22.245Z">2026-03-27T21:53:22.245Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Update the docs command topic list in the Long description.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T21-53-23-309Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T21-53-23-309Z" class="timestamp-link"><time datetime="2026-03-27T21:53:23.309Z" data-timestamp="2026-03-27T21:53:23.309Z">2026-03-27T21:53:23.309Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_01TerNUgcjxWrfwKhj2s6Vxs">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">docs.go</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/internal/cli/docs.go</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">Topics: getting-started, ca-management, certificates, csr, sclient, serve, troubleshooting</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">Topics: getting-started, ca-management, certificates, keys, csr, sclient, serve, troubleshooting</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T22-00-49-698Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T22-00-49-698Z" class="timestamp-link"><time datetime="2026-03-27T22:00:49.698Z" data-timestamp="2026-03-27T22:00:49.698Z">2026-03-27T22:00:49.698Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/internal/cli/docs.go has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T22-01-08-820Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T22-01-08-820Z" class="timestamp-link"><time datetime="2026-03-27T22:01:08.820Z" data-timestamp="2026-03-27T22:01:08.820Z">2026-03-27T22:01:08.820Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now build and test everything.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T22-01-09-551Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T22-01-09-551Z" class="timestamp-link"><time datetime="2026-03-27T22:01:09.551Z" data-timestamp="2026-03-27T22:01:09.551Z">2026-03-27T22:01:09.551Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01UtCpjrjZtM5i6m8ufcd4vA">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Full test suite</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel test //... 2&gt;&amp;1 | tail -10</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T22-01-36-621Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T22-01-36-621Z" class="timestamp-link"><time datetime="2026-03-27T22:01:36.621Z" data-timestamp="2026-03-27T22:01:36.621Z">2026-03-27T22:01:36.621Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>INFO: Found 26 targets and 3 test targets...
+INFO: Elapsed time: 26.814s, Critical Path: 18.97s
+INFO: 33 processes: 1065 action cache hit, 1 disk cache hit, 9 internal, 23 darwin-sandbox.
+INFO: Build completed successfully, 33 total actions
+//internal/store:store_test                                     (cached) PASSED in 1.0s
+//internal/cli:cli_test                                                  PASSED in 8.4s
+//tests/system:system_test                                               PASSED in 4.2s
+
+Executed 2 out of 3 tests: 3 tests pass.
+There were tests whose specified size is too big. Use the --test_verbose_timeout_warnings command line option to see which ones these are.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T22-01-43-077Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T22-01-43-077Z" class="timestamp-link"><time datetime="2026-03-27T22:01:43.077Z" data-timestamp="2026-03-27T22:01:43.077Z">2026-03-27T22:01:43.077Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>All passing. Quick verify the docs command picks up the new topic.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T22-01-44-234Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T22-01-44-234Z" class="timestamp-link"><time datetime="2026-03-27T22:01:44.234Z" data-timestamp="2026-03-27T22:01:44.234Z">2026-03-27T22:01:44.234Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01YZEUM626u1RGACPPvM9XRD">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Verify docs keys topic works</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">bazel build //cmd/gossl 2&gt;&amp;1 | tail -2 &amp;&amp; bazel-bin/cmd/gossl/gossl_/gossl docs keys</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-27T22-01-45-725Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-27T22-01-45-725Z" class="timestamp-link"><time datetime="2026-03-27T22:01:45.725Z" data-timestamp="2026-03-27T22:01:45.725Z">2026-03-27T22:01:45.725Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>INFO: 4 processes: 140 action cache hit, 1 disk cache hit, 2 internal, 1 darwin-sandbox.
+INFO: Build completed successfully, 4 total actions
+# Private Keys
+
+## Inspecting a Private Key
+
+From a file:
+
+```
+gossl key inspect key.pem
+```
+
+From stdin:
+
+```
+cat key.pem | gossl key inspect -
+```
+
+Output for an RSA key:
+
+```
+Algorithm:         RSA
+Key Size:          2048 bits
+Public Key SHA256: SHA256:ab:cd:ef:12:34:56:78:...
+```
+
+Output for an ECDSA key:
+
+```
+Algorithm:         ECDSA
+Curve:             P-256
+Public Key SHA256: SHA256:ab:cd:ef:12:34:56:78:...
+```
+
+### Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--raw` | false | Show full modulus (RSA) or public point (ECDSA) in hex |
+
+With `--raw`, an additional line is printed:
+
+- RSA: `Modulus: &lt;colon-separated uppercase hex&gt;`
+- ECDSA: `Public Point: &lt;colon-separated uppercase hex&gt;`
+
+## Exporting a Private Key
+
+Export the private key for a certificate by common name:
+
+```
+gossl key export --cn &quot;server.example.com&quot;
+```
+
+Write to a file:
+
+```
+gossl key export --cn &quot;server.example.com&quot; --out key.pem
+```
+
+Overwrite an existing file:
+
+```
+gossl key export --cn &quot;server.example.com&quot; --out key.pem --force
+```
+
+Without `--out`, the PEM key is written to stdout.
+
+### Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--cn` | required | Certificate common name |
+| `--db` | `gossl.db` | Path to the SQLite database |
+| `--out` | stdout | Output file path |
+| `--force` | false | Overwrite existing output file |
+
+## Verifying a Key Matches a Certificate
+
+Both `gossl key inspect` and `gossl cert inspect` print a `Public Key SHA256` line. If the fingerprints match, the key and certificate are a pair.
+
+```
+gossl cert inspect cert.pem
+gossl key inspect key.pem
+```
+
+Compare the `Public Key SHA256` lines — if they are identical, the key matches the certificate.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-27T22-01-54-443Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-27T22-01-54-443Z" class="timestamp-link"><time datetime="2026-03-27T22:01:54.443Z" data-timestamp="2026-03-27T22:01:54.443Z">2026-03-27T22:01:54.443Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>All docs updated:</p>
+<ul>
+<li><strong><code>README.md</code></strong> — added <code>key inspect</code>, <code>key inspect --raw</code>, key-cert matching, and <code>key export</code> examples</li>
+<li><strong><code>docs/001-gossl-cli-design.md</code></strong> — added Key Management section to the command surface table</li>
+<li><strong><code>docs/users/keys.md</code></strong> — new doc covering <code>key inspect</code>, <code>key export</code>, and key-cert matching</li>
+<li><strong><code>docs/users/certificates.md</code></strong> — noted <code>Public Key SHA256</code> in cert inspect output</li>
+<li><strong><code>docs/users/troubleshooting.md</code></strong> — added "Private Key Does Not Match Certificate" section</li>
+<li><strong><code>internal/cli/BUILD.bazel</code></strong> — added <code>keys.md</code> to embedded docs</li>
+<li><strong><code>internal/cli/docs.go</code></strong> — added <code>keys</code> to topic list</li>
+</ul></div></div></div>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-003.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<span class="current">4</span>
+<span class="disabled">Next &rarr;</span>
+</div>
+
+    </div>
+    <script>
+document.querySelectorAll('time[data-timestamp]').forEach(function(el) {
+    const timestamp = el.getAttribute('data-timestamp');
+    const date = new Date(timestamp);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    if (isToday) { el.textContent = timeStr; }
+    else { el.textContent = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + timeStr; }
+});
+document.querySelectorAll('pre.json').forEach(function(el) {
+    let text = el.textContent;
+    text = text.replace(/"([^"]+)":/g, '<span style="color: #ce93d8">"$1"</span>:');
+    text = text.replace(/: "([^"]*)"/g, ': <span style="color: #81d4fa">"$1"</span>');
+    text = text.replace(/: (\d+)/g, ': <span style="color: #ffcc80">$1</span>');
+    text = text.replace(/: (true|false|null)/g, ': <span style="color: #f48fb1">$1</span>');
+    el.innerHTML = text;
+});
+document.querySelectorAll('.truncatable').forEach(function(wrapper) {
+    const content = wrapper.querySelector('.truncatable-content');
+    const btn = wrapper.querySelector('.expand-btn');
+    if (content.scrollHeight > 250) {
+        wrapper.classList.add('truncated');
+        btn.addEventListener('click', function() {
+            if (wrapper.classList.contains('truncated')) { wrapper.classList.remove('truncated'); wrapper.classList.add('expanded'); btn.textContent = 'Show less'; }
+            else { wrapper.classList.remove('expanded'); wrapper.classList.add('truncated'); btn.textContent = 'Show more'; }
+        });
+    }
+});
+</script>
+</body>
+</html>

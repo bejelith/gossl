@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1060" height="384" viewBox="0 0 1060 384">
+<style>
+  .root rect { fill: #2563eb; stroke: #1e40af; }
+  .intermediate rect { fill: #7c3aed; stroke: #5b21b6; }
+  .cert rect { fill: #059669; stroke: #047857; }
+  .revoked rect { fill: #dc2626; stroke: #b91c1c; }
+  rect { rx: 6; ry: 6; stroke-width: 2; }
+  text { fill: white; font-family: sans-serif; font-size: 12px; text-anchor: middle; dominant-baseline: central; }
+  line { stroke: #94a3b8; stroke-width: 2; }
+</style>
+<line x1="250.0" y1="258.0" x2="140.0" y2="318.0"/>
+<line x1="380.0" y1="162.0" x2="250.0" y2="222.0"/>
+<line x1="380.0" y1="162.0" x2="400.0" y2="222.0"/>
+<line x1="900.0" y1="162.0" x2="660.0" y2="222.0"/>
+<line x1="900.0" y1="162.0" x2="920.0" y2="222.0"/>
+<line x1="640.0" y1="66.0" x2="380.0" y2="126.0"/>
+<line x1="640.0" y1="66.0" x2="900.0" y2="126.0"/>
+<g class="root"><rect x="530.0" y="30.0" width="220" height="36"/><text x="640.0" y="48.0">Root CA</text></g>
+<g class="intermediate"><rect x="270.0" y="126.0" width="220" height="36"/><text x="380.0" y="144.0">Production</text></g>
+<g class="intermediate"><rect x="140.0" y="222.0" width="220" height="36"/><text x="250.0" y="240.0">Prod US-East</text></g>
+<g class="cert"><rect x="30.0" y="318.0" width="220" height="36"/><text x="140.0" y="336.0">payments.us-east.example.com</text></g>
+<g class="cert"><rect x="290.0" y="222.0" width="220" height="36"/><text x="400.0" y="240.0">api.prod.example.com</text></g>
+<g class="intermediate"><rect x="790.0" y="126.0" width="220" height="36"/><text x="900.0" y="144.0">Staging</text></g>
+<g class="revoked"><rect x="550.0" y="222.0" width="220" height="36"/><text x="660.0" y="240.0">web.staging.example.com</text></g>
+<g class="cert"><rect x="810.0" y="222.0" width="220" height="36"/><text x="920.0" y="240.0">api.staging.example.com</text></g>
+</svg>

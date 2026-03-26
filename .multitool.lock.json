@@ -1,0 +1,107 @@
+{
+  "$schema": "https://raw.githubusercontent.com/theoremlp/rules_multitool/main/lockfile.schema.json",
+  "gofumpt": {
+    "binaries": [
+      {
+        "kind": "file",
+        "url": "https://github.com/mvdan/gofumpt/releases/download/v0.9.2/gofumpt_v0.9.2_linux_amd64",
+        "sha256": "72cf61b12fef91eab6df6db4a4284f30616b5ead330112e28a1fa1cb15e57339",
+        "os": "linux",
+        "cpu": "x86_64"
+      },
+      {
+        "kind": "file",
+        "url": "https://github.com/mvdan/gofumpt/releases/download/v0.9.2/gofumpt_v0.9.2_linux_arm64",
+        "sha256": "5acaa5a554050f55fc81ef02a8b0d14ab6b3c058a84513885286dc52d3451645",
+        "os": "linux",
+        "cpu": "arm64"
+      },
+      {
+        "kind": "file",
+        "url": "https://github.com/mvdan/gofumpt/releases/download/v0.9.2/gofumpt_v0.9.2_darwin_amd64",
+        "sha256": "4172b912ec514038605f334fef9ed7b3f12ca3e40024cb0a622eab3073a55e57",
+        "os": "macos",
+        "cpu": "x86_64"
+      },
+      {
+        "kind": "file",
+        "url": "https://github.com/mvdan/gofumpt/releases/download/v0.9.2/gofumpt_v0.9.2_darwin_arm64",
+        "sha256": "c241fb742599a6cb0563d7377f59def65d451b23dd718dbc6ddf4ab5e695e8f1",
+        "os": "macos",
+        "cpu": "arm64"
+      }
+    ]
+  },
+  "yamlfmt": {
+    "binaries": [
+      {
+        "kind": "archive",
+        "url": "https://github.com/google/yamlfmt/releases/download/v0.21.0/yamlfmt_0.21.0_Linux_x86_64.tar.gz",
+        "sha256": "1f300d9257b232bb3b541d7fb1b0e6b3c121bcbab381c86cd38cb8722be8a566",
+        "file": "yamlfmt",
+        "os": "linux",
+        "cpu": "x86_64"
+      },
+      {
+        "kind": "archive",
+        "url": "https://github.com/google/yamlfmt/releases/download/v0.21.0/yamlfmt_0.21.0_Linux_arm64.tar.gz",
+        "sha256": "5b2689c963b177271330c5ce8ca7396751107e5a826be46f03d2cb9b6f0c7784",
+        "file": "yamlfmt",
+        "os": "linux",
+        "cpu": "arm64"
+      },
+      {
+        "kind": "archive",
+        "url": "https://github.com/google/yamlfmt/releases/download/v0.21.0/yamlfmt_0.21.0_Darwin_x86_64.tar.gz",
+        "sha256": "060e943bcb8583c456810eb1ff4721b4f46c4a0c1a4432449d5dc3bbfe29a22b",
+        "file": "yamlfmt",
+        "os": "macos",
+        "cpu": "x86_64"
+      },
+      {
+        "kind": "archive",
+        "url": "https://github.com/google/yamlfmt/releases/download/v0.21.0/yamlfmt_0.21.0_Darwin_arm64.tar.gz",
+        "sha256": "4b417ecb94339d57e4c122ecc948c1a00fe328b5853266de9806e652a92858fa",
+        "file": "yamlfmt",
+        "os": "macos",
+        "cpu": "arm64"
+      }
+    ]
+  },
+  "sqlc": {
+    "binaries": [
+      {
+        "kind": "archive",
+        "url": "https://github.com/sqlc-dev/sqlc/releases/download/v1.30.0/sqlc_1.30.0_linux_amd64.tar.gz",
+        "sha256": "468aecee071bfe55e97fcbcac52ea0208eeca444f67736f3b8f0f3d6a106132e",
+        "file": "sqlc",
+        "os": "linux",
+        "cpu": "x86_64"
+      },
+      {
+        "kind": "archive",
+        "url": "https://github.com/sqlc-dev/sqlc/releases/download/v1.30.0/sqlc_1.30.0_linux_arm64.tar.gz",
+        "sha256": "dd9ab43b022ba3b3402054f99d7ae6e5efea33c949e869c3c66b214415e0c82d",
+        "file": "sqlc",
+        "os": "linux",
+        "cpu": "arm64"
+      },
+      {
+        "kind": "archive",
+        "url": "https://github.com/sqlc-dev/sqlc/releases/download/v1.30.0/sqlc_1.30.0_darwin_amd64.tar.gz",
+        "sha256": "eb065ca44f02a9500f8e51cb63594a6bbd2486af04d18c0f81efadf7eadf5e29",
+        "file": "sqlc",
+        "os": "macos",
+        "cpu": "x86_64"
+      },
+      {
+        "kind": "archive",
+        "url": "https://github.com/sqlc-dev/sqlc/releases/download/v1.30.0/sqlc_1.30.0_darwin_arm64.tar.gz",
+        "sha256": "ff18793b97715d08dde364446f43082a06da87b7797b9ec79ef2b31aeb0894e5",
+        "file": "sqlc",
+        "os": "macos",
+        "cpu": "arm64"
+      }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library")
+
+_STAMP_X_DEFS = {
+    "github.com/bejelith/gossl/internal/version.Version": "{STABLE_GIT_TAG}",
+    "github.com/bejelith/gossl/internal/version.Commit": "{STABLE_GIT_COMMIT}",
+}
+
+go_library(
+    name = "gossl_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/bejelith/gossl/cmd/gossl",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//internal/cli",
+        "//internal/version",
+    ],
+)
+
+go_binary(
+    name = "gossl",
+    embed = [":gossl_lib"],
+    visibility = ["//visibility:public"],
+    x_defs = _STAMP_X_DEFS,
+)
+
+[
+    go_binary(
+        name = "gossl_{}_{}".format(goos, goarch),
+        embed = [":gossl_lib"],
+        goarch = goarch,
+        goos = goos,
+        visibility = ["//visibility:public"],
+        x_defs = _STAMP_X_DEFS,
+    )
+    for goos, goarch in [
+        ("linux", "amd64"),
+        ("linux", "arm64"),
+        ("darwin", "amd64"),
+        ("darwin", "arm64"),
+    ]
+]

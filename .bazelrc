@@ -1,0 +1,8 @@
+build --nostamp
+build --workspace_status_command=tools/stamper.sh
+
+coverage --experimental_split_coverage_postprocessing
+coverage --experimental_fetch_all_coverage_outputs
+coverage --combined_report=lcov
+coverage --instrumentation_filter="^//cmd[/:].*,^//internal[/:].*"
+coverage --instrument_test_targets

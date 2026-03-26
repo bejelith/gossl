@@ -1,0 +1,2961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code transcript - page 1</title>
+    <style>
+:root { --bg-color: #f5f5f5; --card-bg: #ffffff; --user-bg: #e3f2fd; --user-border: #1976d2; --assistant-bg: #f5f5f5; --assistant-border: #9e9e9e; --thinking-bg: #fff8e1; --thinking-border: #ffc107; --thinking-text: #666; --tool-bg: #f3e5f5; --tool-border: #9c27b0; --tool-result-bg: #e8f5e9; --tool-error-bg: #ffebee; --text-color: #212121; --text-muted: #757575; --code-bg: #263238; --code-text: #aed581; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 16px; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 24px; padding-bottom: 8px; border-bottom: 2px solid var(--user-border); }
+.header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 2px solid var(--user-border); padding-bottom: 8px; margin-bottom: 24px; }
+.header-row h1 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; flex: 1; min-width: 200px; }
+.message { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.message.user { background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.message.assistant { background: var(--card-bg); border-left: 4px solid var(--assistant-border); }
+.message.tool-reply { background: #fff8e1; border-left: 4px solid #ff9800; }
+.tool-reply .role-label { color: #e65100; }
+.tool-reply .tool-result { background: transparent; padding: 0; margin: 0; }
+.tool-reply .tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.message-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.role-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.user .role-label { color: var(--user-border); }
+time { color: var(--text-muted); font-size: 0.8rem; }
+.timestamp-link { color: inherit; text-decoration: none; }
+.timestamp-link:hover { text-decoration: underline; }
+.message:target { animation: highlight 2s ease-out; }
+@keyframes highlight { 0% { background-color: rgba(25, 118, 210, 0.2); } 100% { background-color: transparent; } }
+.message-content { padding: 16px; }
+.message-content p { margin: 0 0 12px 0; }
+.message-content p:last-child { margin-bottom: 0; }
+.thinking { background: var(--thinking-bg); border: 1px solid var(--thinking-border); border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 0.9rem; color: var(--thinking-text); }
+.thinking-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #f57c00; margin-bottom: 8px; }
+.thinking p { margin: 8px 0; }
+.assistant-text { margin: 8px 0; }
+.tool-use { background: var(--tool-bg); border: 1px solid var(--tool-border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-header { font-weight: 600; color: var(--tool-border); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.tool-icon { font-size: 1.1rem; }
+.tool-description { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
+.tool-result { background: var(--tool-result-bg); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-result.tool-error { background: var(--tool-error-bg); }
+.file-tool { border-radius: 8px; padding: 12px; margin: 12px 0; }
+.write-tool { background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%); border: 1px solid #4caf50; }
+.edit-tool { background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); border: 1px solid #ff9800; }
+.file-tool-header { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.write-header { color: #2e7d32; }
+.edit-header { color: #e65100; }
+.file-tool-icon { font-size: 1rem; }
+.file-tool-path { font-family: monospace; background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 4px; }
+.file-tool-fullpath { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; word-break: break-all; }
+.file-content { margin: 0; }
+.edit-section { display: flex; margin: 4px 0; border-radius: 4px; overflow: hidden; }
+.edit-label { padding: 8px 12px; font-weight: bold; font-family: monospace; display: flex; align-items: flex-start; }
+.edit-old { background: #fce4ec; }
+.edit-old .edit-label { color: #b71c1c; background: #f8bbd9; }
+.edit-old .edit-content { color: #880e4f; }
+.edit-new { background: #e8f5e9; }
+.edit-new .edit-label { color: #1b5e20; background: #a5d6a7; }
+.edit-new .edit-content { color: #1b5e20; }
+.edit-content { margin: 0; flex: 1; background: transparent; font-size: 0.85rem; }
+.edit-replace-all { font-size: 0.75rem; font-weight: normal; color: var(--text-muted); }
+.write-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #e6f4ea); }
+.edit-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff0e5); }
+.todo-list { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border: 1px solid #81c784; border-radius: 8px; padding: 12px; margin: 12px 0; }
+.todo-header { font-weight: 600; color: #2e7d32; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.todo-items { list-style: none; margin: 0; padding: 0; }
+.todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 0.9rem; }
+.todo-item:last-child { border-bottom: none; }
+.todo-icon { flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; }
+.todo-completed .todo-icon { color: #2e7d32; background: rgba(46, 125, 50, 0.15); }
+.todo-completed .todo-content { color: #558b2f; text-decoration: line-through; }
+.todo-in-progress .todo-icon { color: #f57c00; background: rgba(245, 124, 0, 0.15); }
+.todo-in-progress .todo-content { color: #e65100; font-weight: 500; }
+.todo-pending .todo-icon { color: #757575; background: rgba(0,0,0,0.05); }
+.todo-pending .todo-content { color: #616161; }
+pre { background: var(--code-bg); color: var(--code-text); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; margin: 8px 0; white-space: pre-wrap; word-wrap: break-word; }
+pre.json { color: #e0e0e0; }
+code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre code { background: none; padding: 0; }
+.user-content { margin: 0; }
+.truncatable { position: relative; }
+.truncatable.truncated .truncatable-content { max-height: 200px; overflow: hidden; }
+.truncatable.truncated::after { content: ''; position: absolute; bottom: 32px; left: 0; right: 0; height: 60px; background: linear-gradient(to bottom, transparent, var(--card-bg)); pointer-events: none; }
+.message.user .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--user-bg)); }
+.message.tool-reply .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.tool-use .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-bg)); }
+.tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-result-bg)); }
+.expand-btn { display: none; width: 100%; padding: 8px 16px; margin-top: 4px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+.expand-btn:hover { background: rgba(0,0,0,0.1); }
+.truncatable.truncated .expand-btn, .truncatable.expanded .expand-btn { display: block; }
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; flex-wrap: wrap; }
+.pagination a, .pagination span { padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
+.pagination a { background: var(--card-bg); color: var(--user-border); border: 1px solid var(--user-border); }
+.pagination a:hover { background: var(--user-bg); }
+.pagination .current { background: var(--user-border); color: white; }
+.pagination .disabled { color: var(--text-muted); border: 1px solid #ddd; }
+.pagination .index-link { background: var(--user-border); color: white; }
+details.continuation { margin-bottom: 16px; }
+details.continuation summary { cursor: pointer; padding: 12px 16px; background: var(--user-bg); border-left: 4px solid var(--user-border); border-radius: 12px; font-weight: 500; color: var(--text-muted); }
+details.continuation summary:hover { background: rgba(25, 118, 210, 0.15); }
+details.continuation[open] summary { border-radius: 12px 12px 0 0; margin-bottom: 0; }
+.index-item { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.index-item a { display: block; text-decoration: none; color: inherit; }
+.index-item a:hover { background: rgba(25, 118, 210, 0.1); }
+.index-item-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.index-item-number { font-weight: 600; color: var(--user-border); }
+.index-item-content { padding: 16px; }
+.index-item-stats { padding: 8px 16px 12px 32px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid rgba(0,0,0,0.06); }
+.index-item-commit { margin-top: 6px; padding: 4px 8px; background: #fff3e0; border-radius: 4px; font-size: 0.85rem; color: #e65100; }
+.index-item-commit code { background: rgba(0,0,0,0.08); padding: 1px 4px; border-radius: 3px; font-size: 0.8rem; margin-right: 6px; }
+.commit-card { margin: 8px 0; padding: 10px 14px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 6px; }
+.commit-card a { text-decoration: none; color: #5d4037; display: block; }
+.commit-card a:hover { color: #e65100; }
+.commit-card-hash { font-family: monospace; color: #e65100; font-weight: 600; margin-right: 8px; }
+.index-commit { margin-bottom: 12px; padding: 10px 16px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.index-commit a { display: block; text-decoration: none; color: inherit; }
+.index-commit a:hover { background: rgba(255, 152, 0, 0.1); margin: -10px -16px; padding: 10px 16px; border-radius: 8px; }
+.index-commit-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
+.index-commit-hash { font-family: monospace; color: #e65100; font-weight: 600; }
+.index-commit-msg { color: #5d4037; }
+.index-item-long-text { margin-top: 8px; padding: 12px; background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--assistant-border); }
+.index-item-long-text .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--card-bg)); }
+.index-item-long-text-content { color: var(--text-color); }
+#search-box { display: none; align-items: center; gap: 8px; }
+#search-box input { padding: 6px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; width: 180px; }
+#search-box button, #modal-search-btn, #modal-close-btn { background: var(--user-border); color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#search-box button:hover, #modal-search-btn:hover { background: #1565c0; }
+#modal-close-btn { background: var(--text-muted); margin-left: 8px; }
+#modal-close-btn:hover { background: #616161; }
+#search-modal[open] { border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); padding: 0; width: 90vw; max-width: 900px; height: 80vh; max-height: 80vh; display: flex; flex-direction: column; }
+#search-modal::backdrop { background: rgba(0,0,0,0.5); }
+.search-modal-header { display: flex; align-items: center; gap: 8px; padding: 16px; border-bottom: 1px solid var(--assistant-border); background: var(--bg-color); border-radius: 12px 12px 0 0; }
+.search-modal-header input { flex: 1; padding: 8px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; }
+#search-status { padding: 8px 16px; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+#search-results { flex: 1; overflow-y: auto; padding: 16px; }
+.search-result { margin-bottom: 16px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.search-result a { display: block; text-decoration: none; color: inherit; }
+.search-result a:hover { background: rgba(25, 118, 210, 0.05); }
+.search-result-page { padding: 6px 12px; background: rgba(0,0,0,0.03); font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.search-result-content { padding: 12px; }
+.search-result mark { background: #fff59d; padding: 1px 2px; border-radius: 2px; }
+@media (max-width: 600px) { body { padding: 8px; } .message, .index-item { border-radius: 8px; } .message-content, .index-item-content { padding: 12px; } pre { font-size: 0.8rem; padding: 8px; } #search-box input { width: 120px; } #search-modal[open] { width: 95vw; height: 90vh; } }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Claude Code transcript</a> - page 1/4</h1>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<span class="disabled">&larr; Prev</span>
+<span class="current">1</span>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-002.html">Next &rarr;</a>
+</div>
+
+        
+<div class="message user" id="msg-2026-03-26T20-12-52-965Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T20-12-52-965Z" class="timestamp-link"><time datetime="2026-03-26T20:12:52.965Z" data-timestamp="2026-03-26T20:12:52.965Z">2026-03-26T20:12:52.965Z</time></a></div><div class="message-content">
+<div class="user-content"><p>create a code review skill for claude, save it to this project. review topics are 
+1. go code coverage
+2. go style according to documents in claude.md
+3. Security, vulnerabilities in code and settings
+4. Security, obsolete packages used in direct and and transitive dependencies
+5. Security, leaked secrets in logs, code and CI pipelines</p>
+<p>run each review point in a separate agent.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-12-56-342Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-12-56-342Z" class="timestamp-link"><time datetime="2026-03-26T20:12:56.342Z" data-timestamp="2026-03-26T20:12:56.342Z">2026-03-26T20:12:56.342Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-12-56-809Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-12-56-809Z" class="timestamp-link"><time datetime="2026-03-26T20:12:56.809Z" data-timestamp="2026-03-26T20:12:56.809Z">2026-03-26T20:12:56.809Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>I'll start by examining existing skill structures to follow the correct pattern, then create the new skill.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-12-57-063Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-12-57-063Z" class="timestamp-link"><time datetime="2026-03-26T20:12:57.063Z" data-timestamp="2026-03-26T20:12:57.063Z">2026-03-26T20:12:57.063Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01CCYrRddkHsvxs8EB4fWZo5"><div class="tool-header"><span class="tool-icon">⚙</span> Skill</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;skill&#34;: &#34;superpowers:brainstorming&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-12-57-071Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-12-57-071Z" class="timestamp-link"><time datetime="2026-03-26T20:12:57.071Z" data-timestamp="2026-03-26T20:12:57.071Z">2026-03-26T20:12:57.071Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Launching skill: superpowers:brainstorming</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message user" id="msg-2026-03-26T20-12-57-071Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T20-12-57-071Z" class="timestamp-link"><time datetime="2026-03-26T20:12:57.071Z" data-timestamp="2026-03-26T20:12:57.071Z">2026-03-26T20:12:57.071Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Base directory for this skill: /Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/brainstorming</p>
+<h1>Brainstorming Ideas Into Designs</h1>
+<p>Help turn ideas into fully formed designs and specs through natural collaborative dialogue.</p>
+<p>Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.</p>
+<p><HARD-GATE>
+Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
+</HARD-GATE></p>
+<h2>Anti-Pattern: "This Is Too Simple To Need A Design"</h2>
+<p>Every project goes through this process. A todo list, a single-function utility, a config change — all of them. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.</p>
+<h2>Checklist</h2>
+<p>You MUST create a task for each of these items and complete them in order:</p>
+<ol>
+<li><strong>Explore project context</strong> — check files, docs, recent commits</li>
+<li><strong>Offer visual companion</strong> (if topic will involve visual questions) — this is its own message, not combined with a clarifying question. See the Visual Companion section below.</li>
+<li><strong>Ask clarifying questions</strong> — one at a time, understand purpose/constraints/success criteria</li>
+<li><strong>Propose 2-3 approaches</strong> — with trade-offs and your recommendation</li>
+<li><strong>Present design</strong> — in sections scaled to their complexity, get user approval after each section</li>
+<li><strong>Write design doc</strong> — save to <code>docs/superpowers/specs/YYYY-MM-DD-&lt;topic&gt;-design.md</code> and commit</li>
+<li><strong>Spec self-review</strong> — quick inline check for placeholders, contradictions, ambiguity, scope (see below)</li>
+<li><strong>User reviews written spec</strong> — ask user to review the spec file before proceeding</li>
+<li><strong>Transition to implementation</strong> — invoke writing-plans skill to create implementation plan</li>
+</ol>
+<h2>Process Flow</h2>
+<pre><code class="language-dot">digraph brainstorming {
+    &quot;Explore project context&quot; [shape=box];
+    &quot;Visual questions ahead?&quot; [shape=diamond];
+    &quot;Offer Visual Companion\n(own message, no other content)&quot; [shape=box];
+    &quot;Ask clarifying questions&quot; [shape=box];
+    &quot;Propose 2-3 approaches&quot; [shape=box];
+    &quot;Present design sections&quot; [shape=box];
+    &quot;User approves design?&quot; [shape=diamond];
+    &quot;Write design doc&quot; [shape=box];
+    &quot;Spec self-review\n(fix inline)&quot; [shape=box];
+    &quot;User reviews spec?&quot; [shape=diamond];
+    &quot;Invoke writing-plans skill&quot; [shape=doublecircle];
+
+    &quot;Explore project context&quot; -&gt; &quot;Visual questions ahead?&quot;;
+    &quot;Visual questions ahead?&quot; -&gt; &quot;Offer Visual Companion\n(own message, no other content)&quot; [label=&quot;yes&quot;];
+    &quot;Visual questions ahead?&quot; -&gt; &quot;Ask clarifying questions&quot; [label=&quot;no&quot;];
+    &quot;Offer Visual Companion\n(own message, no other content)&quot; -&gt; &quot;Ask clarifying questions&quot;;
+    &quot;Ask clarifying questions&quot; -&gt; &quot;Propose 2-3 approaches&quot;;
+    &quot;Propose 2-3 approaches&quot; -&gt; &quot;Present design sections&quot;;
+    &quot;Present design sections&quot; -&gt; &quot;User approves design?&quot;;
+    &quot;User approves design?&quot; -&gt; &quot;Present design sections&quot; [label=&quot;no, revise&quot;];
+    &quot;User approves design?&quot; -&gt; &quot;Write design doc&quot; [label=&quot;yes&quot;];
+    &quot;Write design doc&quot; -&gt; &quot;Spec self-review\n(fix inline)&quot;;
+    &quot;Spec self-review\n(fix inline)&quot; -&gt; &quot;User reviews spec?&quot;;
+    &quot;User reviews spec?&quot; -&gt; &quot;Write design doc&quot; [label=&quot;changes requested&quot;];
+    &quot;User reviews spec?&quot; -&gt; &quot;Invoke writing-plans skill&quot; [label=&quot;approved&quot;];
+}
+</code></pre>
+<p><strong>The terminal state is invoking writing-plans.</strong> Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is writing-plans.</p>
+<h2>The Process</h2>
+<p><strong>Understanding the idea:</strong></p>
+<ul>
+<li>Check out the current project state first (files, docs, recent commits)</li>
+<li>Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.</li>
+<li>If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.</li>
+<li>For appropriately-scoped projects, ask questions one at a time to refine the idea</li>
+<li>Prefer multiple choice questions when possible, but open-ended is fine too</li>
+<li>Only one question per message - if a topic needs more exploration, break it into multiple questions</li>
+<li>Focus on understanding: purpose, constraints, success criteria</li>
+</ul>
+<p><strong>Exploring approaches:</strong></p>
+<ul>
+<li>Propose 2-3 different approaches with trade-offs</li>
+<li>Present options conversationally with your recommendation and reasoning</li>
+<li>Lead with your recommended option and explain why</li>
+</ul>
+<p><strong>Presenting the design:</strong></p>
+<ul>
+<li>Once you believe you understand what you're building, present the design</li>
+<li>Scale each section to its complexity: a few sentences if straightforward, up to 200-300 words if nuanced</li>
+<li>Ask after each section whether it looks right so far</li>
+<li>Cover: architecture, components, data flow, error handling, testing</li>
+<li>Be ready to go back and clarify if something doesn't make sense</li>
+</ul>
+<p><strong>Design for isolation and clarity:</strong></p>
+<ul>
+<li>Break the system into smaller units that each have one clear purpose, communicate through well-defined interfaces, and can be understood and tested independently</li>
+<li>For each unit, you should be able to answer: what does it do, how do you use it, and what does it depend on?</li>
+<li>Can someone understand what a unit does without reading its internals? Can you change the internals without breaking consumers? If not, the boundaries need work.</li>
+<li>Smaller, well-bounded units are also easier for you to work with - you reason better about code you can hold in context at once, and your edits are more reliable when files are focused. When a file grows large, that's often a signal that it's doing too much.</li>
+</ul>
+<p><strong>Working in existing codebases:</strong></p>
+<ul>
+<li>Explore the current structure before proposing changes. Follow existing patterns.</li>
+<li>Where existing code has problems that affect the work (e.g., a file that's grown too large, unclear boundaries, tangled responsibilities), include targeted improvements as part of the design - the way a good developer improves code they're working in.</li>
+<li>Don't propose unrelated refactoring. Stay focused on what serves the current goal.</li>
+</ul>
+<h2>After the Design</h2>
+<p><strong>Documentation:</strong></p>
+<ul>
+<li>Write the validated design (spec) to <code>docs/superpowers/specs/YYYY-MM-DD-&lt;topic&gt;-design.md</code></li>
+<li>(User preferences for spec location override this default)</li>
+<li>Use elements-of-style:writing-clearly-and-concisely skill if available</li>
+<li>Commit the design document to git</li>
+</ul>
+<p><strong>Spec Self-Review:</strong>
+After writing the spec document, look at it with fresh eyes:</p>
+<ol>
+<li><strong>Placeholder scan:</strong> Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.</li>
+<li><strong>Internal consistency:</strong> Do any sections contradict each other? Does the architecture match the feature descriptions?</li>
+<li><strong>Scope check:</strong> Is this focused enough for a single implementation plan, or does it need decomposition?</li>
+<li><strong>Ambiguity check:</strong> Could any requirement be interpreted two different ways? If so, pick one and make it explicit.</li>
+</ol>
+<p>Fix any issues inline. No need to re-review — just fix and move on.</p>
+<p><strong>User Review Gate:</strong>
+After the spec review loop passes, ask the user to review the written spec before proceeding:</p>
+<blockquote>
+<p>"Spec written and committed to <code>&lt;path&gt;</code>. Please review it and let me know if you want to make any changes before we start writing out the implementation plan."</p>
+</blockquote>
+<p>Wait for the user's response. If they request changes, make them and re-run the spec review loop. Only proceed once the user approves.</p>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li>Invoke the writing-plans skill to create a detailed implementation plan</li>
+<li>Do NOT invoke any other skill. writing-plans is the next step.</li>
+</ul>
+<h2>Key Principles</h2>
+<ul>
+<li><strong>One question at a time</strong> - Don't overwhelm with multiple questions</li>
+<li><strong>Multiple choice preferred</strong> - Easier to answer than open-ended when possible</li>
+<li><strong>YAGNI ruthlessly</strong> - Remove unnecessary features from all designs</li>
+<li><strong>Explore alternatives</strong> - Always propose 2-3 approaches before settling</li>
+<li><strong>Incremental validation</strong> - Present design, get approval before moving on</li>
+<li><strong>Be flexible</strong> - Go back and clarify when something doesn't make sense</li>
+</ul>
+<h2>Visual Companion</h2>
+<p>A browser-based companion for showing mockups, diagrams, and visual options during brainstorming. Available as a tool — not a mode. Accepting the companion means it's available for questions that benefit from visual treatment; it does NOT mean every question goes through the browser.</p>
+<p><strong>Offering the companion:</strong> When you anticipate that upcoming questions will involve visual content (mockups, layouts, diagrams), offer it once for consent:</p>
+<blockquote>
+<p>"Some of what we're working on might be easier to explain if I can show it to you in a web browser. I can put together mockups, diagrams, comparisons, and other visuals as we go. This feature is still new and can be token-intensive. Want to try it? (Requires opening a local URL)"</p>
+</blockquote>
+<p><strong>This offer MUST be its own message.</strong> Do not combine it with clarifying questions, context summaries, or any other content. The message should contain ONLY the offer above and nothing else. Wait for the user's response before continuing. If they decline, proceed with text-only brainstorming.</p>
+<p><strong>Per-question decision:</strong> Even after the user accepts, decide FOR EACH QUESTION whether to use the browser or the terminal. The test: <strong>would the user understand this better by seeing it than reading it?</strong></p>
+<ul>
+<li><strong>Use the browser</strong> for content that IS visual — mockups, wireframes, layout comparisons, architecture diagrams, side-by-side visual designs</li>
+<li><strong>Use the terminal</strong> for content that is text — requirements questions, conceptual choices, tradeoff lists, A/B/C/D text options, scope decisions</li>
+</ul>
+<p>A question about a UI topic is not automatically a visual question. "What does personality mean in this context?" is a conceptual question — use the terminal. "Which wizard layout works better?" is a visual question — use the browser.</p>
+<p>If they agree to the companion, read the detailed guide before proceeding:
+<code>skills/brainstorming/visual-companion.md</code></p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-13-00-066Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-13-00-066Z" class="timestamp-link"><time datetime="2026-03-26T20:13:00.066Z" data-timestamp="2026-03-26T20:13:00.066Z">2026-03-26T20:13:00.066Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-13-01-006Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-13-01-006Z" class="timestamp-link"><time datetime="2026-03-26T20:13:01.006Z" data-timestamp="2026-03-26T20:13:01.006Z">2026-03-26T20:13:01.006Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>I'll explore the existing skill structure and project context to understand the patterns before designing this skill.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-13-03-657Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-13-03-657Z" class="timestamp-link"><time datetime="2026-03-26T20:13:03.657Z" data-timestamp="2026-03-26T20:13:03.657Z">2026-03-26T20:13:03.657Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01H6WQuwxUnGkyNYzZEYWr61"><div class="tool-header"><span class="tool-icon">⚙</span> Agent</div><div class="tool-description">Explore skill file structure</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subagent_type&#34;: &#34;Explore&#34;,
+  &#34;prompt&#34;: &#34;Explore the skill file structure in ~/.claude/skills/ and ~/.claude/plugins/ to understand how skills are structured. Look at a few SKILL.md files to understand the format. Also check if there&#39;s a project-level .claude/skills directory in /Users/scaruso/dev/gossl/. Show me 2-3 complete SKILL.md examples and the directory structure.&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-13-04-103Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-13-04-103Z" class="timestamp-link"><time datetime="2026-03-26T20:13:04.103Z" data-timestamp="2026-03-26T20:13:04.103Z">2026-03-26T20:13:04.103Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01KwTXK9GVT9uusUFc6VEHLi"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/CLAUDE.md&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-13-04-109Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-13-04-109Z" class="timestamp-link"><time datetime="2026-03-26T20:13:04.109Z" data-timestamp="2026-03-26T20:13:04.109Z">2026-03-26T20:13:04.109Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→# gossl
+     2→
+     3→Go project using Bazel for build and test.
+     4→
+     5→## Build System
+     6→
+     7→- **Bazel** is the build system. Use `bazel build //...` and `bazel test //...`.
+     8→- Do not use `go build`, `go test`, `go mod tidy`, or any `go` CLI commands directly — always use Bazel.
+     9→- Keep `BUILD.bazel` files up to date when adding/removing Go files.
+    10→- Use `gazelle` to regenerate BUILD files: `bazel run //:gazelle`.
+    11→- Format code: `bazel run //tools/format:format`. Check formatting: `bazel run //tools/format:format.check`.
+    12→- Git hooks managed by [pre-commit](https://pre-commit.com/) — see `.pre-commit-config.yaml`. Never write raw `.git/hooks/` scripts.
+    13→
+    14→## Go Style
+    15→
+    16→Follow Google&#x27;s official Go guidelines:
+    17→
+    18→- **Effective Go**: https://go.dev/doc/effective_go
+    19→- **Code Review Comments**: https://go.dev/wiki/CodeReviewComments
+    20→
+    21→Key rules enforced in this project:
+    22→
+    23→- Run `gofmt` / `goimports` on all code.
+    24→- MixedCaps naming, no underscores. Initialisms in consistent case (`URL`, `ID`, not `Url`, `Id`).
+    25→- Package names: short, lowercase, single-word. No stutter (`ring.Buffer` not `ring.RingBuffer`).
+    26→- Error strings: lowercase, no trailing punctuation.
+    27→- Always check errors. Never discard with `_` unless documented why.
+    28→- Early returns for error handling — keep happy path at minimal indentation.
+    29→- Interfaces: small, defined at consumer, not producer. Don&#x27;t predefine for mocking.
+    30→- `context.Context` as first parameter. Never store in structs.
+    31→- Pointer receivers for mutation/large structs/consistency. Never mix receiver types on a type.
+    32→- Receiver names: 1-2 letters, consistent, never `this`/`self`.
+    33→- Prefer synchronous APIs. Let callers manage concurrency.
+    34→- Document goroutine lifetimes. Don&#x27;t leak goroutines.
+    35→- Table-driven tests. Failure messages: `Foo(%q) = %d, want %d`.
+    36→- `crypto/rand` for secrets, never `math/rand`.
+    37→- `var s []T` for nil slices, not `s := []T{}` (unless JSON requires `[]`).
+    38→- All exported names have doc comments — complete sentences starting with the name.
+    39→
+    40→## Testing
+    41→
+    42→- Target **80%+ unit test coverage**. Complete coverage with integration tests.
+    43→- Unit tests: table-driven, colocated with source files (`foo_test.go` next to `foo.go`).
+    44→- Integration tests: use [testcontainers-go](https://github.com/testcontainers/testcontainers-go) for external dependencies (databases, services, etc.). No mocking infrastructure — test against real containers.
+    45→- Run all tests: `bazel test //...`.
+    46→
+    47→## Project Structure
+    48→
+    49→```
+    50→gossl/
+    51→  cmd/           # main packages
+    52→  pkg/           # library packages
+    53→  internal/      # private packages
+    54→  BUILD.bazel    # root build file
+    55→  MODULE.bazel   # bazel module definition
+    56→  go.mod         # go module file
+    57→```
+    58→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-13-44-954Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-13-44-954Z" class="timestamp-link"><time datetime="2026-03-26T20:13:44.954Z" data-timestamp="2026-03-26T20:13:44.954Z">2026-03-26T20:13:44.954Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Perfect! Now I have all the information. Let me provide you with a comprehensive report.
+
+## Skill File Structure Summary
+
+### Directory Hierarchy
+
+Skills are located in the **Superpowers plugin** (not a separate `skills/` directory at the user level). The main location is:
+
+```
+~/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/
+```
+
+**Project-level .claude directory**: The gossl project does NOT have a project-level `.claude/skills` directory. According to the skill documentation, personal skills can live in `~/.claude/skills/` for Claude Code users.
+
+### Overall Structure
+
+```
+skills/
+├── brainstorming/                          # Complex multi-phase workflow skill
+│   ├── SKILL.md
+│   ├── spec-document-reviewer-prompt.md
+│   ├── visual-companion.md
+│   └── scripts/
+├── dispatching-parallel-agents/
+│   └── SKILL.md
+├── executing-plans/
+│   └── SKILL.md
+├── finishing-a-development-branch/
+│   └── SKILL.md
+├── receiving-code-review/
+│   └── SKILL.md
+├── requesting-code-review/
+│   └── SKILL.md
+├── subagent-driven-development/
+│   └── SKILL.md
+├── systematic-debugging/                   # Reference skill with supporting docs
+│   ├── SKILL.md
+│   ├── CREATION-LOG.md
+│   ├── condition-based-waiting.md
+│   ├── defense-in-depth.md
+│   ├── root-cause-tracing.md
+│   ├── test-pressure-[1-3].md
+│   ├── test-academic.md
+│   ├── condition-based-waiting-example.ts
+│   └── find-polluter.sh
+├── test-driven-development/
+│   ├── SKILL.md
+│   └── testing-anti-patterns.md
+├── using-git-worktrees/
+│   └── SKILL.md
+├── using-superpowers/
+│   ├── SKILL.md
+│   └── references/
+├── verification-before-completion/
+│   └── SKILL.md
+├── writing-plans/
+│   └── SKILL.md
+└── writing-skills/                         # Meta-skill for creating skills
+    ├── SKILL.md
+    ├── anthropic-best-practices.md
+    ├── graphviz-conventions.dot
+    ├── persuasion-principles.md
+    ├── render-graphs.js
+    ├── testing-skills-with-subagents.md
+    └── examples/
+```
+
+**Total: 14 official skills**
+
+---
+
+## SKILL.md Format &amp; Examples
+
+### Frontmatter Structure
+
+Every SKILL.md starts with YAML frontmatter:
+
+```yaml
+---
+name: skill-name-with-hyphens
+description: Use when [triggering condition], [what it does/enables]
+---
+```
+
+**Key rules:**
+- `name`: letters, numbers, and hyphens only (no special chars or parentheses)
+- `description`: Max 1024 chars, starts with &quot;Use when...&quot; to describe triggering condition
+
+---
+
+## Three Complete SKILL.md Examples
+
+### Example 1: `using-git-worktrees`
+**Type:** Procedural Technique with Safety Checks  
+**File:** `/Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/using-git-worktrees/SKILL.md`
+
+Structure includes:
+- Overview with core principle
+- Directory Selection Process (3 priority levels)
+- Safety Verification (git check-ignore checks)
+- Creation Steps (5 steps with commands)
+- Quick Reference table
+- Common Mistakes section
+- Example Workflow
+- Red Flags section
+- Integration points showing which skills depend on it
+
+**Key insight:** This skill is deliberately prescriptive about order and safety checks—it teaches a specific proven workflow for isolated development.
+
+---
+
+### Example 2: `test-driven-development`
+**Type:** Philosophy + Methodology Reference  
+**File:** `/Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/test-driven-development/SKILL.md`
+
+Structure includes:
+- Core principle (&quot;If you didn&#x27;t watch the test fail, you don&#x27;t know if it tests the right thing&quot;)
+- The Iron Law (NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST)
+- Red-Green-Refactor cycle with ASCII diagram
+- Detailed sections for each phase with Good/Bad examples
+- Why Order Matters (7 common rationalizations with counterarguments)
+- Common Rationalizations table
+- Red Flags checklist
+- Example: Bug Fix walkthrough
+- Verification Checklist
+- When Stuck problem/solution table
+- Supporting file: `testing-anti-patterns.md`
+
+**Key insight:** This is foundational—very philosophical with extensive reasoning for why TDD matters, designed to counter rationalizations.
+
+---
+
+### Example 3: `executing-plans`
+**Type:** Integration Point Skill  
+**File:** `/Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/executing-plans/SKILL.md`
+
+```yaml
+---
+name: executing-plans
+description: Use when you have a written implementation plan to execute in a separate session with review checkpoints
+---
+```
+
+Structure includes:
+- Overview announcing requirement
+- The Process (3 main steps: Load, Execute, Complete)
+- When to Stop and Ask for Help (blockers to watch for)
+- When to Revisit Earlier Steps
+- Remember section (critical behaviors)
+- Integration section showing dependencies:
+  - REQUIRED: `superpowers:using-git-worktrees`
+  - REQUIRED: `superpowers:writing-plans`
+  - REQUIRED: `superpowers:finishing-a-development-branch`
+
+**Key insight:** This skill connects multiple other skills and defines a workflow orchestration pattern. It&#x27;s how you execute planned work systematically.
+
+---
+
+## Key Format Patterns
+
+1. **Announcement**: Most skills start with &quot;I&#x27;m using the [skill-name] skill to...&quot; pattern
+2. **Core Principle**: A single sentence distilling the key insight (often controversial)
+3. **Procedural Steps**: For technique skills, numbered steps with code blocks
+4. **Decision Tables**: Quick reference tables for decision trees
+5. **Good/Bad Examples**: Contrasts showing correct vs incorrect approaches
+6. **Integration Section**: How this skill relates to other skills
+7. **Red Flags**: What to NEVER do; what to ALWAYS do
+8. **Supporting Files**: Heavy reference material (100+ lines) in separate markdown files
+
+---
+
+## No Project-Level Skills Directory
+
+There is **no `.claude/skills/` directory** in `/Users/scaruso/dev/gossl/`. According to the `writing-skills` documentation, personal skills should be placed in:
+- `~/.claude/skills/` for Claude Code users
+- `~/.agents/skills/` for Codex users
+
+This would be user-level, not project-level.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-13-48-831Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-13-48-831Z" class="timestamp-link"><time datetime="2026-03-26T20:13:48.831Z" data-timestamp="2026-03-26T20:13:48.831Z">2026-03-26T20:13:48.831Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-13-49-799Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-13-49-799Z" class="timestamp-link"><time datetime="2026-03-26T20:13:49.799Z" data-timestamp="2026-03-26T20:13:49.799Z">2026-03-26T20:13:49.799Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Let me also check the existing code-review plugin structure and the writing-skills guidance.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-13-50-338Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-13-50-338Z" class="timestamp-link"><time datetime="2026-03-26T20:13:50.338Z" data-timestamp="2026-03-26T20:13:50.338Z">2026-03-26T20:13:50.338Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01XtL4xSsncDuz3yhkKV78gi"><div class="tool-header"><span class="tool-icon">⚙</span> Glob</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;pattern&#34;: &#34;**/*.md&#34;,
+  &#34;path&#34;: &#34;/Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/writing-skills&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-13-50-352Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-13-50-352Z" class="timestamp-link"><time datetime="2026-03-26T20:13:50.352Z" data-timestamp="2026-03-26T20:13:50.352Z">2026-03-26T20:13:50.352Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>/Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/writing-skills/testing-skills-with-subagents.md
+/Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/writing-skills/anthropic-best-practices.md
+/Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/writing-skills/examples/CLAUDE_MD_TESTING.md
+/Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/writing-skills/persuasion-principles.md
+/Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/writing-skills/SKILL.md</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-13-51-697Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-13-51-697Z" class="timestamp-link"><time datetime="2026-03-26T20:13:51.697Z" data-timestamp="2026-03-26T20:13:51.697Z">2026-03-26T20:13:51.697Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_0175rUyuVggPK5rTuMDwyzwK">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Check existing skill directories</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">ls -la /Users/scaruso/.claude/skills/ 2&gt;/dev/null; echo &#34;---&#34;; ls /Users/scaruso/dev/gossl/.claude/skills/ 2&gt;/dev/null || echo &#34;no project skills dir&#34;</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-13-51-761Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-13-51-761Z" class="timestamp-link"><time datetime="2026-03-26T20:13:51.761Z" data-timestamp="2026-03-26T20:13:51.761Z">2026-03-26T20:13:51.761Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>total 0
+drwxr-xr-x@  3 scaruso  staff   96 Mar 14 15:37 .
+drwxr-xr-x@ 24 scaruso  staff  768 Mar 26 13:12 ..
+drwxr-xr-x@  3 scaruso  staff   96 Mar 13 22:29 save-session-cost
+---
+no project skills dir</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-13-52-329Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-13-52-329Z" class="timestamp-link"><time datetime="2026-03-26T20:13:52.329Z" data-timestamp="2026-03-26T20:13:52.329Z">2026-03-26T20:13:52.329Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01YbG6ArQqKzjHju5Mgq27t4"><div class="tool-header"><span class="tool-icon">⚙</span> Glob</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;pattern&#34;: &#34;**/SKILL.md&#34;,
+  &#34;path&#34;: &#34;/Users/scaruso/.claude/plugins/cache/claude-plugins-official/code-review&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-13-52-335Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-13-52-335Z" class="timestamp-link"><time datetime="2026-03-26T20:13:52.335Z" data-timestamp="2026-03-26T20:13:52.335Z">2026-03-26T20:13:52.335Z</time></a></div><div class="message-content"><div class="tool-result tool-error"><div class="truncatable"><div class="truncatable-content"><pre>&lt;tool_use_error&gt;Directory does not exist: /Users/scaruso/.claude/plugins/cache/claude-plugins-official/code-review. Note: your current working directory is /Users/scaruso/dev/gossl.&lt;/tool_use_error&gt;</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-13-56-418Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-13-56-418Z" class="timestamp-link"><time datetime="2026-03-26T20:13:56.418Z" data-timestamp="2026-03-26T20:13:56.418Z">2026-03-26T20:13:56.418Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01FRgeB1izZg8Gekh3UE51Gb"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/writing-skills/SKILL.md&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-13-56-584Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-13-56-584Z" class="timestamp-link"><time datetime="2026-03-26T20:13:56.584Z" data-timestamp="2026-03-26T20:13:56.584Z">2026-03-26T20:13:56.584Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→---
+     2→name: writing-skills
+     3→description: Use when creating new skills, editing existing skills, or verifying skills work before deployment
+     4→---
+     5→
+     6→# Writing Skills
+     7→
+     8→## Overview
+     9→
+    10→**Writing skills IS Test-Driven Development applied to process documentation.**
+    11→
+    12→**Personal skills live in agent-specific directories (`~/.claude/skills` for Claude Code, `~/.agents/skills/` for Codex)** 
+    13→
+    14→You write test cases (pressure scenarios with subagents), watch them fail (baseline behavior), write the skill (documentation), watch tests pass (agents comply), and refactor (close loopholes).
+    15→
+    16→**Core principle:** If you didn&#x27;t watch an agent fail without the skill, you don&#x27;t know if the skill teaches the right thing.
+    17→
+    18→**REQUIRED BACKGROUND:** You MUST understand superpowers:test-driven-development before using this skill. That skill defines the fundamental RED-GREEN-REFACTOR cycle. This skill adapts TDD to documentation.
+    19→
+    20→**Official guidance:** For Anthropic&#x27;s official skill authoring best practices, see anthropic-best-practices.md. This document provides additional patterns and guidelines that complement the TDD-focused approach in this skill.
+    21→
+    22→## What is a Skill?
+    23→
+    24→A **skill** is a reference guide for proven techniques, patterns, or tools. Skills help future Claude instances find and apply effective approaches.
+    25→
+    26→**Skills are:** Reusable techniques, patterns, tools, reference guides
+    27→
+    28→**Skills are NOT:** Narratives about how you solved a problem once
+    29→
+    30→## TDD Mapping for Skills
+    31→
+    32→| TDD Concept | Skill Creation |
+    33→|-------------|----------------|
+    34→| **Test case** | Pressure scenario with subagent |
+    35→| **Production code** | Skill document (SKILL.md) |
+    36→| **Test fails (RED)** | Agent violates rule without skill (baseline) |
+    37→| **Test passes (GREEN)** | Agent complies with skill present |
+    38→| **Refactor** | Close loopholes while maintaining compliance |
+    39→| **Write test first** | Run baseline scenario BEFORE writing skill |
+    40→| **Watch it fail** | Document exact rationalizations agent uses |
+    41→| **Minimal code** | Write skill addressing those specific violations |
+    42→| **Watch it pass** | Verify agent now complies |
+    43→| **Refactor cycle** | Find new rationalizations → plug → re-verify |
+    44→
+    45→The entire skill creation process follows RED-GREEN-REFACTOR.
+    46→
+    47→## When to Create a Skill
+    48→
+    49→**Create when:**
+    50→- Technique wasn&#x27;t intuitively obvious to you
+    51→- You&#x27;d reference this again across projects
+    52→- Pattern applies broadly (not project-specific)
+    53→- Others would benefit
+    54→
+    55→**Don&#x27;t create for:**
+    56→- One-off solutions
+    57→- Standard practices well-documented elsewhere
+    58→- Project-specific conventions (put in CLAUDE.md)
+    59→- Mechanical constraints (if it&#x27;s enforceable with regex/validation, automate it—save documentation for judgment calls)
+    60→
+    61→## Skill Types
+    62→
+    63→### Technique
+    64→Concrete method with steps to follow (condition-based-waiting, root-cause-tracing)
+    65→
+    66→### Pattern
+    67→Way of thinking about problems (flatten-with-flags, test-invariants)
+    68→
+    69→### Reference
+    70→API docs, syntax guides, tool documentation (office docs)
+    71→
+    72→## Directory Structure
+    73→
+    74→
+    75→```
+    76→skills/
+    77→  skill-name/
+    78→    SKILL.md              # Main reference (required)
+    79→    supporting-file.*     # Only if needed
+    80→```
+    81→
+    82→**Flat namespace** - all skills in one searchable namespace
+    83→
+    84→**Separate files for:**
+    85→1. **Heavy reference** (100+ lines) - API docs, comprehensive syntax
+    86→2. **Reusable tools** - Scripts, utilities, templates
+    87→
+    88→**Keep inline:**
+    89→- Principles and concepts
+    90→- Code patterns (&lt; 50 lines)
+    91→- Everything else
+    92→
+    93→## SKILL.md Structure
+    94→
+    95→**Frontmatter (YAML):**
+    96→- Two required fields: `name` and `description` (see [agentskills.io/specification](https://agentskills.io/specification) for all supported fields)
+    97→- Max 1024 characters total
+    98→- `name`: Use letters, numbers, and hyphens only (no parentheses, special chars)
+    99→- `description`: Third-person, describes ONLY when to use (NOT what it does)
+   100→  - Start with &quot;Use when...&quot; to focus on triggering conditions
+   101→  - Include specific symptoms, situations, and contexts
+   102→  - **NEVER summarize the skill&#x27;s process or workflow** (see CSO section for why)
+   103→  - Keep under 500 characters if possible
+   104→
+   105→```markdown
+   106→---
+   107→name: Skill-Name-With-Hyphens
+   108→description: Use when [specific triggering conditions and symptoms]
+   109→---
+   110→
+   111→# Skill Name
+   112→
+   113→## Overview
+   114→What is this? Core principle in 1-2 sentences.
+   115→
+   116→## When to Use
+   117→[Small inline flowchart IF decision non-obvious]
+   118→
+   119→Bullet list with SYMPTOMS and use cases
+   120→When NOT to use
+   121→
+   122→## Core Pattern (for techniques/patterns)
+   123→Before/after code comparison
+   124→
+   125→## Quick Reference
+   126→Table or bullets for scanning common operations
+   127→
+   128→## Implementation
+   129→Inline code for simple patterns
+   130→Link to file for heavy reference or reusable tools
+   131→
+   132→## Common Mistakes
+   133→What goes wrong + fixes
+   134→
+   135→## Real-World Impact (optional)
+   136→Concrete results
+   137→```
+   138→
+   139→
+   140→## Claude Search Optimization (CSO)
+   141→
+   142→**Critical for discovery:** Future Claude needs to FIND your skill
+   143→
+   144→### 1. Rich Description Field
+   145→
+   146→**Purpose:** Claude reads description to decide which skills to load for a given task. Make it answer: &quot;Should I read this skill right now?&quot;
+   147→
+   148→**Format:** Start with &quot;Use when...&quot; to focus on triggering conditions
+   149→
+   150→**CRITICAL: Description = When to Use, NOT What the Skill Does**
+   151→
+   152→The description should ONLY describe triggering conditions. Do NOT summarize the skill&#x27;s process or workflow in the description.
+   153→
+   154→**Why this matters:** Testing revealed that when a description summarizes the skill&#x27;s workflow, Claude may follow the description instead of reading the full skill content. A description saying &quot;code review between tasks&quot; caused Claude to do ONE review, even though the skill&#x27;s flowchart clearly showed TWO reviews (spec compliance then code quality).
+   155→
+   156→When the description was changed to just &quot;Use when executing implementation plans with independent tasks&quot; (no workflow summary), Claude correctly read the flowchart and followed the two-stage review process.
+   157→
+   158→**The trap:** Descriptions that summarize workflow create a shortcut Claude will take. The skill body becomes documentation Claude skips.
+   159→
+   160→```yaml
+   161→# ❌ BAD: Summarizes workflow - Claude may follow this instead of reading skill
+   162→description: Use when executing plans - dispatches subagent per task with code review between tasks
+   163→
+   164→# ❌ BAD: Too much process detail
+   165→description: Use for TDD - write test first, watch it fail, write minimal code, refactor
+   166→
+   167→# ✅ GOOD: Just triggering conditions, no workflow summary
+   168→description: Use when executing implementation plans with independent tasks in the current session
+   169→
+   170→# ✅ GOOD: Triggering conditions only
+   171→description: Use when implementing any feature or bugfix, before writing implementation code
+   172→```
+   173→
+   174→**Content:**
+   175→- Use concrete triggers, symptoms, and situations that signal this skill applies
+   176→- Describe the *problem* (race conditions, inconsistent behavior) not *language-specific symptoms* (setTimeout, sleep)
+   177→- Keep triggers technology-agnostic unless the skill itself is technology-specific
+   178→- If skill is technology-specific, make that explicit in the trigger
+   179→- Write in third person (injected into system prompt)
+   180→- **NEVER summarize the skill&#x27;s process or workflow**
+   181→
+   182→```yaml
+   183→# ❌ BAD: Too abstract, vague, doesn&#x27;t include when to use
+   184→description: For async testing
+   185→
+   186→# ❌ BAD: First person
+   187→description: I can help you with async tests when they&#x27;re flaky
+   188→
+   189→# ❌ BAD: Mentions technology but skill isn&#x27;t specific to it
+   190→description: Use when tests use setTimeout/sleep and are flaky
+   191→
+   192→# ✅ GOOD: Starts with &quot;Use when&quot;, describes problem, no workflow
+   193→description: Use when tests have race conditions, timing dependencies, or pass/fail inconsistently
+   194→
+   195→# ✅ GOOD: Technology-specific skill with explicit trigger
+   196→description: Use when using React Router and handling authentication redirects
+   197→```
+   198→
+   199→### 2. Keyword Coverage
+   200→
+   201→Use words Claude would search for:
+   202→- Error messages: &quot;Hook timed out&quot;, &quot;ENOTEMPTY&quot;, &quot;race condition&quot;
+   203→- Symptoms: &quot;flaky&quot;, &quot;hanging&quot;, &quot;zombie&quot;, &quot;pollution&quot;
+   204→- Synonyms: &quot;timeout/hang/freeze&quot;, &quot;cleanup/teardown/afterEach&quot;
+   205→- Tools: Actual commands, library names, file types
+   206→
+   207→### 3. Descriptive Naming
+   208→
+   209→**Use active voice, verb-first:**
+   210→- ✅ `creating-skills` not `skill-creation`
+   211→- ✅ `condition-based-waiting` not `async-test-helpers`
+   212→
+   213→### 4. Token Efficiency (Critical)
+   214→
+   215→**Problem:** getting-started and frequently-referenced skills load into EVERY conversation. Every token counts.
+   216→
+   217→**Target word counts:**
+   218→- getting-started workflows: &lt;150 words each
+   219→- Frequently-loaded skills: &lt;200 words total
+   220→- Other skills: &lt;500 words (still be concise)
+   221→
+   222→**Techniques:**
+   223→
+   224→**Move details to tool help:**
+   225→```bash
+   226→# ❌ BAD: Document all flags in SKILL.md
+   227→search-conversations supports --text, --both, --after DATE, --before DATE, --limit N
+   228→
+   229→# ✅ GOOD: Reference --help
+   230→search-conversations supports multiple modes and filters. Run --help for details.
+   231→```
+   232→
+   233→**Use cross-references:**
+   234→```markdown
+   235→# ❌ BAD: Repeat workflow details
+   236→When searching, dispatch subagent with template...
+   237→[20 lines of repeated instructions]
+   238→
+   239→# ✅ GOOD: Reference other skill
+   240→Always use subagents (50-100x context savings). REQUIRED: Use [other-skill-name] for workflow.
+   241→```
+   242→
+   243→**Compress examples:**
+   244→```markdown
+   245→# ❌ BAD: Verbose example (42 words)
+   246→your human partner: &quot;How did we handle authentication errors in React Router before?&quot;
+   247→You: I&#x27;ll search past conversations for React Router authentication patterns.
+   248→[Dispatch subagent with search query: &quot;React Router authentication error handling 401&quot;]
+   249→
+   250→# ✅ GOOD: Minimal example (20 words)
+   251→Partner: &quot;How did we handle auth errors in React Router?&quot;
+   252→You: Searching...
+   253→[Dispatch subagent → synthesis]
+   254→```
+   255→
+   256→**Eliminate redundancy:**
+   257→- Don&#x27;t repeat what&#x27;s in cross-referenced skills
+   258→- Don&#x27;t explain what&#x27;s obvious from command
+   259→- Don&#x27;t include multiple examples of same pattern
+   260→
+   261→**Verification:**
+   262→```bash
+   263→wc -w skills/path/SKILL.md
+   264→# getting-started workflows: aim for &lt;150 each
+   265→# Other frequently-loaded: aim for &lt;200 total
+   266→```
+   267→
+   268→**Name by what you DO or core insight:**
+   269→- ✅ `condition-based-waiting` &gt; `async-test-helpers`
+   270→- ✅ `using-skills` not `skill-usage`
+   271→- ✅ `flatten-with-flags` &gt; `data-structure-refactoring`
+   272→- ✅ `root-cause-tracing` &gt; `debugging-techniques`
+   273→
+   274→**Gerunds (-ing) work well for processes:**
+   275→- `creating-skills`, `testing-skills`, `debugging-with-logs`
+   276→- Active, describes the action you&#x27;re taking
+   277→
+   278→### 4. Cross-Referencing Other Skills
+   279→
+   280→**When writing documentation that references other skills:**
+   281→
+   282→Use skill name only, with explicit requirement markers:
+   283→- ✅ Good: `**REQUIRED SUB-SKILL:** Use superpowers:test-driven-development`
+   284→- ✅ Good: `**REQUIRED BACKGROUND:** You MUST understand superpowers:systematic-debugging`
+   285→- ❌ Bad: `See skills/testing/test-driven-development` (unclear if required)
+   286→- ❌ Bad: `@skills/testing/test-driven-development/SKILL.md` (force-loads, burns context)
+   287→
+   288→**Why no @ links:** `@` syntax force-loads files immediately, consuming 200k+ context before you need them.
+   289→
+   290→## Flowchart Usage
+   291→
+   292→```dot
+   293→digraph when_flowchart {
+   294→    &quot;Need to show information?&quot; [shape=diamond];
+   295→    &quot;Decision where I might go wrong?&quot; [shape=diamond];
+   296→    &quot;Use markdown&quot; [shape=box];
+   297→    &quot;Small inline flowchart&quot; [shape=box];
+   298→
+   299→    &quot;Need to show information?&quot; -&gt; &quot;Decision where I might go wrong?&quot; [label=&quot;yes&quot;];
+   300→    &quot;Decision where I might go wrong?&quot; -&gt; &quot;Small inline flowchart&quot; [label=&quot;yes&quot;];
+   301→    &quot;Decision where I might go wrong?&quot; -&gt; &quot;Use markdown&quot; [label=&quot;no&quot;];
+   302→}
+   303→```
+   304→
+   305→**Use flowcharts ONLY for:**
+   306→- Non-obvious decision points
+   307→- Process loops where you might stop too early
+   308→- &quot;When to use A vs B&quot; decisions
+   309→
+   310→**Never use flowcharts for:**
+   311→- Reference material → Tables, lists
+   312→- Code examples → Markdown blocks
+   313→- Linear instructions → Numbered lists
+   314→- Labels without semantic meaning (step1, helper2)
+   315→
+   316→See @graphviz-conventions.dot for graphviz style rules.
+   317→
+   318→**Visualizing for your human partner:** Use `render-graphs.js` in this directory to render a skill&#x27;s flowcharts to SVG:
+   319→```bash
+   320→./render-graphs.js ../some-skill           # Each diagram separately
+   321→./render-graphs.js ../some-skill --combine # All diagrams in one SVG
+   322→```
+   323→
+   324→## Code Examples
+   325→
+   326→**One excellent example beats many mediocre ones**
+   327→
+   328→Choose most relevant language:
+   329→- Testing techniques → TypeScript/JavaScript
+   330→- System debugging → Shell/Python
+   331→- Data processing → Python
+   332→
+   333→**Good example:**
+   334→- Complete and runnable
+   335→- Well-commented explaining WHY
+   336→- From real scenario
+   337→- Shows pattern clearly
+   338→- Ready to adapt (not generic template)
+   339→
+   340→**Don&#x27;t:**
+   341→- Implement in 5+ languages
+   342→- Create fill-in-the-blank templates
+   343→- Write contrived examples
+   344→
+   345→You&#x27;re good at porting - one great example is enough.
+   346→
+   347→## File Organization
+   348→
+   349→### Self-Contained Skill
+   350→```
+   351→defense-in-depth/
+   352→  SKILL.md    # Everything inline
+   353→```
+   354→When: All content fits, no heavy reference needed
+   355→
+   356→### Skill with Reusable Tool
+   357→```
+   358→condition-based-waiting/
+   359→  SKILL.md    # Overview + patterns
+   360→  example.ts  # Working helpers to adapt
+   361→```
+   362→When: Tool is reusable code, not just narrative
+   363→
+   364→### Skill with Heavy Reference
+   365→```
+   366→pptx/
+   367→  SKILL.md       # Overview + workflows
+   368→  pptxgenjs.md   # 600 lines API reference
+   369→  ooxml.md       # 500 lines XML structure
+   370→  scripts/       # Executable tools
+   371→```
+   372→When: Reference material too large for inline
+   373→
+   374→## The Iron Law (Same as TDD)
+   375→
+   376→```
+   377→NO SKILL WITHOUT A FAILING TEST FIRST
+   378→```
+   379→
+   380→This applies to NEW skills AND EDITS to existing skills.
+   381→
+   382→Write skill before testing? Delete it. Start over.
+   383→Edit skill without testing? Same violation.
+   384→
+   385→**No exceptions:**
+   386→- Not for &quot;simple additions&quot;
+   387→- Not for &quot;just adding a section&quot;
+   388→- Not for &quot;documentation updates&quot;
+   389→- Don&#x27;t keep untested changes as &quot;reference&quot;
+   390→- Don&#x27;t &quot;adapt&quot; while running tests
+   391→- Delete means delete
+   392→
+   393→**REQUIRED BACKGROUND:** The superpowers:test-driven-development skill explains why this matters. Same principles apply to documentation.
+   394→
+   395→## Testing All Skill Types
+   396→
+   397→Different skill types need different test approaches:
+   398→
+   399→### Discipline-Enforcing Skills (rules/requirements)
+   400→
+   401→**Examples:** TDD, verification-before-completion, designing-before-coding
+   402→
+   403→**Test with:**
+   404→- Academic questions: Do they understand the rules?
+   405→- Pressure scenarios: Do they comply under stress?
+   406→- Multiple pressures combined: time + sunk cost + exhaustion
+   407→- Identify rationalizations and add explicit counters
+   408→
+   409→**Success criteria:** Agent follows rule under maximum pressure
+   410→
+   411→### Technique Skills (how-to guides)
+   412→
+   413→**Examples:** condition-based-waiting, root-cause-tracing, defensive-programming
+   414→
+   415→**Test with:**
+   416→- Application scenarios: Can they apply the technique correctly?
+   417→- Variation scenarios: Do they handle edge cases?
+   418→- Missing information tests: Do instructions have gaps?
+   419→
+   420→**Success criteria:** Agent successfully applies technique to new scenario
+   421→
+   422→### Pattern Skills (mental models)
+   423→
+   424→**Examples:** reducing-complexity, information-hiding concepts
+   425→
+   426→**Test with:**
+   427→- Recognition scenarios: Do they recognize when pattern applies?
+   428→- Application scenarios: Can they use the mental model?
+   429→- Counter-examples: Do they know when NOT to apply?
+   430→
+   431→**Success criteria:** Agent correctly identifies when/how to apply pattern
+   432→
+   433→### Reference Skills (documentation/APIs)
+   434→
+   435→**Examples:** API documentation, command references, library guides
+   436→
+   437→**Test with:**
+   438→- Retrieval scenarios: Can they find the right information?
+   439→- Application scenarios: Can they use what they found correctly?
+   440→- Gap testing: Are common use cases covered?
+   441→
+   442→**Success criteria:** Agent finds and correctly applies reference information
+   443→
+   444→## Common Rationalizations for Skipping Testing
+   445→
+   446→| Excuse | Reality |
+   447→|--------|---------|
+   448→| &quot;Skill is obviously clear&quot; | Clear to you ≠ clear to other agents. Test it. |
+   449→| &quot;It&#x27;s just a reference&quot; | References can have gaps, unclear sections. Test retrieval. |
+   450→| &quot;Testing is overkill&quot; | Untested skills have issues. Always. 15 min testing saves hours. |
+   451→| &quot;I&#x27;ll test if problems emerge&quot; | Problems = agents can&#x27;t use skill. Test BEFORE deploying. |
+   452→| &quot;Too tedious to test&quot; | Testing is less tedious than debugging bad skill in production. |
+   453→| &quot;I&#x27;m confident it&#x27;s good&quot; | Overconfidence guarantees issues. Test anyway. |
+   454→| &quot;Academic review is enough&quot; | Reading ≠ using. Test application scenarios. |
+   455→| &quot;No time to test&quot; | Deploying untested skill wastes more time fixing it later. |
+   456→
+   457→**All of these mean: Test before deploying. No exceptions.**
+   458→
+   459→## Bulletproofing Skills Against Rationalization
+   460→
+   461→Skills that enforce discipline (like TDD) need to resist rationalization. Agents are smart and will find loopholes when under pressure.
+   462→
+   463→**Psychology note:** Understanding WHY persuasion techniques work helps you apply them systematically. See persuasion-principles.md for research foundation (Cialdini, 2021; Meincke et al., 2025) on authority, commitment, scarcity, social proof, and unity principles.
+   464→
+   465→### Close Every Loophole Explicitly
+   466→
+   467→Don&#x27;t just state the rule - forbid specific workarounds:
+   468→
+   469→&lt;Bad&gt;
+   470→```markdown
+   471→Write code before test? Delete it.
+   472→```
+   473→&lt;/Bad&gt;
+   474→
+   475→&lt;Good&gt;
+   476→```markdown
+   477→Write code before test? Delete it. Start over.
+   478→
+   479→**No exceptions:**
+   480→- Don&#x27;t keep it as &quot;reference&quot;
+   481→- Don&#x27;t &quot;adapt&quot; it while writing tests
+   482→- Don&#x27;t look at it
+   483→- Delete means delete
+   484→```
+   485→&lt;/Good&gt;
+   486→
+   487→### Address &quot;Spirit vs Letter&quot; Arguments
+   488→
+   489→Add foundational principle early:
+   490→
+   491→```markdown
+   492→**Violating the letter of the rules is violating the spirit of the rules.**
+   493→```
+   494→
+   495→This cuts off entire class of &quot;I&#x27;m following the spirit&quot; rationalizations.
+   496→
+   497→### Build Rationalization Table
+   498→
+   499→Capture rationalizations from baseline testing (see Testing section below). Every excuse agents make goes in the table:
+   500→
+   501→```markdown
+   502→| Excuse | Reality |
+   503→|--------|---------|
+   504→| &quot;Too simple to test&quot; | Simple code breaks. Test takes 30 seconds. |
+   505→| &quot;I&#x27;ll test after&quot; | Tests passing immediately prove nothing. |
+   506→| &quot;Tests after achieve same goals&quot; | Tests-after = &quot;what does this do?&quot; Tests-first = &quot;what should this do?&quot; |
+   507→```
+   508→
+   509→### Create Red Flags List
+   510→
+   511→Make it easy for agents to self-check when rationalizing:
+   512→
+   513→```markdown
+   514→## Red Flags - STOP and Start Over
+   515→
+   516→- Code before test
+   517→- &quot;I already manually tested it&quot;
+   518→- &quot;Tests after achieve the same purpose&quot;
+   519→- &quot;It&#x27;s about spirit not ritual&quot;
+   520→- &quot;This is different because...&quot;
+   521→
+   522→**All of these mean: Delete code. Start over with TDD.**
+   523→```
+   524→
+   525→### Update CSO for Violation Symptoms
+   526→
+   527→Add to description: symptoms of when you&#x27;re ABOUT to violate the rule:
+   528→
+   529→```yaml
+   530→description: use when implementing any feature or bugfix, before writing implementation code
+   531→```
+   532→
+   533→## RED-GREEN-REFACTOR for Skills
+   534→
+   535→Follow the TDD cycle:
+   536→
+   537→### RED: Write Failing Test (Baseline)
+   538→
+   539→Run pressure scenario with subagent WITHOUT the skill. Document exact behavior:
+   540→- What choices did they make?
+   541→- What rationalizations did they use (verbatim)?
+   542→- Which pressures triggered violations?
+   543→
+   544→This is &quot;watch the test fail&quot; - you must see what agents naturally do before writing the skill.
+   545→
+   546→### GREEN: Write Minimal Skill
+   547→
+   548→Write skill that addresses those specific rationalizations. Don&#x27;t add extra content for hypothetical cases.
+   549→
+   550→Run same scenarios WITH skill. Agent should now comply.
+   551→
+   552→### REFACTOR: Close Loopholes
+   553→
+   554→Agent found new rationalization? Add explicit counter. Re-test until bulletproof.
+   555→
+   556→**Testing methodology:** See @testing-skills-with-subagents.md for the complete testing methodology:
+   557→- How to write pressure scenarios
+   558→- Pressure types (time, sunk cost, authority, exhaustion)
+   559→- Plugging holes systematically
+   560→- Meta-testing techniques
+   561→
+   562→## Anti-Patterns
+   563→
+   564→### ❌ Narrative Example
+   565→&quot;In session 2025-10-03, we found empty projectDir caused...&quot;
+   566→**Why bad:** Too specific, not reusable
+   567→
+   568→### ❌ Multi-Language Dilution
+   569→example-js.js, example-py.py, example-go.go
+   570→**Why bad:** Mediocre quality, maintenance burden
+   571→
+   572→### ❌ Code in Flowcharts
+   573→```dot
+   574→step1 [label=&quot;import fs&quot;];
+   575→step2 [label=&quot;read file&quot;];
+   576→```
+   577→**Why bad:** Can&#x27;t copy-paste, hard to read
+   578→
+   579→### ❌ Generic Labels
+   580→helper1, helper2, step3, pattern4
+   581→**Why bad:** Labels should have semantic meaning
+   582→
+   583→## STOP: Before Moving to Next Skill
+   584→
+   585→**After writing ANY skill, you MUST STOP and complete the deployment process.**
+   586→
+   587→**Do NOT:**
+   588→- Create multiple skills in batch without testing each
+   589→- Move to next skill before current one is verified
+   590→- Skip testing because &quot;batching is more efficient&quot;
+   591→
+   592→**The deployment checklist below is MANDATORY for EACH skill.**
+   593→
+   594→Deploying untested skills = deploying untested code. It&#x27;s a violation of quality standards.
+   595→
+   596→## Skill Creation Checklist (TDD Adapted)
+   597→
+   598→**IMPORTANT: Use TodoWrite to create todos for EACH checklist item below.**
+   599→
+   600→**RED Phase - Write Failing Test:**
+   601→- [ ] Create pressure scenarios (3+ combined pressures for discipline skills)
+   602→- [ ] Run scenarios WITHOUT skill - document baseline behavior verbatim
+   603→- [ ] Identify patterns in rationalizations/failures
+   604→
+   605→**GREEN Phase - Write Minimal Skill:**
+   606→- [ ] Name uses only letters, numbers, hyphens (no parentheses/special chars)
+   607→- [ ] YAML frontmatter with required `name` and `description` fields (max 1024 chars; see [spec](https://agentskills.io/specification))
+   608→- [ ] Description starts with &quot;Use when...&quot; and includes specific triggers/symptoms
+   609→- [ ] Description written in third person
+   610→- [ ] Keywords throughout for search (errors, symptoms, tools)
+   611→- [ ] Clear overview with core principle
+   612→- [ ] Address specific baseline failures identified in RED
+   613→- [ ] Code inline OR link to separate file
+   614→- [ ] One excellent example (not multi-language)
+   615→- [ ] Run scenarios WITH skill - verify agents now comply
+   616→
+   617→**REFACTOR Phase - Close Loopholes:**
+   618→- [ ] Identify NEW rationalizations from testing
+   619→- [ ] Add explicit counters (if discipline skill)
+   620→- [ ] Build rationalization table from all test iterations
+   621→- [ ] Create red flags list
+   622→- [ ] Re-test until bulletproof
+   623→
+   624→**Quality Checks:**
+   625→- [ ] Small flowchart only if decision non-obvious
+   626→- [ ] Quick reference table
+   627→- [ ] Common mistakes section
+   628→- [ ] No narrative storytelling
+   629→- [ ] Supporting files only for tools or heavy reference
+   630→
+   631→**Deployment:**
+   632→- [ ] Commit skill to git and push to your fork (if configured)
+   633→- [ ] Consider contributing back via PR (if broadly useful)
+   634→
+   635→## Discovery Workflow
+   636→
+   637→How future Claude finds your skill:
+   638→
+   639→1. **Encounters problem** (&quot;tests are flaky&quot;)
+   640→3. **Finds SKILL** (description matches)
+   641→4. **Scans overview** (is this relevant?)
+   642→5. **Reads patterns** (quick reference table)
+   643→6. **Loads example** (only when implementing)
+   644→
+   645→**Optimize for this flow** - put searchable terms early and often.
+   646→
+   647→## The Bottom Line
+   648→
+   649→**Creating skills IS TDD for process documentation.**
+   650→
+   651→Same Iron Law: No skill without failing test first.
+   652→Same cycle: RED (baseline) → GREEN (write skill) → REFACTOR (close loopholes).
+   653→Same benefits: Better quality, fewer surprises, bulletproof results.
+   654→
+   655→If you follow TDD for code, follow it for skills. It&#x27;s the same discipline applied to documentation.
+   656→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-13-56-654Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-13-56-654Z" class="timestamp-link"><time datetime="2026-03-26T20:13:56.654Z" data-timestamp="2026-03-26T20:13:56.654Z">2026-03-26T20:13:56.654Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_013tad2SCFbT4d5C5kP3krG2"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/requesting-code-review/SKILL.md&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-13-56-657Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-13-56-657Z" class="timestamp-link"><time datetime="2026-03-26T20:13:56.657Z" data-timestamp="2026-03-26T20:13:56.657Z">2026-03-26T20:13:56.657Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→---
+     2→name: requesting-code-review
+     3→description: Use when completing tasks, implementing major features, or before merging to verify work meets requirements
+     4→---
+     5→
+     6→# Requesting Code Review
+     7→
+     8→Dispatch superpowers:code-reviewer subagent to catch issues before they cascade. The reviewer gets precisely crafted context for evaluation — never your session&#x27;s history. This keeps the reviewer focused on the work product, not your thought process, and preserves your own context for continued work.
+     9→
+    10→**Core principle:** Review early, review often.
+    11→
+    12→## When to Request Review
+    13→
+    14→**Mandatory:**
+    15→- After each task in subagent-driven development
+    16→- After completing major feature
+    17→- Before merge to main
+    18→
+    19→**Optional but valuable:**
+    20→- When stuck (fresh perspective)
+    21→- Before refactoring (baseline check)
+    22→- After fixing complex bug
+    23→
+    24→## How to Request
+    25→
+    26→**1. Get git SHAs:**
+    27→```bash
+    28→BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
+    29→HEAD_SHA=$(git rev-parse HEAD)
+    30→```
+    31→
+    32→**2. Dispatch code-reviewer subagent:**
+    33→
+    34→Use Task tool with superpowers:code-reviewer type, fill template at `code-reviewer.md`
+    35→
+    36→**Placeholders:**
+    37→- `{WHAT_WAS_IMPLEMENTED}` - What you just built
+    38→- `{PLAN_OR_REQUIREMENTS}` - What it should do
+    39→- `{BASE_SHA}` - Starting commit
+    40→- `{HEAD_SHA}` - Ending commit
+    41→- `{DESCRIPTION}` - Brief summary
+    42→
+    43→**3. Act on feedback:**
+    44→- Fix Critical issues immediately
+    45→- Fix Important issues before proceeding
+    46→- Note Minor issues for later
+    47→- Push back if reviewer is wrong (with reasoning)
+    48→
+    49→## Example
+    50→
+    51→```
+    52→[Just completed Task 2: Add verification function]
+    53→
+    54→You: Let me request code review before proceeding.
+    55→
+    56→BASE_SHA=$(git log --oneline | grep &quot;Task 1&quot; | head -1 | awk &#x27;{print $1}&#x27;)
+    57→HEAD_SHA=$(git rev-parse HEAD)
+    58→
+    59→[Dispatch superpowers:code-reviewer subagent]
+    60→  WHAT_WAS_IMPLEMENTED: Verification and repair functions for conversation index
+    61→  PLAN_OR_REQUIREMENTS: Task 2 from docs/superpowers/plans/deployment-plan.md
+    62→  BASE_SHA: a7981ec
+    63→  HEAD_SHA: 3df7661
+    64→  DESCRIPTION: Added verifyIndex() and repairIndex() with 4 issue types
+    65→
+    66→[Subagent returns]:
+    67→  Strengths: Clean architecture, real tests
+    68→  Issues:
+    69→    Important: Missing progress indicators
+    70→    Minor: Magic number (100) for reporting interval
+    71→  Assessment: Ready to proceed
+    72→
+    73→You: [Fix progress indicators]
+    74→[Continue to Task 3]
+    75→```
+    76→
+    77→## Integration with Workflows
+    78→
+    79→**Subagent-Driven Development:**
+    80→- Review after EACH task
+    81→- Catch issues before they compound
+    82→- Fix before moving to next task
+    83→
+    84→**Executing Plans:**
+    85→- Review after each batch (3 tasks)
+    86→- Get feedback, apply, continue
+    87→
+    88→**Ad-Hoc Development:**
+    89→- Review before merge
+    90→- Review when stuck
+    91→
+    92→## Red Flags
+    93→
+    94→**Never:**
+    95→- Skip review because &quot;it&#x27;s simple&quot;
+    96→- Ignore Critical issues
+    97→- Proceed with unfixed Important issues
+    98→- Argue with valid technical feedback
+    99→
+   100→**If reviewer wrong:**
+   101→- Push back with technical reasoning
+   102→- Show code/tests that prove it works
+   103→- Request clarification
+   104→
+   105→See template at: requesting-code-review/code-reviewer.md
+   106→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-14-19-843Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-14-19-843Z" class="timestamp-link"><time datetime="2026-03-26T20:14:19.843Z" data-timestamp="2026-03-26T20:14:19.843Z">2026-03-26T20:14:19.843Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-14-28-168Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-14-28-168Z" class="timestamp-link"><time datetime="2026-03-26T20:14:28.168Z" data-timestamp="2026-03-26T20:14:28.168Z">2026-03-26T20:14:28.168Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Good, I've reviewed the existing skill patterns. Let me propose a quick design before building.</p>
+<h2>Design: <code>go-code-review</code> Skill</h2>
+<p><strong>Location</strong>: <code>/Users/scaruso/dev/gossl/.claude/skills/go-code-review/SKILL.md</code></p>
+<p><strong>How it works</strong>: When invoked, dispatches 5 parallel agents via the Agent tool, each focused on one review area. Results are collected and presented as a unified report.</p>
+<p><strong>The 5 agents</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Agent</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Coverage</strong></td>
+<td>Runs <code>bazel coverage //...</code>, identifies packages below 80% threshold, flags untested code paths</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Go Style</strong></td>
+<td>Reviews all <code>.go</code> files against the CLAUDE.md style rules (Effective Go, CodeReviewComments)</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Code Security</strong></td>
+<td>Scans for vulnerabilities: SQL injection, command injection, path traversal, unsafe crypto, OWASP top 10</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Dependency Security</strong></td>
+<td>Checks <code>go.mod</code> / <code>go.sum</code> for known CVEs via <code>govulncheck</code>, flags obsolete or unmaintained transitive deps</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Secret Leaks</strong></td>
+<td>Scans code, logs, CI pipelines (<code>.pre-commit-config.yaml</code>, Bazel configs) for hardcoded secrets, tokens, keys</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output format</strong>: Each agent returns findings as a severity-sorted list (Critical / Warning / Info). The skill consolidates into one report.</p>
+<p><strong>Two questions before I build</strong>:</p>
+<ol>
+<li>Should the skill review only <strong>changed files</strong> (git diff against main) or the <strong>entire codebase</strong>? Changed-only is faster; full is more thorough on first run.</li>
+<li>For dependency security (#4) — do you have <code>govulncheck</code> available, or should the agent just analyze <code>go.mod</code>/<code>go.sum</code> manually?</li>
+</ol></div></div></div>
+<div class="message user" id="msg-2026-03-26T20-23-27-044Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T20-23-27-044Z" class="timestamp-link"><time datetime="2026-03-26T20:23:27.044Z" data-timestamp="2026-03-26T20:23:27.044Z">2026-03-26T20:23:27.044Z</time></a></div><div class="message-content">
+<div class="user-content"><p>review the differences between feature branch and master. if run on master review everything.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-23-32-216Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-23-32-216Z" class="timestamp-link"><time datetime="2026-03-26T20:23:32.216Z" data-timestamp="2026-03-26T20:23:32.216Z">2026-03-26T20:23:32.216Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-23-32-656Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-23-32-656Z" class="timestamp-link"><time datetime="2026-03-26T20:23:32.656Z" data-timestamp="2026-03-26T20:23:32.656Z">2026-03-26T20:23:32.656Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Got it. Let me build the skill.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-23-33-217Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-23-33-217Z" class="timestamp-link"><time datetime="2026-03-26T20:23:33.217Z" data-timestamp="2026-03-26T20:23:33.217Z">2026-03-26T20:23:33.217Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_019fcH1KQUUVaFFTtLtk8CM7">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Create skill directory</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">mkdir -p /Users/scaruso/dev/gossl/.claude/skills/go-code-review</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-23-50-707Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-23-50-707Z" class="timestamp-link"><time datetime="2026-03-26T20:23:50.707Z" data-timestamp="2026-03-26T20:23:50.707Z">2026-03-26T20:23:50.707Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>(Bash completed with no output)</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-24-42-945Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-24-42-945Z" class="timestamp-link"><time datetime="2026-03-26T20:24:42.945Z" data-timestamp="2026-03-26T20:24:42.945Z">2026-03-26T20:24:42.945Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_01C6PqtaTofHtgnHAxe2ZM1x">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">SKILL.md</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/.claude/skills/go-code-review/SKILL.md</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content">---
+name: go-code-review
+description: Use when reviewing Go code quality, security, coverage, style compliance, or dependency health — run before merging or on demand
+---
+
+# Go Code Review
+
+Run a comprehensive code review across 5 dimensions, each in a parallel agent. Reviews the diff between the current branch and master. If already on master, reviews the entire codebase.
+
+## Scope Detection
+
+Determine review scope BEFORE dispatching agents:
+
+```bash
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ &#34;$CURRENT_BRANCH&#34; = &#34;master&#34; ] || [ &#34;$CURRENT_BRANCH&#34; = &#34;main&#34; ]; then
+  SCOPE=&#34;full&#34;
+  FILES=&#34;all Go files in the repository&#34;
+else
+  SCOPE=&#34;diff&#34;
+  FILES=$(git diff --name-only master...HEAD -- &#39;*.go&#39; &#39;go.mod&#39; &#39;go.sum&#39; &#39;.pre-commit-config.yaml&#39; &#39;MODULE.bazel&#39; &#39;*.bazel&#39;)
+fi
+```
+
+If `SCOPE=diff` and no files changed, report &#34;No reviewable changes&#34; and stop.
+
+Announce the scope to the user before dispatching:
+- **Diff mode**: &#34;Reviewing N changed files against master...&#34;
+- **Full mode**: &#34;On master — reviewing entire codebase...&#34;
+
+## Dispatch
+
+Launch ALL 5 agents in parallel using the Agent tool. Pass each agent:
+- The `SCOPE` (full or diff)
+- The list of changed files (if diff mode)
+- The relevant review instructions below
+
+## Agent 1: Go Test Coverage
+
+**Goal**: Identify packages below 80% unit test coverage and flag untested code paths.
+
+**Instructions for agent**:
+- Run `bazel coverage //...` to collect coverage data.
+- Parse coverage output to extract per-package percentages.
+- If in diff mode, focus on packages containing changed files.
+- For each package below 80%, list the uncovered functions/methods.
+- Flag any changed functions that have zero test coverage.
+
+**Output format**:
+```
+## Coverage Report
+
+Overall: X% (target: 80%)
+
+| Package | Coverage | Status |
+|---------|----------|--------|
+| internal/store | 72% | BELOW TARGET |
+| internal/ca | 85% | OK |
+
+### Uncovered Code
+- `internal/store/db.go:45` — `OpenDB()` error path not tested
+```
+
+## Agent 2: Go Style Compliance
+
+**Goal**: Review code against the project&#39;s Go style rules defined in CLAUDE.md.
+
+**Instructions for agent**:
+- Read `/Users/scaruso/dev/gossl/CLAUDE.md` for the full style guide.
+- If diff mode, review only changed files. If full mode, review all `.go` files.
+- Check every rule listed in the &#34;Go Style&#34; and &#34;Testing&#34; sections of CLAUDE.md, including:
+  - MixedCaps naming, initialisms (`URL`, `ID`)
+  - Package naming (short, no stutter)
+  - Error strings (lowercase, no punctuation)
+  - Error handling (always checked, early returns)
+  - Interface design (small, consumer-defined)
+  - `context.Context` usage (first param, not in structs)
+  - Receiver conventions (1-2 letters, consistent, pointer rules)
+  - Doc comments on all exported names
+  - Table-driven tests with proper failure messages
+  - `crypto/rand` not `math/rand`
+  - Nil slice declarations (`var s []T`)
+- Run `bazel run //tools/format:format.check` to catch formatting issues.
+- Report each violation with file, line, rule violated, and suggested fix.
+
+**Output format**:
+```
+## Style Review
+
+### Violations
+- **WARN** `internal/store/db.go:12` — Receiver name `store` should be 1-2 letters (e.g., `s`). [receiver-names]
+- **WARN** `internal/ca/store.go:8` — Missing doc comment on exported type `CertStore`. [doc-comments]
+
+### Passed Checks
+- Formatting: OK
+- Naming conventions: OK (except above)
+```
+
+## Agent 3: Code Security
+
+**Goal**: Find security vulnerabilities in Go source code and configuration.
+
+**Instructions for agent**:
+- If diff mode, review changed files. If full mode, review all `.go` files plus Bazel configs.
+- Scan for OWASP Top 10 issues:
+  - SQL injection (string concatenation in queries, unsanitized input)
+  - Command injection (`os/exec` with user input)
+  - Path traversal (unsanitized file paths)
+  - Insecure crypto (`math/rand` for secrets, weak algorithms, hardcoded keys)
+  - Insecure TLS configuration (skip verify, weak cipher suites)
+  - Race conditions (shared state without synchronization)
+  - Unsafe pointer usage or `reflect`
+  - Unbounded reads/allocations (DoS vectors)
+  - Improper input validation at system boundaries
+- Check Bazel configs for insecure build settings.
+- Rate each finding: **CRITICAL**, **WARNING**, or **INFO**.
+
+**Output format**:
+```
+## Security Review
+
+### Findings
+- **CRITICAL** `internal/store/db.go:34` — SQL query uses fmt.Sprintf with user input. Use parameterized queries.
+- **WARNING** `cmd/server/main.go:22` — TLS MinVersion not set, defaults may allow TLS 1.0.
+
+### No Issues Found
+- Command injection: OK
+- Path traversal: OK
+```
+
+## Agent 4: Dependency Security
+
+**Goal**: Identify known vulnerabilities and obsolete packages in direct and transitive dependencies.
+
+**Instructions for agent**:
+- Read `go.mod` and `go.sum` to catalog all dependencies.
+- Check if `govulncheck` is available: run `which govulncheck`. If available, run `govulncheck ./...` and report results.
+- If `govulncheck` is not available, manually review dependencies:
+  - Search the web for known CVEs against each direct dependency and its version.
+  - Flag any dependency that is more than 2 major versions behind latest.
+  - Flag any dependency with known security advisories.
+- Check for deprecated or unmaintained packages (archived repos, no commits in 2+ years).
+- In diff mode, focus on newly added or changed dependencies.
+- Check `MODULE.bazel` for Bazel module dependencies as well.
+
+**Output format**:
+```
+## Dependency Security
+
+### Vulnerabilities
+- **CRITICAL** `golang.org/x/crypto v0.1.0` — CVE-2023-XXXXX: buffer overflow in ssh package. Upgrade to v0.17.0+.
+
+### Outdated
+- **WARNING** `modernc.org/sqlite v1.47.0` — latest is v1.50.0 (3 minor versions behind)
+
+### Status
+- Direct dependencies: 5 checked, 1 issue
+- Transitive dependencies: 23 checked, 0 issues
+```
+
+## Agent 5: Secret Leaks
+
+**Goal**: Detect hardcoded secrets, tokens, API keys, and credentials in code, logs, and CI configuration.
+
+**Instructions for agent**:
+- If diff mode, scan changed files. If full mode, scan entire repo.
+- Scan all `.go` files for:
+  - Hardcoded passwords, tokens, API keys, private keys
+  - Connection strings with embedded credentials
+  - Base64-encoded secrets
+  - Sensitive data written to logs (passwords, tokens, keys in `log.*` or `fmt.Print*` calls)
+- Scan configuration files:
+  - `.pre-commit-config.yaml`
+  - `MODULE.bazel`, all `BUILD.bazel` files
+  - `.bazelrc`
+  - Any files in `.github/`, `.gitlab-ci.yml`, or similar CI configs
+- Scan for:
+  - Files that should be gitignored but aren&#39;t (`.env`, `credentials.*`, `*.pem`, `*.key`)
+  - Secrets in test fixtures that look like real credentials (high entropy strings)
+- Check `.gitignore` for adequate coverage of secret file patterns.
+- Rate each finding: **CRITICAL** (likely real secret), **WARNING** (possible secret or bad practice), **INFO** (suggestion).
+
+**Output format**:
+```
+## Secret Leak Review
+
+### Findings
+- **CRITICAL** `internal/config/db.go:15` — Hardcoded database password: `password := &#34;admin123&#34;`
+- **WARNING** `cmd/main.go:8` — Token value logged at info level: `log.Printf(&#34;token: %s&#34;, token)`
+
+### Gitignore Check
+- `.env`: covered
+- `*.pem`: NOT covered — add to .gitignore
+
+### No Issues Found
+- CI pipelines: OK
+- Test fixtures: OK
+```
+
+## Consolidation
+
+After all 5 agents complete, present a unified report:
+
+```
+# Code Review Report
+
+## Summary
+| Area | Critical | Warning | Info |
+|------|----------|---------|------|
+| Coverage | 0 | 2 | 1 |
+| Style | 0 | 3 | 0 |
+| Code Security | 1 | 0 | 2 |
+| Dependencies | 0 | 1 | 0 |
+| Secrets | 0 | 0 | 0 |
+| **Total** | **1** | **6** | **3** |
+
+## Critical Issues (fix before merge)
+[list all CRITICAL findings across all agents]
+
+## Warnings (should fix)
+[list all WARNING findings]
+
+## Info (consider)
+[list all INFO findings]
+```
+
+Sort findings by severity, then by agent order. If there are critical issues, end with a clear recommendation: &#34;**Block merge** — N critical issues require fixing.&#34;
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-24-46-538Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-24-46-538Z" class="timestamp-link"><time datetime="2026-03-26T20:24:46.538Z" data-timestamp="2026-03-26T20:24:46.538Z">2026-03-26T20:24:46.538Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>File created successfully at: /Users/scaruso/dev/gossl/.claude/skills/go-code-review/SKILL.md</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-24-51-019Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-24-51-019Z" class="timestamp-link"><time datetime="2026-03-26T20:24:51.019Z" data-timestamp="2026-03-26T20:24:51.019Z">2026-03-26T20:24:51.019Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Got it — I'll make the skill generic (not Go-specific) so the agents cover all file types. The individual agents will use Go-specific tools where applicable but scan everything.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-25-16-247Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-25-16-247Z" class="timestamp-link"><time datetime="2026-03-26T20:25:16.247Z" data-timestamp="2026-03-26T20:25:16.247Z">2026-03-26T20:25:16.247Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_016tvTD3xS1rkUPmExG7JKsL">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">SKILL.md</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/.claude/skills/go-code-review/SKILL.md</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content">---
+name: code-review
+description: Use when reviewing code quality, security, coverage, style compliance, or dependency health — run before merging or on demand
+---
+
+# Code Review
+
+Run a comprehensive code review across 5 dimensions, each in a parallel agent. Reviews the diff between the current branch and master. If already on master, reviews the entire codebase.
+
+## Scope Detection
+
+Determine review scope BEFORE dispatching agents:
+
+```bash
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ &#34;$CURRENT_BRANCH&#34; = &#34;master&#34; ] || [ &#34;$CURRENT_BRANCH&#34; = &#34;main&#34; ]; then
+  SCOPE=&#34;full&#34;
+  FILES=&#34;all files in the repository&#34;
+else
+  SCOPE=&#34;diff&#34;
+  FILES=$(git diff --name-only master...HEAD)
+fi
+```
+
+If `SCOPE=diff` and no files changed, report &#34;No reviewable changes&#34; and stop.
+
+Announce the scope to the user before dispatching:
+- **Diff mode**: &#34;Reviewing N changed files against master...&#34;
+- **Full mode**: &#34;On master — reviewing entire codebase...&#34;
+
+## Dispatch
+
+Launch ALL 5 agents in parallel using the Agent tool. Pass each agent:
+- The `SCOPE` (full or diff)
+- The list of changed files (if diff mode)
+- The full text of the relevant agent instructions below
+- The project&#39;s CLAUDE.md content (for style agent)
+
+## Agent 1: Test Coverage
+
+**Goal**: Identify packages/modules below 80% unit test coverage and flag untested code paths.
+
+**Instructions for agent**:
+- Read CLAUDE.md for project-specific test and build commands.
+- Run the project&#39;s test coverage command (e.g., `bazel coverage //...`, `go test -cover`, `pytest --cov`, `npm test -- --coverage` — whatever the project uses).
+- Parse coverage output to extract per-package/module percentages.
+- If in diff mode, focus on packages containing changed files.
+- For each package below 80%, list the uncovered functions/methods.
+- Flag any changed functions that have zero test coverage.
+
+**Output format**:
+```
+## Coverage Report
+
+Overall: X% (target: 80%)
+
+| Package/Module | Coverage | Status |
+|----------------|----------|--------|
+| internal/store | 72% | BELOW TARGET |
+| internal/ca | 85% | OK |
+
+### Uncovered Code
+- `internal/store/db.go:45` — `OpenDB()` error path not tested
+```
+
+## Agent 2: Style Compliance
+
+**Goal**: Review code against the project&#39;s style rules defined in CLAUDE.md.
+
+**Instructions for agent**:
+- Read `/Users/scaruso/dev/gossl/CLAUDE.md` for the full style guide and coding conventions.
+- If diff mode, review only changed files. If full mode, review all source files.
+- Check every rule listed in the style sections of CLAUDE.md.
+- Run any project-specific formatting/lint commands mentioned in CLAUDE.md.
+- Report each violation with file, line, rule violated, and suggested fix.
+
+**Output format**:
+```
+## Style Review
+
+### Violations
+- **WARN** `internal/store/db.go:12` — Receiver name `store` should be 1-2 letters. [receiver-names]
+- **WARN** `internal/ca/store.go:8` — Missing doc comment on exported type. [doc-comments]
+
+### Passed Checks
+- Formatting: OK
+- Naming conventions: OK (except above)
+```
+
+## Agent 3: Code Security
+
+**Goal**: Find security vulnerabilities in source code and configuration files.
+
+**Instructions for agent**:
+- If diff mode, review changed files. If full mode, review all source and config files.
+- Scan for OWASP Top 10 issues across all languages present:
+  - Injection flaws (SQL injection, command injection, template injection)
+  - Path traversal (unsanitized file paths)
+  - Insecure cryptography (weak algorithms, hardcoded keys, `math/rand` for secrets)
+  - Insecure TLS/SSL configuration (skip verify, weak cipher suites, outdated protocols)
+  - Race conditions (shared state without synchronization)
+  - Unsafe memory operations (buffer overflows, unsafe pointer usage)
+  - Unbounded reads/allocations (DoS vectors)
+  - Improper input validation at system boundaries
+  - Broken access control patterns
+  - Security misconfiguration in build/deploy configs
+- Check build system configs (Bazel, Makefiles, Dockerfiles) for insecure settings.
+- Rate each finding: **CRITICAL**, **WARNING**, or **INFO**.
+
+**Output format**:
+```
+## Security Review
+
+### Findings
+- **CRITICAL** `internal/store/db.go:34` — SQL query uses string formatting with user input. Use parameterized queries.
+- **WARNING** `cmd/server/main.go:22` — TLS MinVersion not set, defaults may allow TLS 1.0.
+
+### No Issues Found
+- Command injection: OK
+- Path traversal: OK
+```
+
+## Agent 4: Dependency Security
+
+**Goal**: Identify known vulnerabilities and obsolete packages in direct and transitive dependencies.
+
+**Instructions for agent**:
+- Read all dependency files: `go.mod`, `go.sum`, `package.json`, `package-lock.json`, `requirements.txt`, `Pipfile.lock`, `Cargo.toml`, `MODULE.bazel` — whatever exists in the project.
+- Use language-specific vulnerability scanners if available:
+  - Go: `govulncheck ./...`
+  - Node: `npm audit`
+  - Python: `pip-audit` or `safety check`
+  - Rust: `cargo audit`
+- If scanners are not available, manually review dependencies:
+  - Search the web for known CVEs against each direct dependency and its version.
+  - Flag any dependency more than 2 major versions behind latest.
+  - Flag dependencies with known security advisories.
+- Check for deprecated or unmaintained packages (archived repos, no commits in 2+ years).
+- In diff mode, focus on newly added or changed dependencies.
+
+**Output format**:
+```
+## Dependency Security
+
+### Vulnerabilities
+- **CRITICAL** `golang.org/x/crypto v0.1.0` — CVE-2023-XXXXX: buffer overflow. Upgrade to v0.17.0+.
+
+### Outdated
+- **WARNING** `modernc.org/sqlite v1.47.0` — latest is v1.50.0
+
+### Status
+- Direct dependencies: N checked, X issues
+- Transitive dependencies: N checked, X issues
+```
+
+## Agent 5: Secret Leaks
+
+**Goal**: Detect hardcoded secrets, tokens, API keys, and credentials across all files.
+
+**Instructions for agent**:
+- If diff mode, scan changed files. If full mode, scan entire repo.
+- Scan ALL file types — source code, config, scripts, CI pipelines, docs:
+  - Hardcoded passwords, tokens, API keys, private keys, certificates
+  - Connection strings with embedded credentials
+  - Base64-encoded secrets (high-entropy strings in assignments)
+  - Sensitive data written to logs (passwords, tokens, keys in logging calls)
+- Scan configuration and CI files explicitly:
+  - `.pre-commit-config.yaml`, `.github/workflows/*.yml`, `.gitlab-ci.yml`
+  - `Dockerfile`, `docker-compose.yml`
+  - `MODULE.bazel`, `BUILD.bazel`, `.bazelrc`
+  - Any shell scripts in `tools/`, `scripts/`, `ci/`
+- Check for files that should be gitignored but aren&#39;t:
+  - `.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*.p12`, `*.jks`
+  - `serviceaccount*.json`, `*-credentials.json`
+- Check `.gitignore` for adequate coverage of secret file patterns.
+- Rate each finding: **CRITICAL** (likely real secret), **WARNING** (possible secret or bad practice), **INFO** (suggestion).
+
+**Output format**:
+```
+## Secret Leak Review
+
+### Findings
+- **CRITICAL** `config/db.go:15` — Hardcoded database password
+- **WARNING** `cmd/main.go:8` — Token value logged at info level
+
+### Gitignore Check
+- `.env`: covered
+- `*.pem`: NOT covered — add to .gitignore
+```
+
+## Consolidation
+
+After all 5 agents complete, present a unified report:
+
+```
+# Code Review Report
+
+## Summary
+| Area | Critical | Warning | Info |
+|------|----------|---------|------|
+| Coverage | 0 | 2 | 1 |
+| Style | 0 | 3 | 0 |
+| Code Security | 1 | 0 | 2 |
+| Dependencies | 0 | 1 | 0 |
+| Secrets | 0 | 0 | 0 |
+| **Total** | **1** | **6** | **3** |
+
+## Critical Issues (fix before merge)
+[list all CRITICAL findings across all agents]
+
+## Warnings (should fix)
+[list all WARNING findings]
+
+## Info (consider)
+[list all INFO findings]
+```
+
+Sort findings by severity, then by agent order. If there are critical issues, end with: &#34;**Block merge** — N critical issues require fixing.&#34;
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-25-21-275Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-25-21-275Z" class="timestamp-link"><time datetime="2026-03-26T20:25:21.275Z" data-timestamp="2026-03-26T20:25:21.275Z">2026-03-26T20:25:21.275Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/.claude/skills/go-code-review/SKILL.md has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-25-26-258Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-25-26-258Z" class="timestamp-link"><time datetime="2026-03-26T20:25:26.258Z" data-timestamp="2026-03-26T20:25:26.258Z">2026-03-26T20:25:26.258Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now let me rename the directory to match the generic name and verify it works.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-25-26-885Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-25-26-885Z" class="timestamp-link"><time datetime="2026-03-26T20:25:26.885Z" data-timestamp="2026-03-26T20:25:26.885Z">2026-03-26T20:25:26.885Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_0128yaDH6bmHQkNuQeWAtLgG">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Rename skill directory to generic name</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">mv /Users/scaruso/dev/gossl/.claude/skills/go-code-review /Users/scaruso/dev/gossl/.claude/skills/code-review</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-25-32-728Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-25-32-728Z" class="timestamp-link"><time datetime="2026-03-26T20:25:32.728Z" data-timestamp="2026-03-26T20:25:32.728Z">2026-03-26T20:25:32.728Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>(Bash completed with no output)</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-25-36-235Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-25-36-235Z" class="timestamp-link"><time datetime="2026-03-26T20:25:36.235Z" data-timestamp="2026-03-26T20:25:36.235Z">2026-03-26T20:25:36.235Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01WLUYRzSzxyfFaxkD8n9tMv">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Check word count</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">wc -w /Users/scaruso/dev/gossl/.claude/skills/code-review/SKILL.md</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-25-36-292Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-25-36-292Z" class="timestamp-link"><time datetime="2026-03-26T20:25:36.292Z" data-timestamp="2026-03-26T20:25:36.292Z">2026-03-26T20:25:36.292Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>    1137 /Users/scaruso/dev/gossl/.claude/skills/code-review/SKILL.md</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-25-43-979Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-25-43-979Z" class="timestamp-link"><time datetime="2026-03-26T20:25:43.979Z" data-timestamp="2026-03-26T20:25:43.979Z">2026-03-26T20:25:43.979Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Skill created at <code>.claude/skills/code-review/SKILL.md</code>. Here's what it does:</p>
+<p><strong>Scope</strong>: Detects branch automatically — diffs against master on feature branches, full codebase review on master/main.</p>
+<p><strong>5 parallel agents</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Agent</th>
+<th>Focus</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Test Coverage</strong></td>
+<td>Runs project's coverage tool, flags packages below 80%</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Style Compliance</strong></td>
+<td>Reviews against CLAUDE.md rules, runs linters</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Code Security</strong></td>
+<td>OWASP Top 10 across all source and config files</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Dependency Security</strong></td>
+<td>CVEs via <code>govulncheck</code>/<code>npm audit</code>/etc + obsolete package detection</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Secret Leaks</strong></td>
+<td>Hardcoded secrets, logged credentials, missing gitignore patterns</td>
+</tr>
+</tbody>
+</table>
+<p>All agents are language-agnostic — they read CLAUDE.md for project-specific tooling and scan all file types. Want me to run it now on the current branch?</p></div></div></div>
+<div class="message user" id="msg-2026-03-26T20-26-09-293Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T20-26-09-293Z" class="timestamp-link"><time datetime="2026-03-26T20:26:09.293Z" data-timestamp="2026-03-26T20:26:09.293Z">2026-03-26T20:26:09.293Z</time></a></div><div class="message-content">
+<div class="user-content"><p>... crap u remove the gospecic agents. bring them back</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-26-13-512Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-26-13-512Z" class="timestamp-link"><time datetime="2026-03-26T20:26:13.512Z" data-timestamp="2026-03-26T20:26:13.512Z">2026-03-26T20:26:13.512Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Good catch — I'll restore the Go-specific details in each agent while keeping the skill generic (so it works for any language but has concrete Go instructions).</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-26-13-800Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-26-13-800Z" class="timestamp-link"><time datetime="2026-03-26T20:26:13.800Z" data-timestamp="2026-03-26T20:26:13.800Z">2026-03-26T20:26:13.800Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_0174mhKHmvw4LC7LLVR2a5Wm"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/.claude/skills/code-review/SKILL.md&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-26-13-811Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-26-13-811Z" class="timestamp-link"><time datetime="2026-03-26T20:26:13.811Z" data-timestamp="2026-03-26T20:26:13.811Z">2026-03-26T20:26:13.811Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→---
+     2→name: code-review
+     3→description: Use when reviewing code quality, security, coverage, style compliance, or dependency health — run before merging or on demand
+     4→---
+     5→
+     6→# Code Review
+     7→
+     8→Run a comprehensive code review across 5 dimensions, each in a parallel agent. Reviews the diff between the current branch and master. If already on master, reviews the entire codebase.
+     9→
+    10→## Scope Detection
+    11→
+    12→Determine review scope BEFORE dispatching agents:
+    13→
+    14→```bash
+    15→CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    16→if [ &quot;$CURRENT_BRANCH&quot; = &quot;master&quot; ] || [ &quot;$CURRENT_BRANCH&quot; = &quot;main&quot; ]; then
+    17→  SCOPE=&quot;full&quot;
+    18→  FILES=&quot;all files in the repository&quot;
+    19→else
+    20→  SCOPE=&quot;diff&quot;
+    21→  FILES=$(git diff --name-only master...HEAD)
+    22→fi
+    23→```
+    24→
+    25→If `SCOPE=diff` and no files changed, report &quot;No reviewable changes&quot; and stop.
+    26→
+    27→Announce the scope to the user before dispatching:
+    28→- **Diff mode**: &quot;Reviewing N changed files against master...&quot;
+    29→- **Full mode**: &quot;On master — reviewing entire codebase...&quot;
+    30→
+    31→## Dispatch
+    32→
+    33→Launch ALL 5 agents in parallel using the Agent tool. Pass each agent:
+    34→- The `SCOPE` (full or diff)
+    35→- The list of changed files (if diff mode)
+    36→- The full text of the relevant agent instructions below
+    37→- The project&#x27;s CLAUDE.md content (for style agent)
+    38→
+    39→## Agent 1: Test Coverage
+    40→
+    41→**Goal**: Identify packages/modules below 80% unit test coverage and flag untested code paths.
+    42→
+    43→**Instructions for agent**:
+    44→- Read CLAUDE.md for project-specific test and build commands.
+    45→- Run the project&#x27;s test coverage command (e.g., `bazel coverage //...`, `go test -cover`, `pytest --cov`, `npm test -- --coverage` — whatever the project uses).
+    46→- Parse coverage output to extract per-package/module percentages.
+    47→- If in diff mode, focus on packages containing changed files.
+    48→- For each package below 80%, list the uncovered functions/methods.
+    49→- Flag any changed functions that have zero test coverage.
+    50→
+    51→**Output format**:
+    52→```
+    53→## Coverage Report
+    54→
+    55→Overall: X% (target: 80%)
+    56→
+    57→| Package/Module | Coverage | Status |
+    58→|----------------|----------|--------|
+    59→| internal/store | 72% | BELOW TARGET |
+    60→| internal/ca | 85% | OK |
+    61→
+    62→### Uncovered Code
+    63→- `internal/store/db.go:45` — `OpenDB()` error path not tested
+    64→```
+    65→
+    66→## Agent 2: Style Compliance
+    67→
+    68→**Goal**: Review code against the project&#x27;s style rules defined in CLAUDE.md.
+    69→
+    70→**Instructions for agent**:
+    71→- Read `/Users/scaruso/dev/gossl/CLAUDE.md` for the full style guide and coding conventions.
+    72→- If diff mode, review only changed files. If full mode, review all source files.
+    73→- Check every rule listed in the style sections of CLAUDE.md.
+    74→- Run any project-specific formatting/lint commands mentioned in CLAUDE.md.
+    75→- Report each violation with file, line, rule violated, and suggested fix.
+    76→
+    77→**Output format**:
+    78→```
+    79→## Style Review
+    80→
+    81→### Violations
+    82→- **WARN** `internal/store/db.go:12` — Receiver name `store` should be 1-2 letters. [receiver-names]
+    83→- **WARN** `internal/ca/store.go:8` — Missing doc comment on exported type. [doc-comments]
+    84→
+    85→### Passed Checks
+    86→- Formatting: OK
+    87→- Naming conventions: OK (except above)
+    88→```
+    89→
+    90→## Agent 3: Code Security
+    91→
+    92→**Goal**: Find security vulnerabilities in source code and configuration files.
+    93→
+    94→**Instructions for agent**:
+    95→- If diff mode, review changed files. If full mode, review all source and config files.
+    96→- Scan for OWASP Top 10 issues across all languages present:
+    97→  - Injection flaws (SQL injection, command injection, template injection)
+    98→  - Path traversal (unsanitized file paths)
+    99→  - Insecure cryptography (weak algorithms, hardcoded keys, `math/rand` for secrets)
+   100→  - Insecure TLS/SSL configuration (skip verify, weak cipher suites, outdated protocols)
+   101→  - Race conditions (shared state without synchronization)
+   102→  - Unsafe memory operations (buffer overflows, unsafe pointer usage)
+   103→  - Unbounded reads/allocations (DoS vectors)
+   104→  - Improper input validation at system boundaries
+   105→  - Broken access control patterns
+   106→  - Security misconfiguration in build/deploy configs
+   107→- Check build system configs (Bazel, Makefiles, Dockerfiles) for insecure settings.
+   108→- Rate each finding: **CRITICAL**, **WARNING**, or **INFO**.
+   109→
+   110→**Output format**:
+   111→```
+   112→## Security Review
+   113→
+   114→### Findings
+   115→- **CRITICAL** `internal/store/db.go:34` — SQL query uses string formatting with user input. Use parameterized queries.
+   116→- **WARNING** `cmd/server/main.go:22` — TLS MinVersion not set, defaults may allow TLS 1.0.
+   117→
+   118→### No Issues Found
+   119→- Command injection: OK
+   120→- Path traversal: OK
+   121→```
+   122→
+   123→## Agent 4: Dependency Security
+   124→
+   125→**Goal**: Identify known vulnerabilities and obsolete packages in direct and transitive dependencies.
+   126→
+   127→**Instructions for agent**:
+   128→- Read all dependency files: `go.mod`, `go.sum`, `package.json`, `package-lock.json`, `requirements.txt`, `Pipfile.lock`, `Cargo.toml`, `MODULE.bazel` — whatever exists in the project.
+   129→- Use language-specific vulnerability scanners if available:
+   130→  - Go: `govulncheck ./...`
+   131→  - Node: `npm audit`
+   132→  - Python: `pip-audit` or `safety check`
+   133→  - Rust: `cargo audit`
+   134→- If scanners are not available, manually review dependencies:
+   135→  - Search the web for known CVEs against each direct dependency and its version.
+   136→  - Flag any dependency more than 2 major versions behind latest.
+   137→  - Flag dependencies with known security advisories.
+   138→- Check for deprecated or unmaintained packages (archived repos, no commits in 2+ years).
+   139→- In diff mode, focus on newly added or changed dependencies.
+   140→
+   141→**Output format**:
+   142→```
+   143→## Dependency Security
+   144→
+   145→### Vulnerabilities
+   146→- **CRITICAL** `golang.org/x/crypto v0.1.0` — CVE-2023-XXXXX: buffer overflow. Upgrade to v0.17.0+.
+   147→
+   148→### Outdated
+   149→- **WARNING** `modernc.org/sqlite v1.47.0` — latest is v1.50.0
+   150→
+   151→### Status
+   152→- Direct dependencies: N checked, X issues
+   153→- Transitive dependencies: N checked, X issues
+   154→```
+   155→
+   156→## Agent 5: Secret Leaks
+   157→
+   158→**Goal**: Detect hardcoded secrets, tokens, API keys, and credentials across all files.
+   159→
+   160→**Instructions for agent**:
+   161→- If diff mode, scan changed files. If full mode, scan entire repo.
+   162→- Scan ALL file types — source code, config, scripts, CI pipelines, docs:
+   163→  - Hardcoded passwords, tokens, API keys, private keys, certificates
+   164→  - Connection strings with embedded credentials
+   165→  - Base64-encoded secrets (high-entropy strings in assignments)
+   166→  - Sensitive data written to logs (passwords, tokens, keys in logging calls)
+   167→- Scan configuration and CI files explicitly:
+   168→  - `.pre-commit-config.yaml`, `.github/workflows/*.yml`, `.gitlab-ci.yml`
+   169→  - `Dockerfile`, `docker-compose.yml`
+   170→  - `MODULE.bazel`, `BUILD.bazel`, `.bazelrc`
+   171→  - Any shell scripts in `tools/`, `scripts/`, `ci/`
+   172→- Check for files that should be gitignored but aren&#x27;t:
+   173→  - `.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*.p12`, `*.jks`
+   174→  - `serviceaccount*.json`, `*-credentials.json`
+   175→- Check `.gitignore` for adequate coverage of secret file patterns.
+   176→- Rate each finding: **CRITICAL** (likely real secret), **WARNING** (possible secret or bad practice), **INFO** (suggestion).
+   177→
+   178→**Output format**:
+   179→```
+   180→## Secret Leak Review
+   181→
+   182→### Findings
+   183→- **CRITICAL** `config/db.go:15` — Hardcoded database password
+   184→- **WARNING** `cmd/main.go:8` — Token value logged at info level
+   185→
+   186→### Gitignore Check
+   187→- `.env`: covered
+   188→- `*.pem`: NOT covered — add to .gitignore
+   189→```
+   190→
+   191→## Consolidation
+   192→
+   193→After all 5 agents complete, present a unified report:
+   194→
+   195→```
+   196→# Code Review Report
+   197→
+   198→## Summary
+   199→| Area | Critical | Warning | Info |
+   200→|------|----------|---------|------|
+   201→| Coverage | 0 | 2 | 1 |
+   202→| Style | 0 | 3 | 0 |
+   203→| Code Security | 1 | 0 | 2 |
+   204→| Dependencies | 0 | 1 | 0 |
+   205→| Secrets | 0 | 0 | 0 |
+   206→| **Total** | **1** | **6** | **3** |
+   207→
+   208→## Critical Issues (fix before merge)
+   209→[list all CRITICAL findings across all agents]
+   210→
+   211→## Warnings (should fix)
+   212→[list all WARNING findings]
+   213→
+   214→## Info (consider)
+   215→[list all INFO findings]
+   216→```
+   217→
+   218→Sort findings by severity, then by agent order. If there are critical issues, end with: &quot;**Block merge** — N critical issues require fixing.&quot;
+   219→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-26-54-736Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-26-54-736Z" class="timestamp-link"><time datetime="2026-03-26T20:26:54.736Z" data-timestamp="2026-03-26T20:26:54.736Z">2026-03-26T20:26:54.736Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_01Kcxubj5dSwRPYZaSa8Disq">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">SKILL.md</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/.claude/skills/code-review/SKILL.md</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content">---
+name: code-review
+description: Use when reviewing code quality, security, coverage, style compliance, or dependency health — run before merging or on demand
+---
+
+# Code Review
+
+Run a comprehensive code review across 5 dimensions, each in a parallel agent. Reviews the diff between the current branch and master. If already on master, reviews the entire codebase.
+
+## Scope Detection
+
+Determine review scope BEFORE dispatching agents:
+
+```bash
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ &#34;$CURRENT_BRANCH&#34; = &#34;master&#34; ] || [ &#34;$CURRENT_BRANCH&#34; = &#34;main&#34; ]; then
+  SCOPE=&#34;full&#34;
+  FILES=&#34;all files in the repository&#34;
+else
+  SCOPE=&#34;diff&#34;
+  FILES=$(git diff --name-only master...HEAD)
+fi
+```
+
+If `SCOPE=diff` and no files changed, report &#34;No reviewable changes&#34; and stop.
+
+Announce the scope to the user before dispatching:
+- **Diff mode**: &#34;Reviewing N changed files against master...&#34;
+- **Full mode**: &#34;On master — reviewing entire codebase...&#34;
+
+## Dispatch
+
+Launch ALL 5 agents in parallel using the Agent tool. Pass each agent:
+- The `SCOPE` (full or diff)
+- The list of changed files (if diff mode)
+- The full text of the relevant agent instructions below
+- The project&#39;s CLAUDE.md content (for style agent)
+
+## Agent 1: Test Coverage
+
+**Goal**: Identify packages/modules below 80% unit test coverage and flag untested code paths.
+
+**Instructions for agent**:
+- Read CLAUDE.md for project-specific test and build commands.
+- Run the project&#39;s test coverage command (e.g., `bazel coverage //...`, `go test -cover`, `pytest --cov`, `npm test -- --coverage` — whatever the project uses).
+- Parse coverage output to extract per-package/module percentages.
+- If in diff mode, focus on packages containing changed files.
+- For each package below 80%, list the uncovered functions/methods.
+- Flag any changed functions that have zero test coverage.
+- **Go-specific**: Parse Bazel coverage profiles or `go tool cover` output. Check that table-driven tests cover all branches. Identify exported functions without any test exercising them.
+
+**Output format**:
+```
+## Coverage Report
+
+Overall: X% (target: 80%)
+
+| Package/Module | Coverage | Status |
+|----------------|----------|--------|
+| internal/store | 72% | BELOW TARGET |
+| internal/ca | 85% | OK |
+
+### Uncovered Code
+- `internal/store/db.go:45` — `OpenDB()` error path not tested
+```
+
+## Agent 2: Style Compliance
+
+**Goal**: Review code against the project&#39;s style rules defined in CLAUDE.md.
+
+**Instructions for agent**:
+- Read `/Users/scaruso/dev/gossl/CLAUDE.md` for the full style guide and coding conventions.
+- If diff mode, review only changed files. If full mode, review all source files.
+- Check every rule listed in the style sections of CLAUDE.md.
+- Run any project-specific formatting/lint commands mentioned in CLAUDE.md.
+- Report each violation with file, line, rule violated, and suggested fix.
+- **Go-specific checks** (from CLAUDE.md and Effective Go / CodeReviewComments):
+  - Run `bazel run //tools/format:format.check` for formatting.
+  - MixedCaps naming, no underscores. Initialisms in consistent case (`URL`, `ID`, not `Url`, `Id`).
+  - Package names: short, lowercase, single-word. No stutter (`ring.Buffer` not `ring.RingBuffer`).
+  - Error strings: lowercase, no trailing punctuation.
+  - Always check errors. Never discard with `_` unless documented why.
+  - Early returns for error handling — happy path at minimal indentation.
+  - Interfaces: small, defined at consumer, not producer. Don&#39;t predefine for mocking.
+  - `context.Context` as first parameter. Never store in structs.
+  - Pointer receivers for mutation/large structs/consistency. Never mix receiver types on a type.
+  - Receiver names: 1-2 letters, consistent, never `this`/`self`.
+  - Prefer synchronous APIs. Let callers manage concurrency.
+  - Document goroutine lifetimes. Don&#39;t leak goroutines.
+  - Table-driven tests. Failure messages: `Foo(%q) = %d, want %d`.
+  - `crypto/rand` for secrets, never `math/rand`.
+  - `var s []T` for nil slices, not `s := []T{}` (unless JSON requires `[]`).
+  - All exported names have doc comments — complete sentences starting with the name.
+
+**Output format**:
+```
+## Style Review
+
+### Violations
+- **WARN** `internal/store/db.go:12` — Receiver name `store` should be 1-2 letters (e.g., `s`). [receiver-names]
+- **WARN** `internal/ca/store.go:8` — Missing doc comment on exported type `CertStore`. [doc-comments]
+
+### Passed Checks
+- Formatting: OK
+- Naming conventions: OK (except above)
+```
+
+## Agent 3: Code Security
+
+**Goal**: Find security vulnerabilities in source code and configuration files.
+
+**Instructions for agent**:
+- If diff mode, review changed files. If full mode, review all source and config files.
+- Scan for OWASP Top 10 issues across all languages and file types:
+  - Injection flaws (SQL injection, command injection, template injection)
+  - Path traversal (unsanitized file paths)
+  - Insecure cryptography (weak algorithms, hardcoded keys)
+  - Insecure TLS/SSL configuration (skip verify, weak cipher suites, outdated protocols)
+  - Race conditions (shared state without synchronization)
+  - Unsafe memory operations (buffer overflows, unsafe pointer usage)
+  - Unbounded reads/allocations (DoS vectors)
+  - Improper input validation at system boundaries
+  - Broken access control patterns
+  - Security misconfiguration in build/deploy configs
+- Check build system configs (Bazel, Makefiles, Dockerfiles) for insecure settings.
+- Rate each finding: **CRITICAL**, **WARNING**, or **INFO**.
+- **Go-specific**:
+  - `math/rand` used where `crypto/rand` is needed for secrets.
+  - `sql.Query` with `fmt.Sprintf` instead of parameterized queries.
+  - `os/exec.Command` with unsanitized user input.
+  - `net/http` without timeouts on server or client.
+  - `tls.Config` with `InsecureSkipVerify: true`.
+  - `unsafe` package usage without justification.
+  - Missing `defer rows.Close()` / `defer resp.Body.Close()`.
+  - Race conditions: goroutines sharing state without mutexes or channels.
+
+**Output format**:
+```
+## Security Review
+
+### Findings
+- **CRITICAL** `internal/store/db.go:34` — SQL query uses fmt.Sprintf with user input. Use parameterized queries.
+- **WARNING** `cmd/server/main.go:22` — TLS MinVersion not set, defaults may allow TLS 1.0.
+
+### No Issues Found
+- Command injection: OK
+- Path traversal: OK
+```
+
+## Agent 4: Dependency Security
+
+**Goal**: Identify known vulnerabilities and obsolete packages in direct and transitive dependencies.
+
+**Instructions for agent**:
+- Read all dependency files: `go.mod`, `go.sum`, `package.json`, `package-lock.json`, `requirements.txt`, `Pipfile.lock`, `Cargo.toml`, `MODULE.bazel` — whatever exists in the project.
+- Use language-specific vulnerability scanners if available:
+  - Go: `govulncheck ./...`
+  - Node: `npm audit`
+  - Python: `pip-audit` or `safety check`
+  - Rust: `cargo audit`
+- If scanners are not available, manually review dependencies:
+  - Search the web for known CVEs against each direct dependency and its version.
+  - Flag any dependency more than 2 major versions behind latest.
+  - Flag dependencies with known security advisories.
+- Check for deprecated or unmaintained packages (archived repos, no commits in 2+ years).
+- In diff mode, focus on newly added or changed dependencies.
+- **Go-specific**:
+  - Run `govulncheck ./...` for Go vulnerability database checks.
+  - Review `go.sum` for unexpected dependency changes.
+  - Check `golang.org/x/*` packages are on recent versions (these get frequent security patches).
+  - Flag `replace` directives in `go.mod` that point to forks or local paths.
+  - Check Bazel `MODULE.bazel` for `bazel_dep` versions and `go_deps` module extensions.
+
+**Output format**:
+```
+## Dependency Security
+
+### Vulnerabilities
+- **CRITICAL** `golang.org/x/crypto v0.1.0` — CVE-2023-XXXXX: buffer overflow in ssh package. Upgrade to v0.17.0+.
+
+### Outdated
+- **WARNING** `modernc.org/sqlite v1.47.0` — latest is v1.50.0
+
+### Status
+- Direct dependencies: N checked, X issues
+- Transitive dependencies: N checked, X issues
+```
+
+## Agent 5: Secret Leaks
+
+**Goal**: Detect hardcoded secrets, tokens, API keys, and credentials across all files.
+
+**Instructions for agent**:
+- If diff mode, scan changed files. If full mode, scan entire repo.
+- Scan ALL file types — source code, config, scripts, CI pipelines, docs:
+  - Hardcoded passwords, tokens, API keys, private keys, certificates
+  - Connection strings with embedded credentials
+  - Base64-encoded secrets (high-entropy strings in assignments)
+  - Sensitive data written to logs (passwords, tokens, keys in logging calls)
+- Scan configuration and CI files explicitly:
+  - `.pre-commit-config.yaml`, `.github/workflows/*.yml`, `.gitlab-ci.yml`
+  - `Dockerfile`, `docker-compose.yml`
+  - `MODULE.bazel`, `BUILD.bazel`, `.bazelrc`
+  - Any shell scripts in `tools/`, `scripts/`, `ci/`
+- Check for files that should be gitignored but aren&#39;t:
+  - `.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*.p12`, `*.jks`
+  - `serviceaccount*.json`, `*-credentials.json`
+- Check `.gitignore` for adequate coverage of secret file patterns.
+- Rate each finding: **CRITICAL** (likely real secret), **WARNING** (possible secret or bad practice), **INFO** (suggestion).
+- **Go-specific**:
+  - Check for secrets in `const` or `var` blocks at package level.
+  - Check `init()` functions for hardcoded credentials.
+  - Check test files for real credentials used as test fixtures (vs obviously fake ones).
+  - Look for secrets passed via `os.Setenv` in code rather than environment config.
+
+**Output format**:
+```
+## Secret Leak Review
+
+### Findings
+- **CRITICAL** `config/db.go:15` — Hardcoded database password: `password := &#34;admin123&#34;`
+- **WARNING** `cmd/main.go:8` — Token value logged at info level: `log.Printf(&#34;token: %s&#34;, token)`
+
+### Gitignore Check
+- `.env`: covered
+- `*.pem`: NOT covered — add to .gitignore
+
+### No Issues Found
+- CI pipelines: OK
+- Test fixtures: OK
+```
+
+## Consolidation
+
+After all 5 agents complete, present a unified report:
+
+```
+# Code Review Report
+
+## Summary
+| Area | Critical | Warning | Info |
+|------|----------|---------|------|
+| Coverage | 0 | 2 | 1 |
+| Style | 0 | 3 | 0 |
+| Code Security | 1 | 0 | 2 |
+| Dependencies | 0 | 1 | 0 |
+| Secrets | 0 | 0 | 0 |
+| **Total** | **1** | **6** | **3** |
+
+## Critical Issues (fix before merge)
+[list all CRITICAL findings across all agents]
+
+## Warnings (should fix)
+[list all WARNING findings]
+
+## Info (consider)
+[list all INFO findings]
+```
+
+Sort findings by severity, then by agent order. If there are critical issues, end with: &#34;**Block merge** — N critical issues require fixing.&#34;
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-26-57-983Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-26-57-983Z" class="timestamp-link"><time datetime="2026-03-26T20:26:57.983Z" data-timestamp="2026-03-26T20:26:57.983Z">2026-03-26T20:26:57.983Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/scaruso/dev/gossl/.claude/skills/code-review/SKILL.md has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-27-04-197Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-27-04-197Z" class="timestamp-link"><time datetime="2026-03-26T20:27:04.197Z" data-timestamp="2026-03-26T20:27:04.197Z">2026-03-26T20:27:04.197Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Restored. Each agent now has its generic instructions plus a <strong>Go-specific</strong> section with the concrete checks from the original — style rules from CLAUDE.md/Effective Go, <code>govulncheck</code>, <code>fmt.Sprintf</code> SQL injection, <code>math/rand</code> vs <code>crypto/rand</code>, <code>unsafe</code> usage, <code>defer rows.Close()</code>, <code>go.sum</code> review, <code>const</code>/<code>var</code> secret blocks, etc.</p></div></div></div>
+<div class="message user" id="msg-2026-03-26T20-27-28-227Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T20-27-28-227Z" class="timestamp-link"><time datetime="2026-03-26T20:27:28.227Z" data-timestamp="2026-03-26T20:27:28.227Z">2026-03-26T20:27:28.227Z</time></a></div><div class="message-content">
+<div class="user-content"><p>run the skill</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-27-31-527Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-27-31-527Z" class="timestamp-link"><time datetime="2026-03-26T20:27:31.527Z" data-timestamp="2026-03-26T20:27:31.527Z">2026-03-26T20:27:31.527Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01VRM32AXTbuAU3qAwCAdiPi"><div class="tool-header"><span class="tool-icon">⚙</span> Skill</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;skill&#34;: &#34;code-review&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-27-31-528Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-27-31-528Z" class="timestamp-link"><time datetime="2026-03-26T20:27:31.528Z" data-timestamp="2026-03-26T20:27:31.528Z">2026-03-26T20:27:31.528Z</time></a></div><div class="message-content"><div class="tool-result tool-error"><div class="truncatable"><div class="truncatable-content"><pre>&lt;tool_use_error&gt;Unknown skill: code-review&lt;/tool_use_error&gt;</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-27-36-320Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-27-36-320Z" class="timestamp-link"><time datetime="2026-03-26T20:27:36.320Z" data-timestamp="2026-03-26T20:27:36.320Z">2026-03-26T20:27:36.320Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>The skill isn't registered as an invocable skill — it's a project-level skill file. I'll execute it manually by following the instructions in the SKILL.md.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-27-36-724Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-27-36-724Z" class="timestamp-link"><time datetime="2026-03-26T20:27:36.724Z" data-timestamp="2026-03-26T20:27:36.724Z">2026-03-26T20:27:36.724Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_014LQx2o68uuLBEsGNkzmXoH">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Check current branch</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">git rev-parse --abbrev-ref HEAD</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-27-36-771Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-27-36-771Z" class="timestamp-link"><time datetime="2026-03-26T20:27:36.771Z" data-timestamp="2026-03-26T20:27:36.771Z">2026-03-26T20:27:36.771Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>master</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-27-40-472Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-27-40-472Z" class="timestamp-link"><time datetime="2026-03-26T20:27:40.472Z" data-timestamp="2026-03-26T20:27:40.472Z">2026-03-26T20:27:40.472Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>On <strong>master</strong> — full codebase review. Dispatching all 5 agents in parallel now.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-27-48-153Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-27-48-153Z" class="timestamp-link"><time datetime="2026-03-26T20:27:48.153Z" data-timestamp="2026-03-26T20:27:48.153Z">2026-03-26T20:27:48.153Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_017J8E5FjkHjD4buyc4Lt5k4"><div class="tool-header"><span class="tool-icon">⚙</span> Agent</div><div class="tool-description">Agent 1: Test Coverage</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subagent_type&#34;: &#34;general-purpose&#34;,
+  &#34;prompt&#34;: &#34;You are a test coverage review agent. Your job is to identify packages below 80% unit test coverage and flag untested code paths.\n\n**Scope**: FULL — review the entire codebase at /Users/scaruso/dev/gossl\n\n**Project context**: This is a Go project using Bazel. NEVER use `go test` directly — always use Bazel.\n\n**Instructions**:\n1. Run `bazel coverage //...` to collect coverage data. If that fails, try `bazel test //...` and look for coverage output.\n2. Parse coverage output to extract per-package percentages.\n3. For each package below 80%, list the uncovered functions/methods.\n4. Check that table-driven tests cover all branches.\n5. Identify exported functions without any test exercising them.\n6. Read the Go source files and their corresponding _test.go files to identify gaps.\n\n**Output format** — return your findings in EXACTLY this format:\n```\n## Coverage Report\n\nOverall: X% (target: 80%)\n\n| Package | Coverage | Status |\n|---------|----------|--------|\n| ... | ...% | BELOW TARGET or OK |\n\n### Uncovered Code\n- `file:line` — description of untested code path\n\n### Findings\n- **CRITICAL/WARNING/INFO** description\n```\n\nDo NOT write any code or make changes. Research and report only.&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-27-53-164Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-27-53-164Z" class="timestamp-link"><time datetime="2026-03-26T20:27:53.164Z" data-timestamp="2026-03-26T20:27:53.164Z">2026-03-26T20:27:53.164Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01WvAhCHKbNymtbesCr9QQRB"><div class="tool-header"><span class="tool-icon">⚙</span> Agent</div><div class="tool-description">Agent 2: Style Compliance</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subagent_type&#34;: &#34;general-purpose&#34;,
+  &#34;prompt&#34;: &#34;You are a Go style compliance review agent. Your job is to review all Go code against the project&#39;s style rules.\n\n**Scope**: FULL — review the entire codebase at /Users/scaruso/dev/gossl\n\n**Project context**: Go project using Bazel. NEVER use `go` CLI directly — always use Bazel.\n\n**Instructions**:\n1. Read /Users/scaruso/dev/gossl/CLAUDE.md to get the full style guide.\n2. Run `bazel run //tools/format:format.check` to catch formatting issues.\n3. Review ALL .go files in the repo for style violations.\n4. Check every rule from CLAUDE.md&#39;s \&#34;Go Style\&#34; section:\n   - MixedCaps naming, no underscores. Initialisms in consistent case (`URL`, `ID`, not `Url`, `Id`).\n   - Package names: short, lowercase, single-word. No stutter (`ring.Buffer` not `ring.RingBuffer`).\n   - Error strings: lowercase, no trailing punctuation.\n   - Always check errors. Never discard with `_` unless documented why.\n   - Early returns for error handling — happy path at minimal indentation.\n   - Interfaces: small, defined at consumer, not producer. Don&#39;t predefine for mocking.\n   - `context.Context` as first parameter. Never store in structs.\n   - Pointer receivers for mutation/large structs/consistency. Never mix receiver types on a type.\n   - Receiver names: 1-2 letters, consistent, never `this`/`self`.\n   - Prefer synchronous APIs. Let callers manage concurrency.\n   - Document goroutine lifetimes. Don&#39;t leak goroutines.\n   - Table-driven tests. Failure messages: `Foo(%q) = %d, want %d`.\n   - `crypto/rand` for secrets, never `math/rand`.\n   - `var s []T` for nil slices, not `s := []T{}` (unless JSON requires `[]`).\n   - All exported names have doc comments — complete sentences starting with the name.\n5. Report each violation with file, line, rule violated, and suggested fix.\n\n**Output format** — return your findings in EXACTLY this format:\n```\n## Style Review\n\n### Violations\n- **WARN** `file:line` — description. [rule-name]\n\n### Passed Checks\n- Check name: OK\n```\n\nDo NOT write any code or make changes. Research and report only.&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-27-58-113Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-27-58-113Z" class="timestamp-link"><time datetime="2026-03-26T20:27:58.113Z" data-timestamp="2026-03-26T20:27:58.113Z">2026-03-26T20:27:58.113Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01Bgr1Fp2Tm8RUNTzfm1KyGW"><div class="tool-header"><span class="tool-icon">⚙</span> Agent</div><div class="tool-description">Agent 3: Code Security</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subagent_type&#34;: &#34;general-purpose&#34;,
+  &#34;prompt&#34;: &#34;You are a code security review agent. Your job is to find security vulnerabilities in source code and configuration files.\n\n**Scope**: FULL — review the entire codebase at /Users/scaruso/dev/gossl\n\n**Instructions**:\n1. Read ALL .go files, Bazel configs (BUILD.bazel, MODULE.bazel, .bazelrc), shell scripts, and any other source files.\n2. Scan for OWASP Top 10 issues:\n   - SQL injection: `sql.Query` with `fmt.Sprintf` instead of parameterized queries\n   - Command injection: `os/exec.Command` with unsanitized user input\n   - Path traversal: unsanitized file paths from user input\n   - Insecure crypto: `math/rand` used where `crypto/rand` is needed for secrets\n   - Insecure TLS: `tls.Config` with `InsecureSkipVerify: true`, weak cipher suites, outdated protocols\n   - `net/http` without timeouts on server or client\n   - Race conditions: goroutines sharing state without mutexes or channels\n   - `unsafe` package usage without justification\n   - Missing `defer rows.Close()` / `defer resp.Body.Close()`\n   - Unbounded reads/allocations (DoS vectors)\n   - Improper input validation at system boundaries\n   - Broken access control patterns\n3. Check Bazel configs for insecure build settings.\n4. Rate each finding: CRITICAL, WARNING, or INFO.\n\n**Output format** — return your findings in EXACTLY this format:\n```\n## Security Review\n\n### Findings\n- **CRITICAL/WARNING/INFO** `file:line` — description\n\n### No Issues Found\n- Category: OK\n```\n\nDo NOT write any code or make changes. Research and report only.&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-28-03-539Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-28-03-539Z" class="timestamp-link"><time datetime="2026-03-26T20:28:03.539Z" data-timestamp="2026-03-26T20:28:03.539Z">2026-03-26T20:28:03.539Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_0123UdTmdncrygmw1L3wLuLw"><div class="tool-header"><span class="tool-icon">⚙</span> Agent</div><div class="tool-description">Agent 4: Dependency Security</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subagent_type&#34;: &#34;general-purpose&#34;,
+  &#34;prompt&#34;: &#34;You are a dependency security review agent. Your job is to identify known vulnerabilities and obsolete packages in direct and transitive dependencies.\n\n**Scope**: FULL — review the entire codebase at /Users/scaruso/dev/gossl\n\n**Instructions**:\n1. Read `go.mod` and `go.sum` at /Users/scaruso/dev/gossl/ to catalog all dependencies.\n2. Read `MODULE.bazel` for Bazel module dependencies.\n3. Check if `govulncheck` is available: run `which govulncheck`. If available, run `govulncheck ./...` from the project directory. Parse and report results.\n4. If `govulncheck` is not available, manually review dependencies:\n   - Search the web for known CVEs against each direct dependency and its version.\n   - Flag any dependency more than 2 major versions behind latest.\n   - Flag dependencies with known security advisories.\n5. Check for deprecated or unmaintained packages (archived repos, no commits in 2+ years).\n6. Check `golang.org/x/*` packages are on recent versions (these get frequent security patches).\n7. Flag `replace` directives in `go.mod` that point to forks or local paths.\n8. Check Bazel `MODULE.bazel` for `bazel_dep` versions.\n\n**Output format** — return your findings in EXACTLY this format:\n```\n## Dependency Security\n\n### Vulnerabilities\n- **CRITICAL** `package@version` — CVE/description. Upgrade to vX.Y.Z+.\n\n### Outdated\n- **WARNING** `package@version` — latest is vX.Y.Z\n\n### Status\n- Direct dependencies: N checked, X issues\n- Transitive dependencies: N checked, X issues\n```\n\nDo NOT write any code or make changes. Research and report only.&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-28-09-318Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-28-09-318Z" class="timestamp-link"><time datetime="2026-03-26T20:28:09.318Z" data-timestamp="2026-03-26T20:28:09.318Z">2026-03-26T20:28:09.318Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_018v6oHsfcdnMAWoMyuTzFhi"><div class="tool-header"><span class="tool-icon">⚙</span> Agent</div><div class="tool-description">Agent 5: Secret Leaks</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subagent_type&#34;: &#34;general-purpose&#34;,
+  &#34;prompt&#34;: &#34;You are a secret leak detection agent. Your job is to detect hardcoded secrets, tokens, API keys, and credentials across all files.\n\n**Scope**: FULL — scan the entire repo at /Users/scaruso/dev/gossl\n\n**Instructions**:\n1. Scan ALL file types — .go, .yaml, .yml, .json, .sh, .bzl, .bazel, .toml, .md, and any other files in the repo.\n2. Look for:\n   - Hardcoded passwords, tokens, API keys, private keys, certificates\n   - Connection strings with embedded credentials\n   - Base64-encoded secrets (high-entropy strings in assignments)\n   - Sensitive data written to logs (passwords, tokens, keys in log/fmt.Print calls)\n3. Scan configuration and CI files explicitly:\n   - `.pre-commit-config.yaml`\n   - `.github/workflows/*.yml`, `.gitlab-ci.yml` (if they exist)\n   - `Dockerfile`, `docker-compose.yml` (if they exist)\n   - `MODULE.bazel`, all `BUILD.bazel` files, `.bazelrc`\n   - Any shell scripts in `tools/`, `scripts/`, `ci/`\n4. Go-specific checks:\n   - Check for secrets in `const` or `var` blocks at package level\n   - Check `init()` functions for hardcoded credentials\n   - Check test files for real credentials used as test fixtures (vs obviously fake ones)\n   - Look for secrets passed via `os.Setenv` in code rather than environment config\n5. Check for files that should be gitignored but aren&#39;t:\n   - `.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*.p12`, `*.jks`\n   - `serviceaccount*.json`, `*-credentials.json`\n6. Check `.gitignore` for adequate coverage of secret file patterns.\n7. Rate each finding: CRITICAL (likely real secret), WARNING (possible secret or bad practice), INFO (suggestion).\n\n**Output format** — return your findings in EXACTLY this format:\n```\n## Secret Leak Review\n\n### Findings\n- **CRITICAL/WARNING/INFO** `file:line` — description\n\n### Gitignore Check\n- pattern: covered / NOT covered\n\n### No Issues Found\n- Category: OK\n```\n\nDo NOT write any code or make changes. Research and report only.&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-29-03-961Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-29-03-961Z" class="timestamp-link"><time datetime="2026-03-26T20:29:03.961Z" data-timestamp="2026-03-26T20:29:03.961Z">2026-03-26T20:29:03.961Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>I have now reviewed the entire codebase. Here is my security analysis.
+
+## Security Review
+
+### Findings
+
+- **WARNING** `internal/cli/server.go:60` — `InsecureSkipVerify: true` in TLS config skips certificate verification when probing remote servers. While this is intentional for a diagnostic &quot;check&quot; command (to inspect certs from untrusted servers), there is no warning printed to the user that verification is disabled. The subsequent manual `Verify()` call on line 128 partially mitigates this, but a MITM could still tamper with the connection. Consider printing a warning when `InsecureSkipVerify` is active.
+
+- **WARNING** `internal/cli/serve.go:129-133` — The `http.Server` is created without `ReadTimeout`, `WriteTimeout`, `ReadHeaderTimeout`, or `IdleTimeout`. This makes the server vulnerable to slowloris-style denial-of-service attacks where a client holds connections open indefinitely. Any production or semi-production usage of this command is at risk.
+
+- **WARNING** `internal/cli/serve.go:174-175` — `r.ParseForm()` is called without first limiting the request body size via `http.MaxBytesReader`. An attacker can send an arbitrarily large POST/PUT body, consuming unbounded memory and causing denial of service.
+
+- **WARNING** `internal/cli/cert.go:335` — Exported certificate files are written with permission `0644` (world-readable). While the certificate PEM itself is public data, it would be more defensive to use `0600` for consistency with key handling. This is low risk since certs are not secrets.
+
+- **WARNING** `internal/store/db.go:53` — `PRAGMA user_version` is set using `fmt.Sprintf` string interpolation. Although `SchemaVersion` is a hardcoded constant (not user input), this pattern sets a bad precedent. PRAGMA statements cannot use parameterized queries in SQLite, so this is technically safe but worth noting.
+
+- **INFO** `internal/cli/csr.go:43` — `io.ReadAll(os.Stdin)` reads the entire stdin into memory without any size limit. A malicious or accidental pipe of a very large file could cause memory exhaustion. The same pattern appears in `cert.go:385` and `cert.go:464`.
+
+- **INFO** `internal/cli/server.go:108` — `os.ReadFile(caFile)` reads the CA file without a size limit. A user-supplied path could point to a very large file causing memory exhaustion. This is low risk since it requires local CLI access.
+
+- **INFO** `internal/store/migrations/001_init.sql:26-29` — Private keys are stored as plaintext PEM in the `keystore` table (`key_pem BLOB NOT NULL`). There is no encryption-at-rest for private key material. An attacker who gains read access to the SQLite database file obtains all private keys. Consider encrypting keys with a passphrase or using OS keychain integration.
+
+- **INFO** `internal/cli/serve.go:120-124` — The TLS config does not explicitly set `MinVersion`. Go&#x27;s default is TLS 1.2 (since Go 1.18), which is acceptable, but explicitly setting `MinVersion: tls.VersionTLS12` would make the security posture self-documenting and resilient to future default changes.
+
+- **INFO** `internal/cli/serve.go:135` — The server listens on `0.0.0.0` (all interfaces) by default. This is expected for a server command but worth noting -- the user should be aware the server is network-accessible, not just localhost.
+
+### No Issues Found
+
+- **SQL Injection**: OK -- all SQL queries use sqlc-generated parameterized queries with `?` placeholders.
+- **Command Injection**: OK -- no `os/exec.Command` usage found in application code.
+- **Path Traversal**: OK -- file paths come from CLI flags (local user input), not remote/untrusted sources.
+- **Insecure Crypto (`math/rand`)**: OK -- all cryptographic randomness uses `crypto/rand`. Serial numbers generated via `rand.Int(rand.Reader, ...)`.
+- **`unsafe` Package**: OK -- not used anywhere.
+- **Missing `defer rows.Close()` / `defer resp.Body.Close()`**: OK -- `conn.Close()` is deferred in `server.go:70`; `resp.Body.Close()` is deferred in test code.
+- **Race Conditions**: OK -- no shared mutable state between goroutines.
+- **Bazel Configuration**: OK -- no insecure build settings found in `.bazelrc`, `BUILD.bazel`, or `MODULE.bazel`.
+- **Shell Scripts**: OK -- both scripts use `set -euo pipefail`; no unsanitized variable expansion in command positions.
+- **Broken Access Control**: OK -- this is a local CLI tool, not a multi-user service.</pre><pre>agentId: aa1d66d4154cdcf69 (use SendMessage with to: &#x27;aa1d66d4154cdcf69&#x27; to continue this agent)
+&lt;usage&gt;total_tokens: 52822
+tool_uses: 33
+duration_ms: 65847&lt;/usage&gt;</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-29-29-977Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-29-29-977Z" class="timestamp-link"><time datetime="2026-03-26T20:29:29.977Z" data-timestamp="2026-03-26T20:29:29.977Z">2026-03-26T20:29:29.977Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Here is the complete report:
+
+```
+## Secret Leak Review
+
+### Findings
+
+- **CRITICAL** `gossl.db` — SQLite database committed to the repo containing 19 real private keys (RSA/ECDSA). This file contains actual cryptographic private key material generated by the tool and should not be in version control. It is not gitignored.
+
+- **WARNING** `internal/cli/server.go:60` — `InsecureSkipVerify: true` is hardcoded in the TLS config for the `server check` command. While this is intentional for a diagnostic/inspection tool (it needs to connect to servers with untrusted certs to inspect them), the setting is unconditional with no flag to disable it. This means the tool never validates the server&#x27;s certificate chain during the probe, which is fine for inspection but worth documenting.
+
+- **INFO** `internal/store/keystore_test.go:29` — Test fixture uses `&quot;-----BEGIN RSA PRIVATE KEY-----\ntest\n-----END RSA PRIVATE KEY-----&quot;`. This is obviously fake test data (the body is just &quot;test&quot;), not a real key. No issue.
+
+- **INFO** `internal/store/certstore_test.go:59` — Test fixture uses `&quot;-----BEGIN CERTIFICATE-----\ntest\n-----END CERTIFICATE-----&quot;`. Same as above -- obviously fake. No issue.
+
+### Gitignore Check
+
+**No `.gitignore` file exists in this repository.** The following patterns are NOT covered:
+
+- `.env` / `.env.*`: NOT covered
+- `credentials.*`: NOT covered
+- `*.pem`: NOT covered
+- `*.key`: NOT covered
+- `*.p12`: NOT covered
+- `*.jks`: NOT covered
+- `serviceaccount*.json` / `*-credentials.json`: NOT covered
+- `*.db` (SQLite databases like `gossl.db`): NOT covered
+- `bazel-*` (Bazel symlinks): NOT covered (present in working tree as untracked)
+- `.vscode/`: NOT covered (present in working tree as untracked)
+
+### Summary by Category
+
+- Hardcoded passwords/tokens/API keys: OK (none found)
+- Connection strings with credentials: OK (none found)
+- Base64-encoded secrets: OK (none found)
+- Sensitive data logged: OK (none found)
+- Secrets in const/var blocks: OK (none found)
+- Secrets in init() functions: OK (none found)
+- Real credentials in test fixtures: OK (all test data is obviously fake)
+- Secrets via os.Setenv: OK (none found)
+- Known provider tokens (GitHub, GitLab, AWS, OpenAI): OK (none found)
+- crypto/rand usage: OK (all key generation correctly uses crypto/rand)
+- Private key file committed: **CRITICAL** (`gossl.db` contains 19 private keys)
+- .gitignore coverage: **CRITICAL** (no .gitignore file exists at all)
+```
+
+**Key recommendations:**
+
+1. **Immediately** remove `gossl.db` from version control. It contains real private keys. Even though these are likely dev/test keys for a local CA tool, committing private keys sets a dangerous precedent and they will remain in git history.
+
+2. **Create a `.gitignore`** file covering at minimum: `*.db`, `*.pem`, `*.key`, `*.p12`, `.env*`, `bazel-*`, `.vscode/`, and any other generated artifacts.
+
+3. The `InsecureSkipVerify: true` in `internal/cli/server.go:60` is acceptable for an inspection tool but should be documented in the command&#x27;s help text so users understand the behavior.</pre><pre>agentId: af1daa26e1fe8413f (use SendMessage with to: &#x27;af1daa26e1fe8413f&#x27; to continue this agent)
+&lt;usage&gt;total_tokens: 47917
+tool_uses: 28
+duration_ms: 80656&lt;/usage&gt;</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-29-44-058Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-29-44-058Z" class="timestamp-link"><time datetime="2026-03-26T20:29:44.058Z" data-timestamp="2026-03-26T20:29:44.058Z">2026-03-26T20:29:44.058Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>I now have enough data to compile the full report.
+
+## Dependency Security
+
+### Vulnerabilities
+
+- **CRITICAL** `modernc.org/sqlite@v1.47.0` — The latest modernc.org/sqlite version bundles SQLite 3.51.3, which is patched against CVE-2025-6965 (memory corruption in aggregate term handling, CVSS v3.1 9.8 Critical, affects SQLite &lt; 3.50.2). While v1.47.0 was published 2026-03-17 and likely includes a patched SQLite engine, this should be verified by checking the exact bundled SQLite version. If it bundles anything below 3.50.2, upgrade immediately. See [NVD - CVE-2025-6965](https://nvd.nist.gov/vuln/detail/CVE-2025-6965) and [GitHub Advisory GHSA-2m69-gcr7-jv3q](https://github.com/advisories/GHSA-2m69-gcr7-jv3q).
+
+### Outdated
+
+- **WARNING** `github.com/spf13/cobra@v1.10.2` — Cobra v2 has been released (latest appears to be ~v2.5.x). The project is now a major version behind. While v1.10.2 likely still receives patches, consider planning a migration to v2. See [Cobra Releases](https://github.com/spf13/cobra/releases).
+- **WARNING** `aspect_rules_lint@2.3.0` (Bazel) — Latest is v2.0.0 in the BCR (note: your MODULE.bazel lists 2.3.0 which may be correct/newer; verify against the [BCR page](https://registry.bazel.build/modules/aspect_rules_lint)).
+- **INFO** `github.com/remyoudompheng/bigfft@v0.0.0-20230129092748` (indirect) — No new releases in 3+ years. The project appears low-activity but has no known vulnerabilities. It is a transitive dependency of modernc.org/sqlite.
+- **INFO** `github.com/mattn/go-isatty@v0.0.20` (indirect) — Latest version is v0.0.20; you are current.
+- **INFO** `github.com/google/uuid@v1.6.0` (indirect) — Latest version is v1.6.0; you are current. Note: beware of [typosquatting attacks](https://socket.dev/blog/malicious-go-packages-impersonate-googles-uuid-library-and-exfiltrate-data) on this package.
+
+### Bazel Dependencies
+
+| Module | Current | Latest Known | Status |
+|---|---|---|---|
+| `bazel_skylib` | 1.9.0 | 1.9.0 | Current |
+| `rules_go` | 0.60.0 | 0.60.0 | Current |
+| `gazelle` | 0.48.0 | 0.47.0 (BCR) | Current or ahead |
+| `aspect_rules_lint` | 2.3.0 | 2.0.0+ (BCR) | Current or ahead |
+| `rules_multitool` | 1.11.1 | -- | Unable to verify |
+| `buildifier_prebuilt` | 8.5.1 | -- | Unable to verify |
+| `rules_buf` | 0.5.2 | -- | Unable to verify |
+
+### golang.org/x/* Packages
+
+- `golang.org/x/sys@v0.42.0` (indirect) — pkg.go.dev indicates v0.42.0 is **not the latest** version of the module. The latest was published 2026-03-03. Update to the latest to pick up security patches.
+
+### Other Checks
+
+- **No `replace` directives** found in `go.mod` -- clean.
+- **No local path dependencies** -- clean.
+- **No deprecated/archived packages** detected among direct dependencies.
+
+### Status
+
+- Direct dependencies: 2 checked (`spf13/cobra`, `modernc.org/sqlite`), 1 issue (cobra major version behind; sqlite CVE needs verification)
+- Transitive dependencies: 10 checked, 1 issue (`golang.org/x/sys` behind latest; `bigfft` low-activity)
+- Bazel dependencies: 7 checked, 0 confirmed issues
+- `govulncheck` was **not available** on this system. Installing and running `govulncheck ./...` is strongly recommended for a definitive vulnerability scan.
+
+### Recommendations
+
+1. **Install and run `govulncheck`** for authoritative results: `go install golang.org/x/vuln/cmd/govulncheck@latest &amp;&amp; govulncheck ./...`
+2. **Verify the bundled SQLite version** in `modernc.org/sqlite@v1.47.0` to confirm CVE-2025-6965 is patched. If not, upgrade to whichever modernc.org/sqlite version bundles SQLite &gt;= 3.50.2.
+3. **Update `golang.org/x/sys`** to the latest version to pick up security patches.
+4. **Evaluate migration to Cobra v2** when convenient -- not urgent but the v1 line will eventually stop receiving updates.</pre><pre>agentId: a3e0b0cd383d6f2ee (use SendMessage with to: &#x27;a3e0b0cd383d6f2ee&#x27; to continue this agent)
+&lt;usage&gt;total_tokens: 35893
+tool_uses: 28
+duration_ms: 100518&lt;/usage&gt;</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-29-53-201Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-29-53-201Z" class="timestamp-link"><time datetime="2026-03-26T20:29:53.201Z" data-timestamp="2026-03-26T20:29:53.201Z">2026-03-26T20:29:53.201Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Good. Now let me verify `context.Context` is always the first parameter when present:
+
+All the functions with `context.Context` have it as the first parameter -- confirmed from the grep output above.
+
+Let me check if `err` from `r.ParseForm()` is being discarded properly:
+
+Looking at `internal/cli/serve.go:175`: `_ = r.ParseForm()` -- this discards the error with `_` but there is no comment explaining why. The rule says &quot;Never discard with `_` unless documented why.&quot;
+
+Also `json.NewEncoder(w).Encode(resp)` at line 195 of serve.go -- the return value (error) is completely ignored (not even assigned to `_`).
+
+Let me check the `_ = cmd.MarkFlagRequired` calls -- these are a common Go pattern where the error can only occur if the flag name is wrong (a programmer error), so they&#x27;re generally considered acceptable.
+
+Let me check for the `host, _, _ := strings.Cut` line more carefully:
+
+At `internal/cli/server.go:54`: `host, _, _ := strings.Cut(addr, &quot;:&quot;)` -- `strings.Cut` returns `(before, after, found)`. The `found` bool is discarded without documentation. However, the preceding line (`!strings.Contains(addr, &quot;:&quot;)`) already verified the colon exists for the else case, and this line is in the `serverName == &quot;&quot;` branch which runs regardless. Actually wait -- the `strings.Contains` check at line 48 adds `:443` if no colon. So by line 54, there is always a colon. Still, discarding the bool without a comment is technically a violation.
+
+Let me also check for the `errors` in the system test that discard errors:
+
+- `tests/system/mtls_test.go:141`: `body, _ := io.ReadAll(resp.Body)` -- discarded error without comment
+- `tests/system/mtls_test.go:148`: `caPEM, _ := os.ReadFile(caBundlePath)` -- discarded error without comment  
+- `tests/system/mtls_test.go:257`: `caPEM, _ := os.ReadFile(caBundlePath)` -- same
+- `tests/system/mtls_test.go:280`: `body, _ := io.ReadAll(resp.Body)` -- same
+
+Now I have all the information needed. Let me compile the full review.
+
+## Style Review
+
+### Violations
+
+- **WARN** `internal/store/db.go:71` -- Method `SqlDB()` should be `SQLDB()`. &quot;SQL&quot; is an initialism and must be consistently cased. [initialisms]
+- **WARN** `internal/cli/serve.go:195` -- Return value of `json.NewEncoder(w).Encode(resp)` is silently discarded. The error is not assigned to `_` or checked. [check-errors]
+- **WARN** `internal/cli/serve.go:175` -- `_ = r.ParseForm()` discards the error without a comment explaining why. [check-errors-documented]
+- **WARN** `internal/cli/server.go:54` -- `host, _, _ := strings.Cut(addr, &quot;:&quot;)` discards the `found` boolean without a comment. The surrounding logic guarantees a colon exists, but the rationale should be documented. [check-errors-documented]
+- **WARN** `tests/system/mtls_test.go:141` -- `body, _ := io.ReadAll(resp.Body)` discards the error without a comment explaining why. [check-errors-documented]
+- **WARN** `tests/system/mtls_test.go:148` -- `caPEM, _ := os.ReadFile(caBundlePath)` discards the error without a comment explaining why. This could silently produce an empty cert pool. [check-errors-documented]
+- **WARN** `tests/system/mtls_test.go:257` -- `caPEM, _ := os.ReadFile(caBundlePath)` same as above. [check-errors-documented]
+- **WARN** `tests/system/mtls_test.go:280` -- `body, _ := io.ReadAll(resp.Body)` discards the error without a comment explaining why. [check-errors-documented]
+- **WARN** `tests/system/mtls_test.go:42` -- `_ = root // suppress unused` declares a variable only to suppress it. The `root` variable is unused and should be removed entirely rather than suppressed. [check-errors-documented]
+- **WARN** `internal/cli/cert.go:1` -- File is not gofmt-formatted (reported by `bazel run //tools/format:format.check`). [gofmt]
+- **WARN** `tests/system/mtls_test.go:1` -- File is not gofmt-formatted (reported by `bazel run //tools/format:format.check`). [gofmt]
+
+### Passed Checks
+
+- gofmt/goimports (except 2 files noted above): OK
+- MixedCaps naming, no underscores in identifiers: OK
+- Package names short, lowercase, single-word, no stutter: OK
+- Error strings lowercase, no trailing punctuation: OK
+- context.Context always first parameter: OK
+- Pointer receivers for mutation/consistency, no mixed receiver types: OK
+- Receiver names 1-2 letters (`d` for `*DB`), never `this`/`self`: OK
+- No `math/rand` for secrets (uses `crypto/rand` throughout): OK
+- `var s []T` for nil slices (no `s := []T{}` found): OK
+- All exported names have doc comments (DB, OpenDB, Close, SqlDB, SchemaVersion, NewRoot): OK
+- No interfaces defined at producer: OK (no interfaces in the codebase)
+- No context.Context stored in structs: OK
+- Synchronous APIs, no goroutine leaks: OK
+- Table-driven tests with proper failure messages: OK
+- Early returns for error handling: OK</pre><pre>agentId: a0929d04bc95cdbb7 (use SendMessage with to: &#x27;a0929d04bc95cdbb7&#x27; to continue this agent)
+&lt;usage&gt;total_tokens: 54712
+tool_uses: 44
+duration_ms: 120035&lt;/usage&gt;</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T20-30-04-818Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T20-30-04-818Z" class="timestamp-link"><time datetime="2026-03-26T20:30:04.818Z" data-timestamp="2026-03-26T20:30:04.818Z">2026-03-26T20:30:04.818Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Here is the complete coverage report:
+
+## Coverage Report
+
+Overall: ~39% (target: 80%)
+
+| Package | Coverage | Status |
+|---------|----------|--------|
+| `internal/cli` | 38.2% | BELOW TARGET |
+| `internal/store` (db.go) | 63.2% | BELOW TARGET |
+| `cmd/gossl` | 0% | BELOW TARGET |
+
+### Per-File Breakdown
+
+| File | Coverage | Status |
+|------|----------|--------|
+| `internal/cli/root.go` | 100.0% | OK |
+| `internal/cli/crypto.go` | 74.6% | BELOW TARGET |
+| `internal/cli/ca.go` | 72.6% | BELOW TARGET |
+| `internal/cli/cert.go` | 27.8% | BELOW TARGET |
+| `internal/cli/csr.go` | 26.8% | BELOW TARGET |
+| `internal/cli/server.go` | 21.2% | BELOW TARGET |
+| `internal/cli/serve.go` | 17.8% | BELOW TARGET |
+| `internal/store/db.go` | 63.2% | BELOW TARGET |
+| `cmd/gossl/main.go` | 0% | BELOW TARGET |
+
+Note: `internal/store` also contains sqlc-generated code (`sqlc_db.go`, `sqlc_models.go`, `queries.sql.go`, `keystore_queries.sql.go`) built by Bazel genrule. The store test files exercise this generated code well (CreateCA, GetRootCA, GetCAByCN, ListCAs, CreateCert, RevokeCert, GetCertBySerial, ListCertsByCA, StoreKey, LoadKey, DeleteKey are all tested). Generated code coverage is not reported separately.
+
+### Uncovered Code
+
+**internal/store/db.go**
+- `db.go:29-30` -- error path when `sql.Open()` fails (hard to trigger with SQLite driver)
+- `db.go:38-40` -- error path when `PRAGMA foreign_keys` fails
+- `db.go:44-46` -- error path when `PRAGMA user_version` scan fails
+- `db.go:50-52` -- error path when schema SQL execution fails
+- `db.go:54-56` -- error path when setting `user_version` pragma fails
+
+**internal/cli/ca.go**
+- `ca.go:66-67` -- `runCAList` RunE closure (only command wiring covered, not the `runCAList` function itself)
+- `ca.go:82-83` -- `generateSerial()` error path in `runCACreate`
+- `ca.go:87-88` -- `store.OpenDB()` error path in `runCACreate`
+- `ca.go:119-132` -- entire intermediate CA signing path error branches (parent key parsing errors, signerCert parse errors)
+- `ca.go:160-161` -- `x509.CreateCertificate` error path
+- `ca.go:177-182` -- store CA / store key error paths
+- `ca.go:188-219` -- `runCAList()` function entirely untested
+
+**internal/cli/crypto.go**
+- `crypto.go:19-20` -- RSA key generation error path
+- `crypto.go:33-34` -- ECDSA key generation error path
+- `crypto.go:37-38` -- EC key marshalling error path
+- `crypto.go:52-53` -- `parseCurve` P-521 branch
+- `crypto.go:65-66` -- `publicKey()` unknown key type fallback
+- `crypto.go:81-82` -- `parsePrivateKey` nil PEM block path
+- `crypto.go:86-89` -- `parsePrivateKey` EC and unknown key type branches
+
+**internal/cli/cert.go**
+- `cert.go:70-166` -- `runCertIssue()` entirely untested
+- `cert.go:186-218` -- `runCertList()` entirely untested
+- `cert.go:244-264` -- `runCertRevoke()` entirely untested
+- `cert.go:297-340` -- `runCertExport()` entirely untested
+- `cert.go:366-434` -- `runCertInspect()` entirely untested
+- `cert.go:456-512` -- `runCertVerify()` entirely untested
+
+**internal/cli/csr.go**
+- `csr.go:35-79` -- `runCSRInspect()` entirely untested
+
+**internal/cli/serve.go**
+- `serve.go:31-43` -- `serve` command RunE logic (mutual exclusion validation, dispatch)
+- `serve.go:58-112` -- `runServeDB()` and `runServeFile()` entirely untested
+- `serve.go:114-141` -- `startServer()` entirely untested
+- `serve.go:160-196` -- `echoHandler()` entirely untested
+
+**internal/cli/server.go**
+- `server.go:36-37` -- `server check` RunE closure
+- `server.go:47-137` -- `runServerCheck()` entirely untested
+- `server.go:139-152` -- `tlsVersionString()` entirely untested
+
+### Findings
+
+- **CRITICAL** `internal/cli/cert.go` has 6 exported subcommand functions (`runCertIssue`, `runCertList`, `runCertRevoke`, `runCertExport`, `runCertInspect`, `runCertVerify`) with zero test coverage. This is the largest file (512 lines) and every `RunE` handler is untested. Only the command construction/wiring is exercised.
+
+- **CRITICAL** `internal/cli/serve.go` and `internal/cli/server.go` have no meaningful unit tests. The `runServeDB`, `runServeFile`, `startServer`, `echoHandler`, `runServerCheck`, and `tlsVersionString` functions are all untested. These files are 17.8% and 21.2% coverage respectively, with coverage coming only from cobra command wiring (the `newXxxCmd()` constructors).
+
+- **CRITICAL** `internal/cli/csr.go` has `runCSRInspect()` entirely untested (26.8% coverage, only command construction is covered).
+
+- **WARNING** `internal/cli/ca.go` at 72.6% is close to target but missing tests for `runCAList()` (the entire function) and several error branches in `runCACreate()` (intermediate CA signing error paths at lines 119-132).
+
+- **WARNING** `internal/cli/crypto.go` at 74.6% is missing branch coverage for: `parseCurve(&quot;P-521&quot;)`, `publicKey()` with unknown key type, `parsePrivateKey()` with EC keys and unknown PEM types. These are utility functions used throughout the CLI and should have direct unit tests.
+
+- **WARNING** `internal/store/db.go` at 63.2% is missing coverage for internal error paths in `OpenDB()`. The `PingContext` failure, `PRAGMA foreign_keys` failure, schema initialization failure, and version-set failure paths (lines 32-56) are untested. Some of these are hard to trigger in unit tests, but the `PingContext` path could potentially be tested with a mock or bad connection string.
+
+- **INFO** `cmd/gossl/main.go` has 0% coverage. This is a minimal main package (4 lines) that just calls `cli.NewRoot().Execute()` -- typical for Go CLI programs and acceptable given CLI integration tests exist elsewhere.
+
+- **INFO** The existing tests in `internal/cli/ca_test.go` are well-structured (table-driven style, good assertion messages, test helpers). They cover root CA creation (RSA/ECDSA), intermediate CA creation (implicit/explicit parent), invalid algo/curve, cert properties, and cobra command integration. This is a good pattern to replicate for the untested commands.
+
+- **INFO** The `internal/store` tests cover all sqlc-generated CRUD operations thoroughly (create, get, list, revoke, delete for both CAs, certs, and keys), including edge cases (not-found, foreign key violations, duplicate keys). The generated code appears well-tested.</pre><pre>agentId: a52ca7b37e7ecc28b (use SendMessage with to: &#x27;a52ca7b37e7ecc28b&#x27; to continue this agent)
+&lt;usage&gt;total_tokens: 61414
+tool_uses: 30
+duration_ms: 136661&lt;/usage&gt;</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T20-30-39-053Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T20-30-39-053Z" class="timestamp-link"><time datetime="2026-03-26T20:30:39.053Z" data-timestamp="2026-03-26T20:30:39.053Z">2026-03-26T20:30:39.053Z</time></a></div><div class="message-content">
+<div class="assistant-text"><h1>Code Review Report</h1>
+<h2>Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Critical</th>
+<th>Warning</th>
+<th>Info</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Coverage</td>
+<td>3</td>
+<td>3</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Style</td>
+<td>0</td>
+<td>11</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Code Security</td>
+<td>0</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Dependencies</td>
+<td>1</td>
+<td>2</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Secrets</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>5</strong></td>
+<td><strong>22</strong></td>
+<td><strong>13</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Critical Issues (fix before merge)</h2>
+<ol>
+<li>
+<p><strong>Coverage</strong> <code>internal/cli/cert.go</code> — 6 subcommand handlers (<code>runCertIssue</code>, <code>runCertList</code>, <code>runCertRevoke</code>, <code>runCertExport</code>, <code>runCertInspect</code>, <code>runCertVerify</code>) have <strong>zero test coverage</strong>. Largest file (512 lines), every RunE handler untested.</p>
+</li>
+<li>
+<p><strong>Coverage</strong> <code>internal/cli/serve.go</code> + <code>internal/cli/server.go</code> — <code>runServeDB</code>, <code>runServeFile</code>, <code>startServer</code>, <code>echoHandler</code>, <code>runServerCheck</code>, <code>tlsVersionString</code> all untested (17.8% and 21.2% coverage, only cobra wiring covered).</p>
+</li>
+<li>
+<p><strong>Coverage</strong> <code>internal/cli/csr.go</code> — <code>runCSRInspect()</code> entirely untested (26.8%).</p>
+</li>
+<li>
+<p><strong>Dependencies</strong> <code>modernc.org/sqlite@v1.47.0</code> — CVE-2025-6965 (CVSS 9.8, memory corruption in SQLite &lt; 3.50.2). Verify bundled SQLite version; upgrade if below 3.50.2.</p>
+</li>
+<li>
+<p><strong>Secrets</strong> <code>gossl.db</code> — SQLite database in the repo containing <strong>19 real private keys</strong>. Not gitignored. Remove from version control immediately.</p>
+</li>
+</ol>
+<hr />
+<h2>Warnings (should fix)</h2>
+<h3>Style</h3>
+<ol>
+<li><code>internal/store/db.go:71</code> — <code>SqlDB()</code> should be <code>SQLDB()</code> (SQL is an initialism). [initialisms]</li>
+<li><code>internal/cli/serve.go:195</code> — <code>json.NewEncoder(w).Encode(resp)</code> error silently discarded. [check-errors]</li>
+<li><code>internal/cli/serve.go:175</code> — <code>_ = r.ParseForm()</code> discards error without comment. [check-errors-documented]</li>
+<li><code>internal/cli/server.go:54</code> — <code>host, _, _ := strings.Cut(...)</code> discards bool without comment. [check-errors-documented]</li>
+<li><code>tests/system/mtls_test.go:141,148,257,280</code> — 4 instances of <code>_ = io.ReadAll</code>/<code>os.ReadFile</code> discarding errors without comments. [check-errors-documented]</li>
+<li><code>tests/system/mtls_test.go:42</code> — <code>_ = root</code> suppresses unused variable; remove it instead. [check-errors-documented]</li>
+<li><code>internal/cli/cert.go</code> + <code>tests/system/mtls_test.go</code> — Not gofmt-formatted. [gofmt]</li>
+</ol>
+<h3>Security</h3>
+<ol>
+<li><code>internal/cli/server.go:60</code> — <code>InsecureSkipVerify: true</code> without warning printed to user.</li>
+<li><code>internal/cli/serve.go:129-133</code> — HTTP server created without <code>ReadTimeout</code>/<code>WriteTimeout</code>/<code>ReadHeaderTimeout</code>. Slowloris DoS vector.</li>
+<li><code>internal/cli/serve.go:174-175</code> — <code>r.ParseForm()</code> without <code>http.MaxBytesReader</code>. Unbounded memory consumption.</li>
+<li><code>internal/cli/cert.go:335</code> — Cert files written with <code>0644</code> (world-readable); <code>0600</code> is more defensive.</li>
+<li><code>internal/store/db.go:53</code> — <code>PRAGMA user_version</code> set via <code>fmt.Sprintf</code> (safe since constant, but bad precedent).</li>
+</ol>
+<h3>Coverage</h3>
+<ol>
+<li><code>internal/cli/ca.go</code> (72.6%) — <code>runCAList()</code> entirely untested; intermediate CA error paths untested.</li>
+<li><code>internal/cli/crypto.go</code> (74.6%) — <code>parseCurve("P-521")</code>, <code>publicKey()</code> unknown type, <code>parsePrivateKey</code> EC branch untested.</li>
+<li><code>internal/store/db.go</code> (63.2%) — <code>OpenDB()</code> error paths untested.</li>
+</ol>
+<h3>Dependencies</h3>
+<ol>
+<li><code>github.com/spf13/cobra@v1.10.2</code> — Cobra v2 released; plan migration.</li>
+<li><code>golang.org/x/sys@v0.42.0</code> — Not latest; update for security patches.</li>
+</ol>
+<h3>Secrets</h3>
+<ol>
+<li><strong>No <code>.gitignore</code> file exists.</strong> <code>*.db</code>, <code>*.pem</code>, <code>*.key</code>, <code>.env*</code>, <code>bazel-*</code>, <code>.vscode/</code> are all uncovered.</li>
+</ol>
+<hr />
+<h2>Info (consider)</h2>
+<ol>
+<li><code>cmd/gossl/main.go</code> — 0% coverage acceptable (4-line main).</li>
+<li>Existing <code>internal/store</code> tests are thorough — good pattern to replicate.</li>
+<li><code>internal/cli/csr.go:43</code>, <code>cert.go:385,464</code> — <code>io.ReadAll(os.Stdin)</code> unbounded.</li>
+<li><code>internal/cli/server.go:108</code> — <code>os.ReadFile(caFile)</code> unbounded.</li>
+<li><code>internal/store/migrations/001_init.sql:26-29</code> — Private keys stored as plaintext PEM. No encryption-at-rest.</li>
+<li><code>internal/cli/serve.go:120-124</code> — TLS <code>MinVersion</code> not explicitly set (Go default is 1.2, but explicit is better).</li>
+<li><code>internal/cli/serve.go:135</code> — Server listens on <code>0.0.0.0</code> by default.</li>
+<li><code>remyoudompheng/bigfft</code> — Indirect dep, no releases in 3+ years (no CVEs known).</li>
+<li><code>govulncheck</code> not installed — recommend installing for authoritative scans.</li>
+<li><code>google/uuid@v1.6.0</code> — Current, but beware typosquatting attacks on this package.</li>
+</ol>
+<hr />
+<p><strong>Block merge</strong> — 5 critical issues require fixing. Top priorities: remove <code>gossl.db</code> from repo, add <code>.gitignore</code>, verify SQLite CVE, and add tests for untested CLI commands.</p></div></div></div>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<span class="disabled">&larr; Prev</span>
+<span class="current">1</span>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-002.html">Next &rarr;</a>
+</div>
+
+    </div>
+    <script>
+document.querySelectorAll('time[data-timestamp]').forEach(function(el) {
+    const timestamp = el.getAttribute('data-timestamp');
+    const date = new Date(timestamp);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    if (isToday) { el.textContent = timeStr; }
+    else { el.textContent = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + timeStr; }
+});
+document.querySelectorAll('pre.json').forEach(function(el) {
+    let text = el.textContent;
+    text = text.replace(/"([^"]+)":/g, '<span style="color: #ce93d8">"$1"</span>:');
+    text = text.replace(/: "([^"]*)"/g, ': <span style="color: #81d4fa">"$1"</span>');
+    text = text.replace(/: (\d+)/g, ': <span style="color: #ffcc80">$1</span>');
+    text = text.replace(/: (true|false|null)/g, ': <span style="color: #f48fb1">$1</span>');
+    el.innerHTML = text;
+});
+document.querySelectorAll('.truncatable').forEach(function(wrapper) {
+    const content = wrapper.querySelector('.truncatable-content');
+    const btn = wrapper.querySelector('.expand-btn');
+    if (content.scrollHeight > 250) {
+        wrapper.classList.add('truncated');
+        btn.addEventListener('click', function() {
+            if (wrapper.classList.contains('truncated')) { wrapper.classList.remove('truncated'); wrapper.classList.add('expanded'); btn.textContent = 'Show less'; }
+            else { wrapper.classList.remove('expanded'); wrapper.classList.add('truncated'); btn.textContent = 'Show more'; }
+        });
+    }
+});
+</script>
+</body>
+</html>

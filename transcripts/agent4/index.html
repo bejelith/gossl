@@ -1,0 +1,2374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code transcript - Index</title>
+    <style>
+:root { --bg-color: #f5f5f5; --card-bg: #ffffff; --user-bg: #e3f2fd; --user-border: #1976d2; --assistant-bg: #f5f5f5; --assistant-border: #9e9e9e; --thinking-bg: #fff8e1; --thinking-border: #ffc107; --thinking-text: #666; --tool-bg: #f3e5f5; --tool-border: #9c27b0; --tool-result-bg: #e8f5e9; --tool-error-bg: #ffebee; --text-color: #212121; --text-muted: #757575; --code-bg: #263238; --code-text: #aed581; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 16px; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 24px; padding-bottom: 8px; border-bottom: 2px solid var(--user-border); }
+.header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 2px solid var(--user-border); padding-bottom: 8px; margin-bottom: 24px; }
+.header-row h1 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; flex: 1; min-width: 200px; }
+.message { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.message.user { background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.message.assistant { background: var(--card-bg); border-left: 4px solid var(--assistant-border); }
+.message.tool-reply { background: #fff8e1; border-left: 4px solid #ff9800; }
+.tool-reply .role-label { color: #e65100; }
+.tool-reply .tool-result { background: transparent; padding: 0; margin: 0; }
+.tool-reply .tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.message-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.role-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.user .role-label { color: var(--user-border); }
+time { color: var(--text-muted); font-size: 0.8rem; }
+.timestamp-link { color: inherit; text-decoration: none; }
+.timestamp-link:hover { text-decoration: underline; }
+.message:target { animation: highlight 2s ease-out; }
+@keyframes highlight { 0% { background-color: rgba(25, 118, 210, 0.2); } 100% { background-color: transparent; } }
+.message-content { padding: 16px; }
+.message-content p { margin: 0 0 12px 0; }
+.message-content p:last-child { margin-bottom: 0; }
+.thinking { background: var(--thinking-bg); border: 1px solid var(--thinking-border); border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 0.9rem; color: var(--thinking-text); }
+.thinking-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #f57c00; margin-bottom: 8px; }
+.thinking p { margin: 8px 0; }
+.assistant-text { margin: 8px 0; }
+.tool-use { background: var(--tool-bg); border: 1px solid var(--tool-border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-header { font-weight: 600; color: var(--tool-border); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.tool-icon { font-size: 1.1rem; }
+.tool-description { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
+.tool-result { background: var(--tool-result-bg); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-result.tool-error { background: var(--tool-error-bg); }
+.file-tool { border-radius: 8px; padding: 12px; margin: 12px 0; }
+.write-tool { background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%); border: 1px solid #4caf50; }
+.edit-tool { background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); border: 1px solid #ff9800; }
+.file-tool-header { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.write-header { color: #2e7d32; }
+.edit-header { color: #e65100; }
+.file-tool-icon { font-size: 1rem; }
+.file-tool-path { font-family: monospace; background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 4px; }
+.file-tool-fullpath { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; word-break: break-all; }
+.file-content { margin: 0; }
+.edit-section { display: flex; margin: 4px 0; border-radius: 4px; overflow: hidden; }
+.edit-label { padding: 8px 12px; font-weight: bold; font-family: monospace; display: flex; align-items: flex-start; }
+.edit-old { background: #fce4ec; }
+.edit-old .edit-label { color: #b71c1c; background: #f8bbd9; }
+.edit-old .edit-content { color: #880e4f; }
+.edit-new { background: #e8f5e9; }
+.edit-new .edit-label { color: #1b5e20; background: #a5d6a7; }
+.edit-new .edit-content { color: #1b5e20; }
+.edit-content { margin: 0; flex: 1; background: transparent; font-size: 0.85rem; }
+.edit-replace-all { font-size: 0.75rem; font-weight: normal; color: var(--text-muted); }
+.write-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #e6f4ea); }
+.edit-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff0e5); }
+.todo-list { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border: 1px solid #81c784; border-radius: 8px; padding: 12px; margin: 12px 0; }
+.todo-header { font-weight: 600; color: #2e7d32; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.todo-items { list-style: none; margin: 0; padding: 0; }
+.todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 0.9rem; }
+.todo-item:last-child { border-bottom: none; }
+.todo-icon { flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; }
+.todo-completed .todo-icon { color: #2e7d32; background: rgba(46, 125, 50, 0.15); }
+.todo-completed .todo-content { color: #558b2f; text-decoration: line-through; }
+.todo-in-progress .todo-icon { color: #f57c00; background: rgba(245, 124, 0, 0.15); }
+.todo-in-progress .todo-content { color: #e65100; font-weight: 500; }
+.todo-pending .todo-icon { color: #757575; background: rgba(0,0,0,0.05); }
+.todo-pending .todo-content { color: #616161; }
+pre { background: var(--code-bg); color: var(--code-text); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; margin: 8px 0; white-space: pre-wrap; word-wrap: break-word; }
+pre.json { color: #e0e0e0; }
+code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre code { background: none; padding: 0; }
+.user-content { margin: 0; }
+.truncatable { position: relative; }
+.truncatable.truncated .truncatable-content { max-height: 200px; overflow: hidden; }
+.truncatable.truncated::after { content: ''; position: absolute; bottom: 32px; left: 0; right: 0; height: 60px; background: linear-gradient(to bottom, transparent, var(--card-bg)); pointer-events: none; }
+.message.user .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--user-bg)); }
+.message.tool-reply .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.tool-use .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-bg)); }
+.tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-result-bg)); }
+.expand-btn { display: none; width: 100%; padding: 8px 16px; margin-top: 4px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+.expand-btn:hover { background: rgba(0,0,0,0.1); }
+.truncatable.truncated .expand-btn, .truncatable.expanded .expand-btn { display: block; }
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; flex-wrap: wrap; }
+.pagination a, .pagination span { padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
+.pagination a { background: var(--card-bg); color: var(--user-border); border: 1px solid var(--user-border); }
+.pagination a:hover { background: var(--user-bg); }
+.pagination .current { background: var(--user-border); color: white; }
+.pagination .disabled { color: var(--text-muted); border: 1px solid #ddd; }
+.pagination .index-link { background: var(--user-border); color: white; }
+details.continuation { margin-bottom: 16px; }
+details.continuation summary { cursor: pointer; padding: 12px 16px; background: var(--user-bg); border-left: 4px solid var(--user-border); border-radius: 12px; font-weight: 500; color: var(--text-muted); }
+details.continuation summary:hover { background: rgba(25, 118, 210, 0.15); }
+details.continuation[open] summary { border-radius: 12px 12px 0 0; margin-bottom: 0; }
+.index-item { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.index-item a { display: block; text-decoration: none; color: inherit; }
+.index-item a:hover { background: rgba(25, 118, 210, 0.1); }
+.index-item-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.index-item-number { font-weight: 600; color: var(--user-border); }
+.index-item-content { padding: 16px; }
+.index-item-stats { padding: 8px 16px 12px 32px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid rgba(0,0,0,0.06); }
+.index-item-commit { margin-top: 6px; padding: 4px 8px; background: #fff3e0; border-radius: 4px; font-size: 0.85rem; color: #e65100; }
+.index-item-commit code { background: rgba(0,0,0,0.08); padding: 1px 4px; border-radius: 3px; font-size: 0.8rem; margin-right: 6px; }
+.commit-card { margin: 8px 0; padding: 10px 14px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 6px; }
+.commit-card a { text-decoration: none; color: #5d4037; display: block; }
+.commit-card a:hover { color: #e65100; }
+.commit-card-hash { font-family: monospace; color: #e65100; font-weight: 600; margin-right: 8px; }
+.index-commit { margin-bottom: 12px; padding: 10px 16px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.index-commit a { display: block; text-decoration: none; color: inherit; }
+.index-commit a:hover { background: rgba(255, 152, 0, 0.1); margin: -10px -16px; padding: 10px 16px; border-radius: 8px; }
+.index-commit-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
+.index-commit-hash { font-family: monospace; color: #e65100; font-weight: 600; }
+.index-commit-msg { color: #5d4037; }
+.index-item-long-text { margin-top: 8px; padding: 12px; background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--assistant-border); }
+.index-item-long-text .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--card-bg)); }
+.index-item-long-text-content { color: var(--text-color); }
+#search-box { display: none; align-items: center; gap: 8px; }
+#search-box input { padding: 6px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; width: 180px; }
+#search-box button, #modal-search-btn, #modal-close-btn { background: var(--user-border); color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#search-box button:hover, #modal-search-btn:hover { background: #1565c0; }
+#modal-close-btn { background: var(--text-muted); margin-left: 8px; }
+#modal-close-btn:hover { background: #616161; }
+#search-modal[open] { border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); padding: 0; width: 90vw; max-width: 900px; height: 80vh; max-height: 80vh; display: flex; flex-direction: column; }
+#search-modal::backdrop { background: rgba(0,0,0,0.5); }
+.search-modal-header { display: flex; align-items: center; gap: 8px; padding: 16px; border-bottom: 1px solid var(--assistant-border); background: var(--bg-color); border-radius: 12px 12px 0 0; }
+.search-modal-header input { flex: 1; padding: 8px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; }
+#search-status { padding: 8px 16px; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+#search-results { flex: 1; overflow-y: auto; padding: 16px; }
+.search-result { margin-bottom: 16px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.search-result a { display: block; text-decoration: none; color: inherit; }
+.search-result a:hover { background: rgba(25, 118, 210, 0.05); }
+.search-result-page { padding: 6px 12px; background: rgba(0,0,0,0.03); font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.search-result-content { padding: 12px; }
+.search-result mark { background: #fff59d; padding: 1px 2px; border-radius: 2px; }
+@media (max-width: 600px) { body { padding: 8px; } .message, .index-item { border-radius: 8px; } .message-content, .index-item-content { padding: 12px; } pre { font-size: 0.8rem; padding: 8px; } #search-box input { width: 120px; } #search-modal[open] { width: 95vw; height: 90vh; } }
+</style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-row">
+            <h1>Claude Code transcript</h1>
+            <div id="search-box">
+                <input type="text" id="search-input" placeholder="Search..." aria-label="Search transcripts">
+                <button id="search-btn" type="button" aria-label="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+                </button>
+            </div>
+        </div>
+        
+
+<div class="pagination">
+<span class="current">Index</span>
+<span class="disabled">&larr; Prev</span>
+<a href="page-001.html">1</a>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-001.html">Next &rarr;</a>
+</div>
+
+        <p style="color: var(--text-muted); margin-bottom: 24px;">16 prompts · 295 messages · 111 tool calls · 1 commits · 4 pages</p>
+        
+<div class="index-item"><a href="page-001.html#msg-2026-03-27T21-07-20-475Z"><div class="index-item-header"><span class="index-item-number">#1</span><time datetime="2026-03-27T21:07:20.475Z" data-timestamp="2026-03-27T21:07:20.475Z">2026-03-27T21:07:20.475Z</time></div><div class="index-item-content"><p>generate 1 cert and 1 pkey. then demostrate how to use gossl to see if the key matches the cert</p>
+<h1>gossl Documentation</h1>
+<p>The following is the complete documentation for gossl, a simplified
+alternative to openssl for mTLS certificate management and troubleshooting.</p>
+<h1>CA Management</h1>
+<h2>Creating a Root CA</h2>
+<pre><code>gossl ca create --cn &quot;My Root CA&quot;
+</code></pre>
+<p>The first CA created in a database is the root. It has no parent (<code>parent_id = NULL</code>). A self-signed certificate is generated and stored in the database.</p>
+<h3>Options</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--cn</code></td>
+<td>required</td>
+<td>Common name for the CA</td>
+</tr>
+<tr>
+<td><code>--db</code></td>
+<td><code>gossl.db</code></td>
+<td>Path to the SQLite database</td>
+</tr>
+<tr>
+<td><code>--days</code></td>
+<td>3650</td>
+<td>Certificate validity in days</td>
+</tr>
+<tr>
+<td><code>--key-algo</code></td>
+<td><code>rsa</code></td>
+<td>Key algorithm: <code>rsa</code> or <code>ecdsa</code></td>
+</tr>
+<tr>
+<td><code>--key-size</code></td>
+<td><code>2048</code></td>
+<td>RSA key size in bits</td>
+</tr>
+<tr>
+<td><code>--curve</code></td>
+<td><code>P-256</code></td>
+<td>ECDSA curve: <code>P-256</code>, <code>P-384</code>, <code>P-521</code></td>
+</tr>
+<tr>
+<td><code>--ca</code></td>
+<td>(none)</td>
+<td>Parent CA common name (see intermediates)</td>
+</tr>
+</tbody>
+</table>
+<h2>Creating an Intermediate CA</h2>
+<p>After a root CA exists, run <code>ca create</code> again. Without <code>--ca</code>, the new CA is parented to the root automatically.</p>
+<pre><code>gossl ca create --cn &quot;Issuing CA&quot;
+</code></pre>
+<p>To explicitly specify a parent:</p>
+<pre><code>gossl ca create --cn &quot;Leaf Issuing CA&quot; --ca &quot;Issuing CA&quot;
+</code></pre>
+<p>The intermediate's certificate is signed by the specified parent CA and stored in the database.</p>
+<h2>Hierarchy Examples</h2>
+<h3>Two-tier (root + issuing)</h3>
+<pre><code>gossl ca create --cn &quot;Root CA&quot; --days 7300
+gossl ca create --cn &quot;Issuing CA&quot; --days 3650
+</code></pre>
+<p>Issue certificates from the intermediate:</p>
+<pre><code>gossl cert issue --cn &quot;service.example.com&quot; --ca &quot;Issuing CA&quot;
+</code></pre>
+<h3>Three-tier (root + policy + issuing)</h3>
+<pre><code>gossl ca create --cn &quot;Root CA&quot; --days 7300
+gossl ca create --cn &quot;Policy CA&quot; --ca &quot;Root CA&quot; --days 3650
+gossl ca create --cn &quot;Issuing CA&quot; --ca &quot;Policy CA&quot; --days 1825
+gossl cert issue --cn &quot;service.example.com&quot; --ca &quot;Issuing CA&quot;
+</code></pre>
+<h3>ECDSA hierarchy</h3>
+<pre><code>gossl ca create --cn &quot;EC Root CA&quot; --key-algo ecdsa --curve P-384
+gossl ca create --cn &quot;EC Issuing CA&quot; --key-algo ecdsa --curve P-256
+</code></pre>
+<h2>Listing CAs</h2>
+<pre><code>gossl ca list
+gossl ca list --db /path/to/other.db
+</code></pre>
+<p>Prints each CA's common name, serial, expiry, and parent (if any).</p>
+<hr />
+<h1>Certificates</h1>
+<h2>Issuing a Certificate</h2>
+<pre><code>gossl cert issue --cn &quot;server.example.com&quot; --san &quot;DNS:server.example.com,IP:192.168.1.10&quot;
+</code></pre>
+<p>Without <code>--ca</code>, the cert is signed by the root CA. PEM output goes to stdout.</p>
+<h3>Options</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--cn</code></td>
+<td>required</td>
+<td>Common name</td>
+</tr>
+<tr>
+<td><code>--ca</code></td>
+<td>root CA</td>
+<td>Signing CA common name</td>
+</tr>
+<tr>
+<td><code>--db</code></td>
+<td><code>gossl.db</code></td>
+<td>Path to the SQLite database</td>
+</tr>
+<tr>
+<td><code>--days</code></td>
+<td>365</td>
+<td>Validity in days</td>
+</tr>
+<tr>
+<td><code>--san</code></td>
+<td>(none)</td>
+<td>Subject alternative names (comma-separated)</td>
+</tr>
+<tr>
+<td><code>--key-algo</code></td>
+<td><code>rsa</code></td>
+<td>Key algorithm: <code>rsa</code> or <code>ecdsa</code></td>
+</tr>
+<tr>
+<td><code>--key-size</code></td>
+<td><code>2048</code></td>
+<td>RSA key size in bits</td>
+</tr>
+<tr>
+<td><code>--curve</code></td>
+<td><code>P-256</code></td>
+<td>ECDSA curve</td>
+</tr>
+</tbody>
+</table>
+<p>SAN format: <code>DNS:hostname</code>, <code>IP:1.2.3.4</code>, <code>EMAIL:user@example.com</code>, <code>URI:https://example.com</code></p>
+<pre><code>gossl cert issue \
+  --cn &quot;api.example.com&quot; \
+  --ca &quot;Issuing CA&quot; \
+  --san &quot;DNS:api.example.com,DNS:api-internal.example.com,IP:10.0.0.5&quot; \
+  --days 90
+</code></pre>
+<h2>Signing an External CSR</h2>
+<p>Sign a CSR generated outside gossl:</p>
+<pre><code>gossl cert sign request.csr --ca &quot;Issuing CA&quot; --days 365
+</code></pre>
+<p>Write the signed certificate to a file:</p>
+<pre><code>gossl cert sign request.csr --ca &quot;Issuing CA&quot; --out signed.pem
+</code></pre>
+<p>Overwrite an existing output file:</p>
+<pre><code>gossl cert sign request.csr --ca &quot;Issuing CA&quot; --out signed.pem --force
+</code></pre>
+<h3>Key Strength Validation</h3>
+<p><code>cert sign</code> validates the key in the CSR before signing. RSA keys must be at least 2048 bits. CSRs with weaker keys are rejected.</p>
+<h3>Options</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--ca</code></td>
+<td>root CA</td>
+<td>Signing CA common name</td>
+</tr>
+<tr>
+<td><code>--db</code></td>
+<td><code>gossl.db</code></td>
+<td>Path to the SQLite database</td>
+</tr>
+<tr>
+<td><code>--days</code></td>
+<td>365</td>
+<td>Validity in days</td>
+</tr>
+<tr>
+<td><code>--out</code></td>
+<td>stdout</td>
+<td>Output file path</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>false</td>
+<td>Overwrite existing output file</td>
+</tr>
+</tbody>
+</table>
+<h2>Listing Certificates</h2>
+<pre><code>gossl cert list
+gossl cert list --db /path/to/other.db
+</code></pre>
+<p>Prints serial, common name, CA, expiry, and revocation status for every certificate in the database.</p>
+<h2>Revoking a Certificate</h2>
+<pre><code>gossl cert revoke --serial 0A1B2C3D
+</code></pre>
+<p>Marks the certificate as revoked in the database. The serial is the hex serial number shown in <code>cert list</code> or <code>cert inspect</code>.</p>
+<h3>Options</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--serial</code></td>
+<td>required</td>
+<td>Hex serial number of the certificate</td>
+</tr>
+<tr>
+<td><code>--db</code></td>
+<td><code>gossl.db</code></td>
+<td>Path to the SQLite database</td>
+</tr>
+</tbody>
+</table>
+<h2>Exporting a Certificate</h2>
+<p>Retrieve a certificate from the database by serial number:</p>
+<pre><code>gossl cert export --serial 0A1B2C3D
+</code></pre>
+<p>Write to a file:</p>
+<pre><code>gossl cert export --serial 0A1B2C3D --out cert.pem
+</code></pre>
+<p>Include the full chain (certificate + all intermediate CA certs up to root):</p>
+<pre><code>gossl cert export --serial 0A1B2C3D --out chain.pem --chain
+</code></pre>
+<h3>Options</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--serial</code></td>
+<td>required</td>
+<td>Hex serial number</td>
+</tr>
+<tr>
+<td><code>--db</code></td>
+<td><code>gossl.db</code></td>
+<td>Path to the SQLite database</td>
+</tr>
+<tr>
+<td><code>--out</code></td>
+<td>stdout</td>
+<td>Output file path</td>
+</tr>
+<tr>
+<td><code>--chain</code></td>
+<td>false</td>
+<td>Include full certificate chain</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>false</td>
+<td>Overwrite existing output file</td>
+</tr>
+</tbody>
+</table>
+<h2>Inspecting a Certificate</h2>
+<p>From a file:</p>
+<pre><code>gossl cert inspect server.pem
+</code></pre>
+<p>From stdin:</p>
+<pre><code>cat server.pem | gossl cert inspect -
+openssl s_client -connect host:443 &lt;/dev/null | gossl cert inspect -
+</code></pre>
+<p>From the database by serial:</p>
+<pre><code>gossl cert inspect --db gossl.db --serial 0A1B2C3D
+</code></pre>
+<p>Prints subject, issuer, serial, validity dates, key algorithm and size, SANs, and basic constraints.</p>
+<h2>Verifying a Certificate</h2>
+<p>Check that a certificate is valid against a chain:</p>
+<pre><code>gossl cert verify server.pem
+gossl cert verify server.pem --chain chain.pem
+cat server.pem | gossl cert verify -
+</code></pre>
+<p><code>--chain</code> provides intermediate or root certs to build the trust path. Without it, only the certificate's self-consistency is checked.</p>
+<hr />
+<h1>CSR Inspection</h1>
+<p><code>gossl csr inspect</code> parses and displays the contents of a Certificate Signing Request.</p>
+<h2>Usage</h2>
+<p>From a file:</p>
+<pre><code>gossl csr inspect request.csr
+</code></pre>
+<p>From stdin:</p>
+<pre><code>cat request.csr | gossl csr inspect -
+openssl req -new -key key.pem -subj &quot;/CN=example.com&quot; | gossl csr inspect -
+</code></pre>
+<h2>Output</h2>
+<p>Prints:
+- Subject (CN and any other attributes present)
+- Public key algorithm and key size / curve
+- Requested Subject Alternative Names (if present in extensions)
+- Signature algorithm</p>
+<h2>Notes</h2>
+<p>gossl does not store CSRs. This command only parses and displays — it does not create, validate, or sign. To sign a CSR against a CA in the database, use <code>gossl cert sign</code>.</p>
+<p>The <code>cert sign</code> command additionally validates key strength (RSA &gt;= 2048 bits) before signing. <code>csr inspect</code> will display a weak key without rejecting it.</p>
+<hr />
+<h1>Getting Started</h1>
+<h2>Installation</h2>
+<p>Build from source using Bazel:</p>
+<pre><code>bazel build //cmd/gossl
+</code></pre>
+<p>The binary is written to <code>bazel-bin/cmd/gossl/gossl</code>. Add it to your PATH or invoke it directly.</p>
+<h2>Quick Start</h2>
+<h3>1. Create a CA</h3>
+<pre><code>gossl ca create --cn &quot;My Root CA&quot;
+</code></pre>
+<p>This creates <code>gossl.db</code> in the current directory and registers the root CA. The first CA created is always the root.</p>
+<h3>2. Issue a Certificate</h3>
+<pre><code>gossl cert issue --cn &quot;server.example.com&quot; --san &quot;DNS:server.example.com,IP:127.0.0.1&quot;
+</code></pre>
+<p>Without <code>--ca</code>, the cert is issued under the root CA. Output is PEM to stdout.</p>
+<h3>3. Inspect a Remote Server</h3>
+<pre><code>gossl sclient server.example.com:443
+</code></pre>
+<p>Connects to the host, performs a TLS handshake, and prints certificate details for the server's chain.</p>
+<h3>4. Verify a Certificate File</h3>
+<pre><code>gossl cert inspect server.pem
+</code></pre>
+<p>Prints the subject, issuer, validity period, SANs, and key info from a local PEM file.</p>
+<h2>The Database</h2>
+<p>gossl stores all CA and certificate state in a single SQLite file. The default is <code>gossl.db</code> in the current working directory. Every command that reads or writes PKI state accepts <code>--db</code> to point at a different file.</p>
+<pre><code>gossl ca create --cn &quot;Prod Root CA&quot; --db /etc/pki/prod.db
+gossl cert issue --cn &quot;api.prod.example.com&quot; --db /etc/pki/prod.db
+</code></pre>
+<p>The database contains:
+- A unified CA table where root CAs have <code>parent_id = NULL</code> and intermediates reference their parent.
+- A certificate table with serial numbers, PEM data, and revocation status.</p>
+<p>Keep the database file backed up. Losing it means losing the ability to sign or revoke certificates under those CAs.</p>
+<h2>Output Format</h2>
+<p>Private keys are written in PEM format. RSA keys use PKCS#1 encoding; ECDSA keys use SEC 1 encoding. Certificates are standard PEM X.509.</p>
+<p>Most commands write PEM to stdout unless <code>--out</code> is provided.</p>
+<hr />
+<h1>CA Hierarchy Visualization</h1>
+<p>Generate a diagram of all CAs and certificates in a gossl database.</p>
+<h2>Basic Usage</h2>
+<pre><code class="language-bash">gossl graph
+</code></pre>
+<p>Outputs an SVG file named after the database (e.g. <code>gossl.svg</code> for <code>gossl.db</code>).</p>
+<h2>Options</h2>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--db</code></td>
+<td><code>gossl.db</code></td>
+<td>Database file path</td>
+</tr>
+<tr>
+<td><code>--out</code></td>
+<td><code>&lt;db&gt;.svg</code></td>
+<td>Output file path (defaults to db name with format extension)</td>
+</tr>
+<tr>
+<td><code>--format</code></td>
+<td><code>svg</code></td>
+<td>Output format: <code>svg</code>, <code>json</code>, <code>text</code></td>
+</tr>
+<tr>
+<td><code>--filter</code></td>
+<td>(all)</td>
+<td>Node types to include (comma-separated: <code>ca</code>, <code>intermediate</code>, <code>cert</code>)</td>
+</tr>
+</tbody>
+</table>
+<h2>Output Formats</h2>
+<h3>SVG</h3>
+<p>Color-coded tree diagram:
+- Blue: Root CA
+- Purple: Intermediate CAs
+- Green: Active certificates
+- Red: Revoked certificates</p>
+<pre><code class="language-bash">gossl graph
+gossl graph --db prod.db --out hierarchy.svg
+</code></pre>
+<h3>Text</h3>
+<p>ASCII tree, suitable for terminal output or piping:</p>
+<pre><code class="language-bash">gossl graph --format text --out /dev/stdout
+</code></pre>
+<pre><code>Root CA [ROOT]
+├── Production
+│   ├── Prod US-East
+│   │   └── payments.example.com
+│   └── api.prod.example.com
+└── Staging
+    ├── web.staging.example.com [REVOKED]
+    └── api.staging.example.com
+</code></pre>
+<h3>JSON</h3>
+<p>Nested tree structure, useful for programmatic consumption or piping to <code>jq</code>:</p>
+<pre><code class="language-bash">gossl graph --format json --out /dev/stdout | jq
+</code></pre>
+<pre><code class="language-json">[
+  {
+    &quot;name&quot;: &quot;Root CA&quot;,
+    &quot;type&quot;: &quot;root&quot;,
+    &quot;serial&quot;: &quot;A1B2C3D4&quot;,
+    &quot;children&quot;: [
+      {
+        &quot;name&quot;: &quot;Intermediate&quot;,
+        &quot;type&quot;: &quot;intermediate&quot;,
+        &quot;serial&quot;: &quot;E5F6A7B8&quot;,
+        &quot;children&quot;: [
+          { &quot;name&quot;: &quot;api.example.com&quot;, &quot;type&quot;: &quot;cert&quot;, &quot;serial&quot;: &quot;C9D0E1F2&quot; }
+        ]
+      }
+    ]
+  }
+]
+</code></pre>
+<h2>Filtering</h2>
+<p>Show only specific node types. Types: <code>ca</code> (root CAs), <code>intermediate</code>, <code>cert</code> (leaf certificates).</p>
+<pre><code class="language-bash"># CAs only — no leaf certs
+gossl graph --filter ca,intermediate --format text --out /dev/stdout
+
+# Certs only — parent CAs are included automatically to keep the tree connected
+gossl graph --filter cert --format text --out /dev/stdout
+</code></pre>
+<p>When filtering, ancestor CAs of visible nodes are always included so the tree remains connected.</p>
+<hr />
+<h1>TLS Client Inspection (sclient)</h1>
+<p><code>gossl sclient</code> connects to a TLS server, completes a handshake, and reports the server's certificate chain. It is similar in purpose to <code>openssl s_client</code>.</p>
+<h2>Basic Usage</h2>
+<pre><code>gossl sclient host:port
+</code></pre>
+<p>Examples:</p>
+<pre><code>gossl sclient example.com:443
+gossl sclient internal-service.corp:8443
+</code></pre>
+<h2>Options</h2>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--sni</code></td>
+<td>(host from argument)</td>
+<td>Override the TLS SNI hostname sent in the handshake</td>
+</tr>
+<tr>
+<td><code>--timeout</code></td>
+<td>10s</td>
+<td>Connection timeout</td>
+</tr>
+<tr>
+<td><code>--ca-file</code></td>
+<td>system trust store</td>
+<td>PEM file of CA certificates to trust</td>
+</tr>
+<tr>
+<td><code>--show-certs</code></td>
+<td>false</td>
+<td>Print full PEM blocks for all certificates in the chain</td>
+</tr>
+<tr>
+<td><code>--cert</code></td>
+<td>(none)</td>
+<td>Client certificate for mTLS (PEM file)</td>
+</tr>
+<tr>
+<td><code>--key</code></td>
+<td>(none)</td>
+<td>Client private key for mTLS (PEM file)</td>
+</tr>
+<tr>
+<td><code>--alpn</code></td>
+<td>(none)</td>
+<td>Comma-separated list of ALPN protocol names to advertise</td>
+</tr>
+</tbody>
+</table>
+<h2>Examples</h2>
+<h3>Inspect a public server</h3>
+<pre><code>gossl sclient example.com:443
+</code></pre>
+<h3>Override SNI (e.g., when connecting by IP)</h3>
+<pre><code>gossl sclient 10.0.0.5:443 --sni api.example.com
+</code></pre>
+<h3>Trust a private CA</h3>
+<pre><code>gossl sclient internal.corp:8443 --ca-file /etc/pki/corp-root.pem
+</code></pre>
+<h3>Print the full certificate chain as PEM</h3>
+<pre><code>gossl sclient example.com:443 --show-certs
+</code></pre>
+<h3>Connect with a client certificate (mTLS)</h3>
+<pre><code>gossl sclient server.example.com:8443 --cert client.pem --key client-key.pem
+</code></pre>
+<h3>Specify ALPN protocols</h3>
+<pre><code>gossl sclient example.com:443 --alpn &quot;h2,http/1.1&quot;
+</code></pre>
+<h3>Short connection timeout</h3>
+<pre><code>gossl sclient slow-host.example.com:443 --timeout 3s
+</code></pre>
+<h2>Output</h2>
+<p>Without <code>--show-certs</code>, prints summary information for each certificate in the chain: subject, issuer, validity, and SANs. With <code>--show-certs</code>, also emits the PEM blocks, which can be piped directly to <code>gossl cert inspect -</code> or saved to a file.</p>
+<pre><code>gossl sclient example.com:443 --show-certs | gossl cert inspect -
+</code></pre>
+<hr />
+<h1>HTTPS Echo Server (serve)</h1>
+<p><code>gossl serve</code> starts a local HTTPS server that echoes the request body back to the caller. When verbose mode is enabled, request headers are copied to the response headers. It is useful for testing TLS configurations, client certificate setups, and verifying connectivity.</p>
+<h2>Basic Usage</h2>
+<pre><code>gossl serve
+</code></pre>
+<p>Starts on <code>0.0.0.0:8443</code> using a certificate auto-generated from the default database.</p>
+<h2>Response Format</h2>
+<p>The server streams the request body back as the response body. With <code>-v</code>, all request headers are also set on the response.</p>
+<pre><code class="language-bash"># Body is echoed back
+curl -k -d &quot;hello&quot; https://localhost:8443/
+# → hello
+
+# With verbose, request headers appear on the response
+curl -k -v -H &quot;X-Custom: test&quot; https://localhost:8443/
+# Response includes X-Custom: test header
+</code></pre>
+<h2>Modes</h2>
+<h3>Database mode (default)</h3>
+<p>The server loads its certificate and key from the database. A certificate is created automatically if one does not exist.</p>
+<pre><code>gossl serve --db gossl.db --dn &quot;server.example.com&quot;
+</code></pre>
+<p><code>--dn</code> specifies the CN used when auto-generating a certificate.</p>
+<h3>File mode</h3>
+<p>Provide certificate and key files directly, bypassing the database:</p>
+<pre><code>gossl serve --cert server.pem --pkey server-key.pem
+</code></pre>
+<h2>Options</h2>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--db</code></td>
+<td><code>gossl.db</code></td>
+<td>Path to the SQLite database (database mode)</td>
+</tr>
+<tr>
+<td><code>--dn</code></td>
+<td><code>localhost</code></td>
+<td>CN for auto-generated server certificate</td>
+</tr>
+<tr>
+<td><code>--cert</code></td>
+<td>(none)</td>
+<td>PEM certificate file (file mode)</td>
+</tr>
+<tr>
+<td><code>--pkey</code></td>
+<td>(none)</td>
+<td>PEM private key file (file mode)</td>
+</tr>
+<tr>
+<td><code>--port</code></td>
+<td><code>8443</code></td>
+<td>Port to listen on</td>
+</tr>
+<tr>
+<td><code>--addr</code></td>
+<td><code>0.0.0.0</code></td>
+<td>Address to bind to</td>
+</tr>
+<tr>
+<td><code>--metrics-handler</code></td>
+<td><code>/metrics</code></td>
+<td>Path for Prometheus metrics endpoint (set to empty string to disable)</td>
+</tr>
+<tr>
+<td><code>--mtls</code></td>
+<td>false</td>
+<td>Require client certificates</td>
+</tr>
+<tr>
+<td><code>-v</code></td>
+<td>false</td>
+<td>Copy request headers to response headers</td>
+</tr>
+</tbody>
+</table>
+<h2>mTLS</h2>
+<p>Enable mutual TLS to require and verify client certificates:</p>
+<pre><code>gossl serve --mtls --db gossl.db
+</code></pre>
+<p>The server uses the CAs in the database as the trusted client CA pool. Clients that do not present a certificate, or present one signed by an unknown CA, are rejected at the TLS layer.</p>
+<h2>Metrics</h2>
+<p>The server exposes Prometheus-compatible metrics via OpenTelemetry at the <code>/metrics</code> endpoint (configurable with <code>--metrics-handler</code>).</p>
+<pre><code>curl -k https://localhost:8443/metrics
+</code></pre>
+<p>Available metrics:</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gossl_conn_setup_duration_nanoseconds</code></td>
+<td>Histogram</td>
+<td>Time from new connection to first active state (TLS handshake latency)</td>
+</tr>
+</tbody>
+</table>
+<p>Disable the endpoint by setting <code>--metrics-handler ""</code>.</p>
+<h2>Typical Workflows</h2>
+<h3>Test a certificate chain end to end</h3>
+<pre><code># Create PKI
+gossl ca create --cn &quot;Test Root CA&quot;
+gossl cert issue --cn &quot;server.localhost&quot; --san &quot;DNS:localhost,IP:127.0.0.1&quot;
+
+# Start server
+gossl serve --dn &quot;server.localhost&quot;
+
+# Inspect from another terminal
+gossl sclient localhost:8443 --ca-file &lt;(gossl cert export --serial &lt;root-serial&gt;)
+curl -k https://localhost:8443/test
+</code></pre>
+<h3>Test mTLS client authentication</h3>
+<pre><code># Issue a client certificate
+gossl cert issue --cn &quot;client.test&quot; --ca &quot;Test Root CA&quot;
+
+# Start server with mTLS
+gossl serve --mtls --db gossl.db
+
+# Connect with client cert
+gossl sclient localhost:8443 --cert client.pem --key client-key.pem
+curl --cert client.pem --key client-key.pem --cacert root.pem https://localhost:8443/
+</code></pre>
+<h3>Bind to loopback only</h3>
+<pre><code>gossl serve --addr 127.0.0.1 --port 9443
+</code></pre>
+<hr />
+<h1>Troubleshooting</h1>
+<h2>mTLS: Client Certificate Rejected</h2>
+<p><strong>Symptom:</strong> TLS handshake fails with <code>certificate required</code>, <code>bad certificate</code>, or <code>unknown CA</code>.</p>
+<p><strong>Causes and fixes:</strong></p>
+<ol>
+<li>
+<p>The client certificate was not signed by a CA that the server trusts. Confirm the server is using a trust store that includes the issuing CA. In gossl serve, the trusted pool comes from the database — ensure the client cert was issued by a CA in that database.</p>
+</li>
+<li>
+<p>The client is not presenting a certificate at all. Check that <code>--cert</code> and <code>--key</code> are passed to the connecting tool.</p>
+</li>
+<li>
+<p>The client certificate has been revoked. Check <code>gossl cert list</code> and look for <code>revoked</code> status on the relevant serial.</p>
+</li>
+</ol>
+<h2>Expired Certificate</h2>
+<p><strong>Symptom:</strong> TLS error <code>certificate has expired</code> or <code>x509: certificate has expired or is not yet valid</code>.</p>
+<p><strong>Fix:</strong> Issue a new certificate:</p>
+<pre><code>gossl cert issue --cn &quot;service.example.com&quot; --san &quot;DNS:service.example.com&quot; --ca &quot;Issuing CA&quot;
+</code></pre>
+<p>Check expiry of any certificate:</p>
+<pre><code>gossl cert inspect service.pem
+gossl cert inspect --db gossl.db --serial 0A1B2C3D
+</code></pre>
+<p>Check expiry of CA certificates:</p>
+<pre><code>gossl ca list
+</code></pre>
+<h2>Missing Intermediate CA</h2>
+<p><strong>Symptom:</strong> Chain validation fails even though the end-entity certificate is valid.</p>
+<p><strong>Symptom detail:</strong> <code>x509: certificate signed by unknown authority</code> when the root is trusted but an intermediate is not in the presented chain.</p>
+<p><strong>Fix:</strong> Export the full chain and use it when serving or connecting:</p>
+<pre><code>gossl cert export --serial &lt;end-entity-serial&gt; --chain --out fullchain.pem
+</code></pre>
+<p>Verify the chain is complete:</p>
+<pre><code>gossl cert verify fullchain.pem
+</code></pre>
+<h2>Wrong CA Trust Store</h2>
+<p><strong>Symptom:</strong> <code>gossl sclient</code> or a browser reports <code>certificate signed by unknown authority</code> against an internal server.</p>
+<p><strong>Fix:</strong> Pass the correct root CA to the client:</p>
+<pre><code>gossl sclient internal.corp:8443 --ca-file root-ca.pem
+</code></pre>
+<p>Export the root CA certificate from the database:</p>
+<pre><code>gossl cert export --serial &lt;root-ca-serial&gt; --out root-ca.pem
+</code></pre>
+<p>The root CA serial is visible in <code>gossl ca list</code>.</p>
+<h2>Weak Key in CSR Rejected</h2>
+<p><strong>Symptom:</strong> <code>gossl cert sign</code> fails with a message about key strength.</p>
+<p><strong>Cause:</strong> <code>cert sign</code> enforces a minimum RSA key size of 2048 bits. CSRs with 1024-bit RSA keys are rejected.</p>
+<p><strong>Fix:</strong> Regenerate the CSR with a stronger key:</p>
+<pre><code>openssl genrsa -out key.pem 2048
+openssl req -new -key key.pem -subj &quot;/CN=example.com&quot; -out request.csr
+gossl cert sign request.csr --ca &quot;Issuing CA&quot;
+</code></pre>
+<p>Inspect the key size in an existing CSR before signing:</p>
+<pre><code>gossl csr inspect request.csr
+</code></pre>
+<h2>SNI Mismatch</h2>
+<p><strong>Symptom:</strong> Server presents a certificate for the wrong hostname, or <code>gossl sclient</code> shows a certificate whose subject does not match the host you connected to.</p>
+<p><strong>Cause:</strong> The server is returning a default certificate because the SNI hostname in the ClientHello did not match any configured virtual host, or the certificate simply has the wrong SANs.</p>
+<p><strong>Fix — if connecting by IP:</strong> Override SNI to send the expected hostname:</p>
+<pre><code>gossl sclient 10.0.0.5:443 --sni api.example.com
+</code></pre>
+<p><strong>Fix — if the certificate is missing SANs:</strong> Reissue with correct SANs:</p>
+<pre><code>gossl cert issue --cn &quot;api.example.com&quot; \
+  --san &quot;DNS:api.example.com,DNS:api-internal.example.com&quot; \
+  --ca &quot;Issuing CA&quot;
+</code></pre>
+<p>Note: Modern TLS stacks match on SANs, not CN. Always include <code>DNS:</code> entries in <code>--san</code>.</p>
+<h2>Connection Timeout / Hang</h2>
+<p><strong>Symptom:</strong> <code>gossl sclient</code> hangs indefinitely.</p>
+<p><strong>Fix:</strong> Set an explicit timeout:</p>
+<pre><code>gossl sclient host:443 --timeout 5s
+</code></pre>
+<p>Check that the port is reachable and not firewalled before debugging TLS.</p>
+<h2>Certificate Issued but Not Visible in List</h2>
+<p><strong>Symptom:</strong> <code>gossl cert list</code> does not show a certificate just issued.</p>
+<p><strong>Cause:</strong> A different database file was used for issuance and listing.</p>
+<p><strong>Fix:</strong> Always pass <code>--db</code> consistently, or rely on the same working directory when using the default <code>gossl.db</code>:</p>
+<pre><code>gossl cert issue --cn &quot;example.com&quot; --db /path/to/pki.db
+gossl cert list --db /path/to/pki.db
+</code></pre>
+<hr /></div></a><div class="index-item-stats"><span>4 bash · 1 agent</span>
+<div class="index-item-long-text"><div class="truncatable"><div class="truncatable-content"><div class="index-item-long-text-content"><p>There's no key matching command in gossl yet. The tool currently can't check if a private key matches a certificate. To answer both your questions:</p>
+<p><strong>Re: generating and matching</strong> — gossl doesn't have a <code>cert check</code> or key-match command. You'd need to build one. Here's what the demo would look like once it exists:</p>
+<pre><code class="language-bash"># Create a CA and issue a cert
+gossl ca create --cn &quot;Demo CA&quot;
+gossl cert issue --cn &quot;demo.example.com&quot; --san &quot;DNS:demo.example.com&quot; &gt; demo.pem
+
+# Extract the private key (cert issue outputs both cert + key to stdout)
+# Then check the match:
+gossl cert check demo.pem --key demo-key.pem   # hypothetical command
+</code></pre>
+<p><strong>Re: do we need a key inspect command?</strong> — I'd say you need two things, and they might be separate commands or combined:</p>
+<ol>
+<li>
+<p><strong>Key inspect</strong> (<code>gossl key inspect key.pem</code>) — show key algorithm, size/curve, public key fingerprint. Useful for debugging "what is this key file?"</p>
+</li>
+<li>
+<p><strong>Key-cert match check</strong> — compare the public key in a certificate (or CSR) against a private key file to confirm they form a pair. This is a very common troubleshooting need (the classic <code>openssl x509 -modulus</code> + <code>openssl rsa -modulus</code> dance).</p>
+</li>
+</ol>
+<p>These could be:
+- <code>gossl key inspect key.pem</code> — standalone key info
+- <code>gossl key check --cert cert.pem --key key.pem</code> — match verification
+- Or a combined <code>gossl cert check cert.pem --key key.pem</code> on the cert subcommand</p>
+<p>Want me to brainstorm the design and build these commands? The key-cert matching is the more impactful feature for mTLS troubleshooting — it's one of the most common pain points that <code>openssl</code> makes annoyingly verbose.</p></div></div><button class="expand-btn">Show more</button></div></div>
+</div></div>
+<div class="index-item"><a href="page-001.html#msg-2026-03-27T21-09-02-294Z"><div class="index-item-header"><span class="index-item-number">#2</span><time datetime="2026-03-27T21:09:02.294Z" data-timestamp="2026-03-27T21:09:02.294Z">2026-03-27T21:09:02.294Z</time></div><div class="index-item-content"><ol>
+<li>is ok</li>
+<li>i dont want it, the modulus can be visualize with both key inspect and cert inspect</li>
+</ol></div></a><div class="index-item-stats">
+<div class="index-item-long-text"><div class="truncatable"><div class="truncatable-content"><div class="index-item-long-text-content"><p>Got it. So the workflow would be:</p>
+<ol>
+<li><code>gossl key inspect key.pem</code> — shows algorithm, size/curve, and modulus/public key fingerprint</li>
+<li><code>gossl cert inspect cert.pem</code> — already shows cert details, just needs to also display the modulus/public key fingerprint</li>
+<li>User eyeballs whether the modulus matches (or pipes through <code>grep</code>)</li>
+</ol>
+<p>Want me to build <code>key inspect</code> and add modulus output to <code>cert inspect</code>?</p></div></div><button class="expand-btn">Show more</button></div></div>
+</div></div>
+<div class="index-item"><a href="page-001.html#msg-2026-03-27T21-09-18-483Z"><div class="index-item-header"><span class="index-item-number">#3</span><time datetime="2026-03-27T21:09:18.483Z" data-timestamp="2026-03-27T21:09:18.483Z">2026-03-27T21:09:18.483Z</time></div><div class="index-item-content"><p>y</p></div></a><div class="index-item-stats"><span>1 skill</span>
+</div></div>
+<div class="index-item"><a href="page-001.html#msg-2026-03-27T21-09-22-158Z"><div class="index-item-header"><span class="index-item-number">#4</span><time datetime="2026-03-27T21:09:22.158Z" data-timestamp="2026-03-27T21:09:22.158Z">2026-03-27T21:09:22.158Z</time></div><div class="index-item-content"><p>Base directory for this skill: /Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/brainstorming</p>
+<h1>Brainstorming Ideas Into Designs</h1>
+<p>Help turn ideas into fully formed designs and specs through natural collaborative dialogue.</p>
+<p>Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.</p>
+<p><HARD-GATE>
+Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
+</HARD-GATE></p>
+<h2>Anti-Pattern: "This Is Too Simple To Need A Design"</h2>
+<p>Every project goes through this process. A todo list, a single-function utility, a config change — all of them. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.</p>
+<h2>Checklist</h2>
+<p>You MUST create a task for each of these items and complete them in order:</p>
+<ol>
+<li><strong>Explore project context</strong> — check files, docs, recent commits</li>
+<li><strong>Offer visual companion</strong> (if topic will involve visual questions) — this is its own message, not combined with a clarifying question. See the Visual Companion section below.</li>
+<li><strong>Ask clarifying questions</strong> — one at a time, understand purpose/constraints/success criteria</li>
+<li><strong>Propose 2-3 approaches</strong> — with trade-offs and your recommendation</li>
+<li><strong>Present design</strong> — in sections scaled to their complexity, get user approval after each section</li>
+<li><strong>Write design doc</strong> — save to <code>docs/superpowers/specs/YYYY-MM-DD-&lt;topic&gt;-design.md</code> and commit</li>
+<li><strong>Spec self-review</strong> — quick inline check for placeholders, contradictions, ambiguity, scope (see below)</li>
+<li><strong>User reviews written spec</strong> — ask user to review the spec file before proceeding</li>
+<li><strong>Transition to implementation</strong> — invoke writing-plans skill to create implementation plan</li>
+</ol>
+<h2>Process Flow</h2>
+<pre><code class="language-dot">digraph brainstorming {
+    &quot;Explore project context&quot; [shape=box];
+    &quot;Visual questions ahead?&quot; [shape=diamond];
+    &quot;Offer Visual Companion\n(own message, no other content)&quot; [shape=box];
+    &quot;Ask clarifying questions&quot; [shape=box];
+    &quot;Propose 2-3 approaches&quot; [shape=box];
+    &quot;Present design sections&quot; [shape=box];
+    &quot;User approves design?&quot; [shape=diamond];
+    &quot;Write design doc&quot; [shape=box];
+    &quot;Spec self-review\n(fix inline)&quot; [shape=box];
+    &quot;User reviews spec?&quot; [shape=diamond];
+    &quot;Invoke writing-plans skill&quot; [shape=doublecircle];
+
+    &quot;Explore project context&quot; -&gt; &quot;Visual questions ahead?&quot;;
+    &quot;Visual questions ahead?&quot; -&gt; &quot;Offer Visual Companion\n(own message, no other content)&quot; [label=&quot;yes&quot;];
+    &quot;Visual questions ahead?&quot; -&gt; &quot;Ask clarifying questions&quot; [label=&quot;no&quot;];
+    &quot;Offer Visual Companion\n(own message, no other content)&quot; -&gt; &quot;Ask clarifying questions&quot;;
+    &quot;Ask clarifying questions&quot; -&gt; &quot;Propose 2-3 approaches&quot;;
+    &quot;Propose 2-3 approaches&quot; -&gt; &quot;Present design sections&quot;;
+    &quot;Present design sections&quot; -&gt; &quot;User approves design?&quot;;
+    &quot;User approves design?&quot; -&gt; &quot;Present design sections&quot; [label=&quot;no, revise&quot;];
+    &quot;User approves design?&quot; -&gt; &quot;Write design doc&quot; [label=&quot;yes&quot;];
+    &quot;Write design doc&quot; -&gt; &quot;Spec self-review\n(fix inline)&quot;;
+    &quot;Spec self-review\n(fix inline)&quot; -&gt; &quot;User reviews spec?&quot;;
+    &quot;User reviews spec?&quot; -&gt; &quot;Write design doc&quot; [label=&quot;changes requested&quot;];
+    &quot;User reviews spec?&quot; -&gt; &quot;Invoke writing-plans skill&quot; [label=&quot;approved&quot;];
+}
+</code></pre>
+<p><strong>The terminal state is invoking writing-plans.</strong> Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is writing-plans.</p>
+<h2>The Process</h2>
+<p><strong>Understanding the idea:</strong></p>
+<ul>
+<li>Check out the current project state first (files, docs, recent commits)</li>
+<li>Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.</li>
+<li>If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.</li>
+<li>For appropriately-scoped projects, ask questions one at a time to refine the idea</li>
+<li>Prefer multiple choice questions when possible, but open-ended is fine too</li>
+<li>Only one question per message - if a topic needs more exploration, break it into multiple questions</li>
+<li>Focus on understanding: purpose, constraints, success criteria</li>
+</ul>
+<p><strong>Exploring approaches:</strong></p>
+<ul>
+<li>Propose 2-3 different approaches with trade-offs</li>
+<li>Present options conversationally with your recommendation and reasoning</li>
+<li>Lead with your recommended option and explain why</li>
+</ul>
+<p><strong>Presenting the design:</strong></p>
+<ul>
+<li>Once you believe you understand what you're building, present the design</li>
+<li>Scale each section to its complexity: a few sentences if straightforward, up to 200-300 words if nuanced</li>
+<li>Ask after each section whether it looks right so far</li>
+<li>Cover: architecture, components, data flow, error handling, testing</li>
+<li>Be ready to go back and clarify if something doesn't make sense</li>
+</ul>
+<p><strong>Design for isolation and clarity:</strong></p>
+<ul>
+<li>Break the system into smaller units that each have one clear purpose, communicate through well-defined interfaces, and can be understood and tested independently</li>
+<li>For each unit, you should be able to answer: what does it do, how do you use it, and what does it depend on?</li>
+<li>Can someone understand what a unit does without reading its internals? Can you change the internals without breaking consumers? If not, the boundaries need work.</li>
+<li>Smaller, well-bounded units are also easier for you to work with - you reason better about code you can hold in context at once, and your edits are more reliable when files are focused. When a file grows large, that's often a signal that it's doing too much.</li>
+</ul>
+<p><strong>Working in existing codebases:</strong></p>
+<ul>
+<li>Explore the current structure before proposing changes. Follow existing patterns.</li>
+<li>Where existing code has problems that affect the work (e.g., a file that's grown too large, unclear boundaries, tangled responsibilities), include targeted improvements as part of the design - the way a good developer improves code they're working in.</li>
+<li>Don't propose unrelated refactoring. Stay focused on what serves the current goal.</li>
+</ul>
+<h2>After the Design</h2>
+<p><strong>Documentation:</strong></p>
+<ul>
+<li>Write the validated design (spec) to <code>docs/superpowers/specs/YYYY-MM-DD-&lt;topic&gt;-design.md</code></li>
+<li>(User preferences for spec location override this default)</li>
+<li>Use elements-of-style:writing-clearly-and-concisely skill if available</li>
+<li>Commit the design document to git</li>
+</ul>
+<p><strong>Spec Self-Review:</strong>
+After writing the spec document, look at it with fresh eyes:</p>
+<ol>
+<li><strong>Placeholder scan:</strong> Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.</li>
+<li><strong>Internal consistency:</strong> Do any sections contradict each other? Does the architecture match the feature descriptions?</li>
+<li><strong>Scope check:</strong> Is this focused enough for a single implementation plan, or does it need decomposition?</li>
+<li><strong>Ambiguity check:</strong> Could any requirement be interpreted two different ways? If so, pick one and make it explicit.</li>
+</ol>
+<p>Fix any issues inline. No need to re-review — just fix and move on.</p>
+<p><strong>User Review Gate:</strong>
+After the spec review loop passes, ask the user to review the written spec before proceeding:</p>
+<blockquote>
+<p>"Spec written and committed to <code>&lt;path&gt;</code>. Please review it and let me know if you want to make any changes before we start writing out the implementation plan."</p>
+</blockquote>
+<p>Wait for the user's response. If they request changes, make them and re-run the spec review loop. Only proceed once the user approves.</p>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li>Invoke the writing-plans skill to create a detailed implementation plan</li>
+<li>Do NOT invoke any other skill. writing-plans is the next step.</li>
+</ul>
+<h2>Key Principles</h2>
+<ul>
+<li><strong>One question at a time</strong> - Don't overwhelm with multiple questions</li>
+<li><strong>Multiple choice preferred</strong> - Easier to answer than open-ended when possible</li>
+<li><strong>YAGNI ruthlessly</strong> - Remove unnecessary features from all designs</li>
+<li><strong>Explore alternatives</strong> - Always propose 2-3 approaches before settling</li>
+<li><strong>Incremental validation</strong> - Present design, get approval before moving on</li>
+<li><strong>Be flexible</strong> - Go back and clarify when something doesn't make sense</li>
+</ul>
+<h2>Visual Companion</h2>
+<p>A browser-based companion for showing mockups, diagrams, and visual options during brainstorming. Available as a tool — not a mode. Accepting the companion means it's available for questions that benefit from visual treatment; it does NOT mean every question goes through the browser.</p>
+<p><strong>Offering the companion:</strong> When you anticipate that upcoming questions will involve visual content (mockups, layouts, diagrams), offer it once for consent:</p>
+<blockquote>
+<p>"Some of what we're working on might be easier to explain if I can show it to you in a web browser. I can put together mockups, diagrams, comparisons, and other visuals as we go. This feature is still new and can be token-intensive. Want to try it? (Requires opening a local URL)"</p>
+</blockquote>
+<p><strong>This offer MUST be its own message.</strong> Do not combine it with clarifying questions, context summaries, or any other content. The message should contain ONLY the offer above and nothing else. Wait for the user's response before continuing. If they decline, proceed with text-only brainstorming.</p>
+<p><strong>Per-question decision:</strong> Even after the user accepts, decide FOR EACH QUESTION whether to use the browser or the terminal. The test: <strong>would the user understand this better by seeing it than reading it?</strong></p>
+<ul>
+<li><strong>Use the browser</strong> for content that IS visual — mockups, wireframes, layout comparisons, architecture diagrams, side-by-side visual designs</li>
+<li><strong>Use the terminal</strong> for content that is text — requirements questions, conceptual choices, tradeoff lists, A/B/C/D text options, scope decisions</li>
+</ul>
+<p>A question about a UI topic is not automatically a visual question. "What does personality mean in this context?" is a conceptual question — use the terminal. "Which wizard layout works better?" is a visual question — use the browser.</p>
+<p>If they agree to the companion, read the detailed guide before proceeding:
+<code>skills/brainstorming/visual-companion.md</code></p></div></a><div class="index-item-stats"><span>3 read · 2 taskupdate · 1 toolsearch · 1 taskcreate</span>
+<div class="index-item-long-text"><div class="truncatable"><div class="truncatable-content"><div class="index-item-long-text-content"><p>Base directory for this skill: /Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/brainstorming</p>
+<h1>Brainstorming Ideas Into Designs</h1>
+<p>Help turn ideas into fully formed designs and specs through natural collaborative dialogue.</p>
+<p>Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.</p>
+<p><HARD-GATE>
+Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
+</HARD-GATE></p>
+<h2>Anti-Pattern: "This Is Too Simple To Need A Design"</h2>
+<p>Every project goes through this process. A todo list, a single-function utility, a config change — all of them. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.</p>
+<h2>Checklist</h2>
+<p>You MUST create a task for each of these items and complete them in order:</p>
+<ol>
+<li><strong>Explore project context</strong> — check files, docs, recent commits</li>
+<li><strong>Offer visual companion</strong> (if topic will involve visual questions) — this is its own message, not combined with a clarifying question. See the Visual Companion section below.</li>
+<li><strong>Ask clarifying questions</strong> — one at a time, understand purpose/constraints/success criteria</li>
+<li><strong>Propose 2-3 approaches</strong> — with trade-offs and your recommendation</li>
+<li><strong>Present design</strong> — in sections scaled to their complexity, get user approval after each section</li>
+<li><strong>Write design doc</strong> — save to <code>docs/superpowers/specs/YYYY-MM-DD-&lt;topic&gt;-design.md</code> and commit</li>
+<li><strong>Spec self-review</strong> — quick inline check for placeholders, contradictions, ambiguity, scope (see below)</li>
+<li><strong>User reviews written spec</strong> — ask user to review the spec file before proceeding</li>
+<li><strong>Transition to implementation</strong> — invoke writing-plans skill to create implementation plan</li>
+</ol>
+<h2>Process Flow</h2>
+<pre><code class="language-dot">digraph brainstorming {
+    &quot;Explore project context&quot; [shape=box];
+    &quot;Visual questions ahead?&quot; [shape=diamond];
+    &quot;Offer Visual Companion\n(own message, no other content)&quot; [shape=box];
+    &quot;Ask clarifying questions&quot; [shape=box];
+    &quot;Propose 2-3 approaches&quot; [shape=box];
+    &quot;Present design sections&quot; [shape=box];
+    &quot;User approves design?&quot; [shape=diamond];
+    &quot;Write design doc&quot; [shape=box];
+    &quot;Spec self-review\n(fix inline)&quot; [shape=box];
+    &quot;User reviews spec?&quot; [shape=diamond];
+    &quot;Invoke writing-plans skill&quot; [shape=doublecircle];
+
+    &quot;Explore project context&quot; -&gt; &quot;Visual questions ahead?&quot;;
+    &quot;Visual questions ahead?&quot; -&gt; &quot;Offer Visual Companion\n(own message, no other content)&quot; [label=&quot;yes&quot;];
+    &quot;Visual questions ahead?&quot; -&gt; &quot;Ask clarifying questions&quot; [label=&quot;no&quot;];
+    &quot;Offer Visual Companion\n(own message, no other content)&quot; -&gt; &quot;Ask clarifying questions&quot;;
+    &quot;Ask clarifying questions&quot; -&gt; &quot;Propose 2-3 approaches&quot;;
+    &quot;Propose 2-3 approaches&quot; -&gt; &quot;Present design sections&quot;;
+    &quot;Present design sections&quot; -&gt; &quot;User approves design?&quot;;
+    &quot;User approves design?&quot; -&gt; &quot;Present design sections&quot; [label=&quot;no, revise&quot;];
+    &quot;User approves design?&quot; -&gt; &quot;Write design doc&quot; [label=&quot;yes&quot;];
+    &quot;Write design doc&quot; -&gt; &quot;Spec self-review\n(fix inline)&quot;;
+    &quot;Spec self-review\n(fix inline)&quot; -&gt; &quot;User reviews spec?&quot;;
+    &quot;User reviews spec?&quot; -&gt; &quot;Write design doc&quot; [label=&quot;changes requested&quot;];
+    &quot;User reviews spec?&quot; -&gt; &quot;Invoke writing-plans skill&quot; [label=&quot;approved&quot;];
+}
+</code></pre>
+<p><strong>The terminal state is invoking writing-plans.</strong> Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is writing-plans.</p>
+<h2>The Process</h2>
+<p><strong>Understanding the idea:</strong></p>
+<ul>
+<li>Check out the current project state first (files, docs, recent commits)</li>
+<li>Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.</li>
+<li>If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.</li>
+<li>For appropriately-scoped projects, ask questions one at a time to refine the idea</li>
+<li>Prefer multiple choice questions when possible, but open-ended is fine too</li>
+<li>Only one question per message - if a topic needs more exploration, break it into multiple questions</li>
+<li>Focus on understanding: purpose, constraints, success criteria</li>
+</ul>
+<p><strong>Exploring approaches:</strong></p>
+<ul>
+<li>Propose 2-3 different approaches with trade-offs</li>
+<li>Present options conversationally with your recommendation and reasoning</li>
+<li>Lead with your recommended option and explain why</li>
+</ul>
+<p><strong>Presenting the design:</strong></p>
+<ul>
+<li>Once you believe you understand what you're building, present the design</li>
+<li>Scale each section to its complexity: a few sentences if straightforward, up to 200-300 words if nuanced</li>
+<li>Ask after each section whether it looks right so far</li>
+<li>Cover: architecture, components, data flow, error handling, testing</li>
+<li>Be ready to go back and clarify if something doesn't make sense</li>
+</ul>
+<p><strong>Design for isolation and clarity:</strong></p>
+<ul>
+<li>Break the system into smaller units that each have one clear purpose, communicate through well-defined interfaces, and can be understood and tested independently</li>
+<li>For each unit, you should be able to answer: what does it do, how do you use it, and what does it depend on?</li>
+<li>Can someone understand what a unit does without reading its internals? Can you change the internals without breaking consumers? If not, the boundaries need work.</li>
+<li>Smaller, well-bounded units are also easier for you to work with - you reason better about code you can hold in context at once, and your edits are more reliable when files are focused. When a file grows large, that's often a signal that it's doing too much.</li>
+</ul>
+<p><strong>Working in existing codebases:</strong></p>
+<ul>
+<li>Explore the current structure before proposing changes. Follow existing patterns.</li>
+<li>Where existing code has problems that affect the work (e.g., a file that's grown too large, unclear boundaries, tangled responsibilities), include targeted improvements as part of the design - the way a good developer improves code they're working in.</li>
+<li>Don't propose unrelated refactoring. Stay focused on what serves the current goal.</li>
+</ul>
+<h2>After the Design</h2>
+<p><strong>Documentation:</strong></p>
+<ul>
+<li>Write the validated design (spec) to <code>docs/superpowers/specs/YYYY-MM-DD-&lt;topic&gt;-design.md</code></li>
+<li>(User preferences for spec location override this default)</li>
+<li>Use elements-of-style:writing-clearly-and-concisely skill if available</li>
+<li>Commit the design document to git</li>
+</ul>
+<p><strong>Spec Self-Review:</strong>
+After writing the spec document, look at it with fresh eyes:</p>
+<ol>
+<li><strong>Placeholder scan:</strong> Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.</li>
+<li><strong>Internal consistency:</strong> Do any sections contradict each other? Does the architecture match the feature descriptions?</li>
+<li><strong>Scope check:</strong> Is this focused enough for a single implementation plan, or does it need decomposition?</li>
+<li><strong>Ambiguity check:</strong> Could any requirement be interpreted two different ways? If so, pick one and make it explicit.</li>
+</ol>
+<p>Fix any issues inline. No need to re-review — just fix and move on.</p>
+<p><strong>User Review Gate:</strong>
+After the spec review loop passes, ask the user to review the written spec before proceeding:</p>
+<blockquote>
+<p>"Spec written and committed to <code>&lt;path&gt;</code>. Please review it and let me know if you want to make any changes before we start writing out the implementation plan."</p>
+</blockquote>
+<p>Wait for the user's response. If they request changes, make them and re-run the spec review loop. Only proceed once the user approves.</p>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li>Invoke the writing-plans skill to create a detailed implementation plan</li>
+<li>Do NOT invoke any other skill. writing-plans is the next step.</li>
+</ul>
+<h2>Key Principles</h2>
+<ul>
+<li><strong>One question at a time</strong> - Don't overwhelm with multiple questions</li>
+<li><strong>Multiple choice preferred</strong> - Easier to answer than open-ended when possible</li>
+<li><strong>YAGNI ruthlessly</strong> - Remove unnecessary features from all designs</li>
+<li><strong>Explore alternatives</strong> - Always propose 2-3 approaches before settling</li>
+<li><strong>Incremental validation</strong> - Present design, get approval before moving on</li>
+<li><strong>Be flexible</strong> - Go back and clarify when something doesn't make sense</li>
+</ul>
+<h2>Visual Companion</h2>
+<p>A browser-based companion for showing mockups, diagrams, and visual options during brainstorming. Available as a tool — not a mode. Accepting the companion means it's available for questions that benefit from visual treatment; it does NOT mean every question goes through the browser.</p>
+<p><strong>Offering the companion:</strong> When you anticipate that upcoming questions will involve visual content (mockups, layouts, diagrams), offer it once for consent:</p>
+<blockquote>
+<p>"Some of what we're working on might be easier to explain if I can show it to you in a web browser. I can put together mockups, diagrams, comparisons, and other visuals as we go. This feature is still new and can be token-intensive. Want to try it? (Requires opening a local URL)"</p>
+</blockquote>
+<p><strong>This offer MUST be its own message.</strong> Do not combine it with clarifying questions, context summaries, or any other content. The message should contain ONLY the offer above and nothing else. Wait for the user's response before continuing. If they decline, proceed with text-only brainstorming.</p>
+<p><strong>Per-question decision:</strong> Even after the user accepts, decide FOR EACH QUESTION whether to use the browser or the terminal. The test: <strong>would the user understand this better by seeing it than reading it?</strong></p>
+<ul>
+<li><strong>Use the browser</strong> for content that IS visual — mockups, wireframes, layout comparisons, architecture diagrams, side-by-side visual designs</li>
+<li><strong>Use the terminal</strong> for content that is text — requirements questions, conceptual choices, tradeoff lists, A/B/C/D text options, scope decisions</li>
+</ul>
+<p>A question about a UI topic is not automatically a visual question. "What does personality mean in this context?" is a conceptual question — use the terminal. "Which wizard layout works better?" is a visual question — use the browser.</p>
+<p>If they agree to the companion, read the detailed guide before proceeding:
+<code>skills/brainstorming/visual-companion.md</code></p></div></div><button class="expand-btn">Show more</button></div></div>
+<div class="index-item-long-text"><div class="truncatable"><div class="truncatable-content"><div class="index-item-long-text-content"><p>Now I have full context. No visual questions needed here. Let me ask the first clarifying question.</p>
+<p>For <code>key inspect</code>, what output format are you thinking? I see <code>cert inspect</code> prints labeled fields line by line. I'm thinking <code>key inspect</code> would mirror that style:</p>
+<pre><code>Algorithm:   RSA
+Key Size:    4096 bits
+Modulus:     SHA256:ab:cd:ef:12:...
+</code></pre>
+<p>For the modulus fingerprint specifically — should it be:
+1. <strong>SHA-256 fingerprint of the public key</strong> (e.g., <code>SHA256:ab:cd:ef:...</code>) — compact, easy to compare visually
+2. <strong>Raw modulus hex</strong> (like <code>openssl rsa -modulus</code>) — verbose but matches what openssl users expect
+3. <strong>Both</strong> — fingerprint by default, <code>--raw</code> flag for full modulus</p>
+<p>I'd recommend option 1 (SHA-256 fingerprint) since the whole point is quick visual matching. What do you think?</p></div></div><button class="expand-btn">Show more</button></div></div>
+</div></div>
+<div class="index-item"><a href="page-001.html#msg-2026-03-27T21-10-16-647Z"><div class="index-item-header"><span class="index-item-number">#5</span><time datetime="2026-03-27T21:10:16.647Z" data-timestamp="2026-03-27T21:10:16.647Z">2026-03-27T21:10:16.647Z</time></div><div class="index-item-content"><p>3</p></div></a><div class="index-item-stats">
+<div class="index-item-long-text"><div class="truncatable"><div class="truncatable-content"><div class="index-item-long-text-content"><p>Good choice. Here's the design:</p>
+<h2>Design</h2>
+<h3>1. New <code>gossl key</code> command group</h3>
+<p>Mirrors the existing <code>cert</code>, <code>csr</code>, <code>ca</code> pattern. New file <code>internal/cli/key.go</code> with a single subcommand <code>inspect</code>.</p>
+<p><strong><code>gossl key inspect &lt;file&gt;</code> / <code>gossl key inspect -</code></strong></p>
+<p>Output:</p>
+<pre><code>Algorithm:        RSA
+Key Size:         4096 bits
+Public Key SHA256: ab:cd:ef:12:34:...
+</code></pre>
+<p>With <code>--raw</code>:</p>
+<pre><code>Algorithm:        RSA
+Key Size:         4096 bits
+Public Key SHA256: ab:cd:ef:12:34:...
+Modulus:          B4:A7:C3:...  (full hex)
+</code></pre>
+<p>For ECDSA, "Key Size" becomes "Curve: P-256" and "Modulus" becomes the uncompressed public point hex.</p>
+<p>Flags: <code>--raw</code> (show full modulus/public point)</p>
+<h3>2. Add public key fingerprint to <code>cert inspect</code></h3>
+<p>Add one line to the existing <code>printCertInfo</code> output:</p>
+<pre><code>Public Key SHA256: ab:cd:ef:12:34:...
+</code></pre>
+<p>Same SHA-256 fingerprint so users can eyeball-match between <code>cert inspect</code> and <code>key inspect</code>.</p>
+<h3>3. Shared helper</h3>
+<p>A <code>publicKeyFingerprint(pub any) string</code> function in <code>crypto.go</code> that computes SHA-256 of the DER-encoded public key — used by both commands. Plus a <code>publicKeyModulus(pub any) string</code> for the raw output.</p>
+<hr />
+<p>Does this look right, or do you want to adjust anything before I write the spec and move to implementation?</p></div></div><button class="expand-btn">Show more</button></div></div>
+</div></div>
+<div class="index-item"><a href="page-002.html#msg-2026-03-27T21-10-43-505Z"><div class="index-item-header"><span class="index-item-number">#6</span><time datetime="2026-03-27T21:10:43.505Z" data-timestamp="2026-03-27T21:10:43.505Z">2026-03-27T21:10:43.505Z</time></div><div class="index-item-content"><p>k</p></div></a><div class="index-item-stats"><span>3 bash · 2 taskupdate · 1 taskcreate · 1 write</span>
+</div></div><div class="index-commit"><div class="index-commit-header"><span class="index-commit-hash">5e530d0</span><time datetime="2026-03-27T21:12:17.025Z" data-timestamp="2026-03-27T21:12:17.025Z">2026-03-27T21:12:17.025Z</time></div><div class="index-commit-msg">Add design spec for key inspect command and cert inspect fingerprint</div></div>
+<div class="index-item"><a href="page-002.html#msg-2026-03-27T21-15-08-539Z"><div class="index-item-header"><span class="index-item-number">#7</span><time datetime="2026-03-27T21:15:08.539Z" data-timestamp="2026-03-27T21:15:08.539Z">2026-03-27T21:15:08.539Z</time></div><div class="index-item-content"><p>write tests</p></div></a><div class="index-item-stats"><span>1 skill</span>
+</div></div>
+<div class="index-item"><a href="page-002.html#msg-2026-03-27T21-15-11-269Z"><div class="index-item-header"><span class="index-item-number">#8</span><time datetime="2026-03-27T21:15:11.269Z" data-timestamp="2026-03-27T21:15:11.269Z">2026-03-27T21:15:11.269Z</time></div><div class="index-item-content"><p>Base directory for this skill: /Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/test-driven-development</p>
+<h1>Test-Driven Development (TDD)</h1>
+<h2>Overview</h2>
+<p>Write the test first. Watch it fail. Write minimal code to pass.</p>
+<p><strong>Core principle:</strong> If you didn't watch the test fail, you don't know if it tests the right thing.</p>
+<p><strong>Violating the letter of the rules is violating the spirit of the rules.</strong></p>
+<h2>When to Use</h2>
+<p><strong>Always:</strong>
+- New features
+- Bug fixes
+- Refactoring
+- Behavior changes</p>
+<p><strong>Exceptions (ask your human partner):</strong>
+- Throwaway prototypes
+- Generated code
+- Configuration files</p>
+<p>Thinking "skip TDD just this once"? Stop. That's rationalization.</p>
+<h2>The Iron Law</h2>
+<pre><code>NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
+</code></pre>
+<p>Write code before the test? Delete it. Start over.</p>
+<p><strong>No exceptions:</strong>
+- Don't keep it as "reference"
+- Don't "adapt" it while writing tests
+- Don't look at it
+- Delete means delete</p>
+<p>Implement fresh from tests. Period.</p>
+<h2>Red-Green-Refactor</h2>
+<pre><code class="language-dot">digraph tdd_cycle {
+    rankdir=LR;
+    red [label=&quot;RED\nWrite failing test&quot;, shape=box, style=filled, fillcolor=&quot;#ffcccc&quot;];
+    verify_red [label=&quot;Verify fails\ncorrectly&quot;, shape=diamond];
+    green [label=&quot;GREEN\nMinimal code&quot;, shape=box, style=filled, fillcolor=&quot;#ccffcc&quot;];
+    verify_green [label=&quot;Verify passes\nAll green&quot;, shape=diamond];
+    refactor [label=&quot;REFACTOR\nClean up&quot;, shape=box, style=filled, fillcolor=&quot;#ccccff&quot;];
+    next [label=&quot;Next&quot;, shape=ellipse];
+
+    red -&gt; verify_red;
+    verify_red -&gt; green [label=&quot;yes&quot;];
+    verify_red -&gt; red [label=&quot;wrong\nfailure&quot;];
+    green -&gt; verify_green;
+    verify_green -&gt; refactor [label=&quot;yes&quot;];
+    verify_green -&gt; green [label=&quot;no&quot;];
+    refactor -&gt; verify_green [label=&quot;stay\ngreen&quot;];
+    verify_green -&gt; next;
+    next -&gt; red;
+}
+</code></pre>
+<h3>RED - Write Failing Test</h3>
+<p>Write one minimal test showing what should happen.</p>
+<p><Good></p>
+<pre><code class="language-typescript">test('retries failed operations 3 times', async () =&gt; {
+  let attempts = 0;
+  const operation = () =&gt; {
+    attempts++;
+    if (attempts &lt; 3) throw new Error('fail');
+    return 'success';
+  };
+
+  const result = await retryOperation(operation);
+
+  expect(result).toBe('success');
+  expect(attempts).toBe(3);
+});
+</code></pre>
+<p>Clear name, tests real behavior, one thing
+</Good></p>
+<p><Bad></p>
+<pre><code class="language-typescript">test('retry works', async () =&gt; {
+  const mock = jest.fn()
+    .mockRejectedValueOnce(new Error())
+    .mockRejectedValueOnce(new Error())
+    .mockResolvedValueOnce('success');
+  await retryOperation(mock);
+  expect(mock).toHaveBeenCalledTimes(3);
+});
+</code></pre>
+<p>Vague name, tests mock not code
+</Bad></p>
+<p><strong>Requirements:</strong>
+- One behavior
+- Clear name
+- Real code (no mocks unless unavoidable)</p>
+<h3>Verify RED - Watch It Fail</h3>
+<p><strong>MANDATORY. Never skip.</strong></p>
+<pre><code class="language-bash">npm test path/to/test.test.ts
+</code></pre>
+<p>Confirm:
+- Test fails (not errors)
+- Failure message is expected
+- Fails because feature missing (not typos)</p>
+<p><strong>Test passes?</strong> You're testing existing behavior. Fix test.</p>
+<p><strong>Test errors?</strong> Fix error, re-run until it fails correctly.</p>
+<h3>GREEN - Minimal Code</h3>
+<p>Write simplest code to pass the test.</p>
+<p><Good></p>
+<pre><code class="language-typescript">async function retryOperation&lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;): Promise&lt;T&gt; {
+  for (let i = 0; i &lt; 3; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      if (i === 2) throw e;
+    }
+  }
+  throw new Error('unreachable');
+}
+</code></pre>
+<p>Just enough to pass
+</Good></p>
+<p><Bad></p>
+<pre><code class="language-typescript">async function retryOperation&lt;T&gt;(
+  fn: () =&gt; Promise&lt;T&gt;,
+  options?: {
+    maxRetries?: number;
+    backoff?: 'linear' | 'exponential';
+    onRetry?: (attempt: number) =&gt; void;
+  }
+): Promise&lt;T&gt; {
+  // YAGNI
+}
+</code></pre>
+<p>Over-engineered
+</Bad></p>
+<p>Don't add features, refactor other code, or "improve" beyond the test.</p>
+<h3>Verify GREEN - Watch It Pass</h3>
+<p><strong>MANDATORY.</strong></p>
+<pre><code class="language-bash">npm test path/to/test.test.ts
+</code></pre>
+<p>Confirm:
+- Test passes
+- Other tests still pass
+- Output pristine (no errors, warnings)</p>
+<p><strong>Test fails?</strong> Fix code, not test.</p>
+<p><strong>Other tests fail?</strong> Fix now.</p>
+<h3>REFACTOR - Clean Up</h3>
+<p>After green only:
+- Remove duplication
+- Improve names
+- Extract helpers</p>
+<p>Keep tests green. Don't add behavior.</p>
+<h3>Repeat</h3>
+<p>Next failing test for next feature.</p>
+<h2>Good Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Quality</th>
+<th>Good</th>
+<th>Bad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Minimal</strong></td>
+<td>One thing. "and" in name? Split it.</td>
+<td><code>test('validates email and domain and whitespace')</code></td>
+</tr>
+<tr>
+<td><strong>Clear</strong></td>
+<td>Name describes behavior</td>
+<td><code>test('test1')</code></td>
+</tr>
+<tr>
+<td><strong>Shows intent</strong></td>
+<td>Demonstrates desired API</td>
+<td>Obscures what code should do</td>
+</tr>
+</tbody>
+</table>
+<h2>Why Order Matters</h2>
+<p><strong>"I'll write tests after to verify it works"</strong></p>
+<p>Tests written after code pass immediately. Passing immediately proves nothing:
+- Might test wrong thing
+- Might test implementation, not behavior
+- Might miss edge cases you forgot
+- You never saw it catch the bug</p>
+<p>Test-first forces you to see the test fail, proving it actually tests something.</p>
+<p><strong>"I already manually tested all the edge cases"</strong></p>
+<p>Manual testing is ad-hoc. You think you tested everything but:
+- No record of what you tested
+- Can't re-run when code changes
+- Easy to forget cases under pressure
+- "It worked when I tried it" ≠ comprehensive</p>
+<p>Automated tests are systematic. They run the same way every time.</p>
+<p><strong>"Deleting X hours of work is wasteful"</strong></p>
+<p>Sunk cost fallacy. The time is already gone. Your choice now:
+- Delete and rewrite with TDD (X more hours, high confidence)
+- Keep it and add tests after (30 min, low confidence, likely bugs)</p>
+<p>The "waste" is keeping code you can't trust. Working code without real tests is technical debt.</p>
+<p><strong>"TDD is dogmatic, being pragmatic means adapting"</strong></p>
+<p>TDD IS pragmatic:
+- Finds bugs before commit (faster than debugging after)
+- Prevents regressions (tests catch breaks immediately)
+- Documents behavior (tests show how to use code)
+- Enables refactoring (change freely, tests catch breaks)</p>
+<p>"Pragmatic" shortcuts = debugging in production = slower.</p>
+<p><strong>"Tests after achieve the same goals - it's spirit not ritual"</strong></p>
+<p>No. Tests-after answer "What does this do?" Tests-first answer "What should this do?"</p>
+<p>Tests-after are biased by your implementation. You test what you built, not what's required. You verify remembered edge cases, not discovered ones.</p>
+<p>Tests-first force edge case discovery before implementing. Tests-after verify you remembered everything (you didn't).</p>
+<p>30 minutes of tests after ≠ TDD. You get coverage, lose proof tests work.</p>
+<h2>Common Rationalizations</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Too simple to test"</td>
+<td>Simple code breaks. Test takes 30 seconds.</td>
+</tr>
+<tr>
+<td>"I'll test after"</td>
+<td>Tests passing immediately prove nothing.</td>
+</tr>
+<tr>
+<td>"Tests after achieve same goals"</td>
+<td>Tests-after = "what does this do?" Tests-first = "what should this do?"</td>
+</tr>
+<tr>
+<td>"Already manually tested"</td>
+<td>Ad-hoc ≠ systematic. No record, can't re-run.</td>
+</tr>
+<tr>
+<td>"Deleting X hours is wasteful"</td>
+<td>Sunk cost fallacy. Keeping unverified code is technical debt.</td>
+</tr>
+<tr>
+<td>"Keep as reference, write tests first"</td>
+<td>You'll adapt it. That's testing after. Delete means delete.</td>
+</tr>
+<tr>
+<td>"Need to explore first"</td>
+<td>Fine. Throw away exploration, start with TDD.</td>
+</tr>
+<tr>
+<td>"Test hard = design unclear"</td>
+<td>Listen to test. Hard to test = hard to use.</td>
+</tr>
+<tr>
+<td>"TDD will slow me down"</td>
+<td>TDD faster than debugging. Pragmatic = test-first.</td>
+</tr>
+<tr>
+<td>"Manual test faster"</td>
+<td>Manual doesn't prove edge cases. You'll re-test every change.</td>
+</tr>
+<tr>
+<td>"Existing code has no tests"</td>
+<td>You're improving it. Add tests for existing code.</td>
+</tr>
+</tbody>
+</table>
+<h2>Red Flags - STOP and Start Over</h2>
+<ul>
+<li>Code before test</li>
+<li>Test after implementation</li>
+<li>Test passes immediately</li>
+<li>Can't explain why test failed</li>
+<li>Tests added "later"</li>
+<li>Rationalizing "just this once"</li>
+<li>"I already manually tested it"</li>
+<li>"Tests after achieve the same purpose"</li>
+<li>"It's about spirit not ritual"</li>
+<li>"Keep as reference" or "adapt existing code"</li>
+<li>"Already spent X hours, deleting is wasteful"</li>
+<li>"TDD is dogmatic, I'm being pragmatic"</li>
+<li>"This is different because..."</li>
+</ul>
+<p><strong>All of these mean: Delete code. Start over with TDD.</strong></p>
+<h2>Example: Bug Fix</h2>
+<p><strong>Bug:</strong> Empty email accepted</p>
+<p><strong>RED</strong></p>
+<pre><code class="language-typescript">test('rejects empty email', async () =&gt; {
+  const result = await submitForm({ email: '' });
+  expect(result.error).toBe('Email required');
+});
+</code></pre>
+<p><strong>Verify RED</strong></p>
+<pre><code class="language-bash">$ npm test
+FAIL: expected 'Email required', got undefined
+</code></pre>
+<p><strong>GREEN</strong></p>
+<pre><code class="language-typescript">function submitForm(data: FormData) {
+  if (!data.email?.trim()) {
+    return { error: 'Email required' };
+  }
+  // ...
+}
+</code></pre>
+<p><strong>Verify GREEN</strong></p>
+<pre><code class="language-bash">$ npm test
+PASS
+</code></pre>
+<p><strong>REFACTOR</strong>
+Extract validation for multiple fields if needed.</p>
+<h2>Verification Checklist</h2>
+<p>Before marking work complete:</p>
+<ul>
+<li>[ ] Every new function/method has a test</li>
+<li>[ ] Watched each test fail before implementing</li>
+<li>[ ] Each test failed for expected reason (feature missing, not typo)</li>
+<li>[ ] Wrote minimal code to pass each test</li>
+<li>[ ] All tests pass</li>
+<li>[ ] Output pristine (no errors, warnings)</li>
+<li>[ ] Tests use real code (mocks only if unavoidable)</li>
+<li>[ ] Edge cases and errors covered</li>
+</ul>
+<p>Can't check all boxes? You skipped TDD. Start over.</p>
+<h2>When Stuck</h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Don't know how to test</td>
+<td>Write wished-for API. Write assertion first. Ask your human partner.</td>
+</tr>
+<tr>
+<td>Test too complicated</td>
+<td>Design too complicated. Simplify interface.</td>
+</tr>
+<tr>
+<td>Must mock everything</td>
+<td>Code too coupled. Use dependency injection.</td>
+</tr>
+<tr>
+<td>Test setup huge</td>
+<td>Extract helpers. Still complex? Simplify design.</td>
+</tr>
+</tbody>
+</table>
+<h2>Debugging Integration</h2>
+<p>Bug found? Write failing test reproducing it. Follow TDD cycle. Test proves fix and prevents regression.</p>
+<p>Never fix bugs without a test.</p>
+<h2>Testing Anti-Patterns</h2>
+<p>When adding mocks or test utilities, read @testing-anti-patterns.md to avoid common pitfalls:
+- Testing mock behavior instead of real behavior
+- Adding test-only methods to production classes
+- Mocking without understanding dependencies</p>
+<h2>Final Rule</h2>
+<pre><code>Production code → test exists and failed first
+Otherwise → not TDD
+</code></pre>
+<p>No exceptions without your human partner's permission.</p></div></a><div class="index-item-stats"><span>4 taskcreate · 3 read · 2 write · 2 edit · 1 taskupdate · 1 glob</span>
+<div class="index-item-long-text"><div class="truncatable"><div class="truncatable-content"><div class="index-item-long-text-content"><p>Base directory for this skill: /Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/test-driven-development</p>
+<h1>Test-Driven Development (TDD)</h1>
+<h2>Overview</h2>
+<p>Write the test first. Watch it fail. Write minimal code to pass.</p>
+<p><strong>Core principle:</strong> If you didn't watch the test fail, you don't know if it tests the right thing.</p>
+<p><strong>Violating the letter of the rules is violating the spirit of the rules.</strong></p>
+<h2>When to Use</h2>
+<p><strong>Always:</strong>
+- New features
+- Bug fixes
+- Refactoring
+- Behavior changes</p>
+<p><strong>Exceptions (ask your human partner):</strong>
+- Throwaway prototypes
+- Generated code
+- Configuration files</p>
+<p>Thinking "skip TDD just this once"? Stop. That's rationalization.</p>
+<h2>The Iron Law</h2>
+<pre><code>NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
+</code></pre>
+<p>Write code before the test? Delete it. Start over.</p>
+<p><strong>No exceptions:</strong>
+- Don't keep it as "reference"
+- Don't "adapt" it while writing tests
+- Don't look at it
+- Delete means delete</p>
+<p>Implement fresh from tests. Period.</p>
+<h2>Red-Green-Refactor</h2>
+<pre><code class="language-dot">digraph tdd_cycle {
+    rankdir=LR;
+    red [label=&quot;RED\nWrite failing test&quot;, shape=box, style=filled, fillcolor=&quot;#ffcccc&quot;];
+    verify_red [label=&quot;Verify fails\ncorrectly&quot;, shape=diamond];
+    green [label=&quot;GREEN\nMinimal code&quot;, shape=box, style=filled, fillcolor=&quot;#ccffcc&quot;];
+    verify_green [label=&quot;Verify passes\nAll green&quot;, shape=diamond];
+    refactor [label=&quot;REFACTOR\nClean up&quot;, shape=box, style=filled, fillcolor=&quot;#ccccff&quot;];
+    next [label=&quot;Next&quot;, shape=ellipse];
+
+    red -&gt; verify_red;
+    verify_red -&gt; green [label=&quot;yes&quot;];
+    verify_red -&gt; red [label=&quot;wrong\nfailure&quot;];
+    green -&gt; verify_green;
+    verify_green -&gt; refactor [label=&quot;yes&quot;];
+    verify_green -&gt; green [label=&quot;no&quot;];
+    refactor -&gt; verify_green [label=&quot;stay\ngreen&quot;];
+    verify_green -&gt; next;
+    next -&gt; red;
+}
+</code></pre>
+<h3>RED - Write Failing Test</h3>
+<p>Write one minimal test showing what should happen.</p>
+<p><Good></p>
+<pre><code class="language-typescript">test('retries failed operations 3 times', async () =&gt; {
+  let attempts = 0;
+  const operation = () =&gt; {
+    attempts++;
+    if (attempts &lt; 3) throw new Error('fail');
+    return 'success';
+  };
+
+  const result = await retryOperation(operation);
+
+  expect(result).toBe('success');
+  expect(attempts).toBe(3);
+});
+</code></pre>
+<p>Clear name, tests real behavior, one thing
+</Good></p>
+<p><Bad></p>
+<pre><code class="language-typescript">test('retry works', async () =&gt; {
+  const mock = jest.fn()
+    .mockRejectedValueOnce(new Error())
+    .mockRejectedValueOnce(new Error())
+    .mockResolvedValueOnce('success');
+  await retryOperation(mock);
+  expect(mock).toHaveBeenCalledTimes(3);
+});
+</code></pre>
+<p>Vague name, tests mock not code
+</Bad></p>
+<p><strong>Requirements:</strong>
+- One behavior
+- Clear name
+- Real code (no mocks unless unavoidable)</p>
+<h3>Verify RED - Watch It Fail</h3>
+<p><strong>MANDATORY. Never skip.</strong></p>
+<pre><code class="language-bash">npm test path/to/test.test.ts
+</code></pre>
+<p>Confirm:
+- Test fails (not errors)
+- Failure message is expected
+- Fails because feature missing (not typos)</p>
+<p><strong>Test passes?</strong> You're testing existing behavior. Fix test.</p>
+<p><strong>Test errors?</strong> Fix error, re-run until it fails correctly.</p>
+<h3>GREEN - Minimal Code</h3>
+<p>Write simplest code to pass the test.</p>
+<p><Good></p>
+<pre><code class="language-typescript">async function retryOperation&lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;): Promise&lt;T&gt; {
+  for (let i = 0; i &lt; 3; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      if (i === 2) throw e;
+    }
+  }
+  throw new Error('unreachable');
+}
+</code></pre>
+<p>Just enough to pass
+</Good></p>
+<p><Bad></p>
+<pre><code class="language-typescript">async function retryOperation&lt;T&gt;(
+  fn: () =&gt; Promise&lt;T&gt;,
+  options?: {
+    maxRetries?: number;
+    backoff?: 'linear' | 'exponential';
+    onRetry?: (attempt: number) =&gt; void;
+  }
+): Promise&lt;T&gt; {
+  // YAGNI
+}
+</code></pre>
+<p>Over-engineered
+</Bad></p>
+<p>Don't add features, refactor other code, or "improve" beyond the test.</p>
+<h3>Verify GREEN - Watch It Pass</h3>
+<p><strong>MANDATORY.</strong></p>
+<pre><code class="language-bash">npm test path/to/test.test.ts
+</code></pre>
+<p>Confirm:
+- Test passes
+- Other tests still pass
+- Output pristine (no errors, warnings)</p>
+<p><strong>Test fails?</strong> Fix code, not test.</p>
+<p><strong>Other tests fail?</strong> Fix now.</p>
+<h3>REFACTOR - Clean Up</h3>
+<p>After green only:
+- Remove duplication
+- Improve names
+- Extract helpers</p>
+<p>Keep tests green. Don't add behavior.</p>
+<h3>Repeat</h3>
+<p>Next failing test for next feature.</p>
+<h2>Good Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Quality</th>
+<th>Good</th>
+<th>Bad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Minimal</strong></td>
+<td>One thing. "and" in name? Split it.</td>
+<td><code>test('validates email and domain and whitespace')</code></td>
+</tr>
+<tr>
+<td><strong>Clear</strong></td>
+<td>Name describes behavior</td>
+<td><code>test('test1')</code></td>
+</tr>
+<tr>
+<td><strong>Shows intent</strong></td>
+<td>Demonstrates desired API</td>
+<td>Obscures what code should do</td>
+</tr>
+</tbody>
+</table>
+<h2>Why Order Matters</h2>
+<p><strong>"I'll write tests after to verify it works"</strong></p>
+<p>Tests written after code pass immediately. Passing immediately proves nothing:
+- Might test wrong thing
+- Might test implementation, not behavior
+- Might miss edge cases you forgot
+- You never saw it catch the bug</p>
+<p>Test-first forces you to see the test fail, proving it actually tests something.</p>
+<p><strong>"I already manually tested all the edge cases"</strong></p>
+<p>Manual testing is ad-hoc. You think you tested everything but:
+- No record of what you tested
+- Can't re-run when code changes
+- Easy to forget cases under pressure
+- "It worked when I tried it" ≠ comprehensive</p>
+<p>Automated tests are systematic. They run the same way every time.</p>
+<p><strong>"Deleting X hours of work is wasteful"</strong></p>
+<p>Sunk cost fallacy. The time is already gone. Your choice now:
+- Delete and rewrite with TDD (X more hours, high confidence)
+- Keep it and add tests after (30 min, low confidence, likely bugs)</p>
+<p>The "waste" is keeping code you can't trust. Working code without real tests is technical debt.</p>
+<p><strong>"TDD is dogmatic, being pragmatic means adapting"</strong></p>
+<p>TDD IS pragmatic:
+- Finds bugs before commit (faster than debugging after)
+- Prevents regressions (tests catch breaks immediately)
+- Documents behavior (tests show how to use code)
+- Enables refactoring (change freely, tests catch breaks)</p>
+<p>"Pragmatic" shortcuts = debugging in production = slower.</p>
+<p><strong>"Tests after achieve the same goals - it's spirit not ritual"</strong></p>
+<p>No. Tests-after answer "What does this do?" Tests-first answer "What should this do?"</p>
+<p>Tests-after are biased by your implementation. You test what you built, not what's required. You verify remembered edge cases, not discovered ones.</p>
+<p>Tests-first force edge case discovery before implementing. Tests-after verify you remembered everything (you didn't).</p>
+<p>30 minutes of tests after ≠ TDD. You get coverage, lose proof tests work.</p>
+<h2>Common Rationalizations</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Too simple to test"</td>
+<td>Simple code breaks. Test takes 30 seconds.</td>
+</tr>
+<tr>
+<td>"I'll test after"</td>
+<td>Tests passing immediately prove nothing.</td>
+</tr>
+<tr>
+<td>"Tests after achieve same goals"</td>
+<td>Tests-after = "what does this do?" Tests-first = "what should this do?"</td>
+</tr>
+<tr>
+<td>"Already manually tested"</td>
+<td>Ad-hoc ≠ systematic. No record, can't re-run.</td>
+</tr>
+<tr>
+<td>"Deleting X hours is wasteful"</td>
+<td>Sunk cost fallacy. Keeping unverified code is technical debt.</td>
+</tr>
+<tr>
+<td>"Keep as reference, write tests first"</td>
+<td>You'll adapt it. That's testing after. Delete means delete.</td>
+</tr>
+<tr>
+<td>"Need to explore first"</td>
+<td>Fine. Throw away exploration, start with TDD.</td>
+</tr>
+<tr>
+<td>"Test hard = design unclear"</td>
+<td>Listen to test. Hard to test = hard to use.</td>
+</tr>
+<tr>
+<td>"TDD will slow me down"</td>
+<td>TDD faster than debugging. Pragmatic = test-first.</td>
+</tr>
+<tr>
+<td>"Manual test faster"</td>
+<td>Manual doesn't prove edge cases. You'll re-test every change.</td>
+</tr>
+<tr>
+<td>"Existing code has no tests"</td>
+<td>You're improving it. Add tests for existing code.</td>
+</tr>
+</tbody>
+</table>
+<h2>Red Flags - STOP and Start Over</h2>
+<ul>
+<li>Code before test</li>
+<li>Test after implementation</li>
+<li>Test passes immediately</li>
+<li>Can't explain why test failed</li>
+<li>Tests added "later"</li>
+<li>Rationalizing "just this once"</li>
+<li>"I already manually tested it"</li>
+<li>"Tests after achieve the same purpose"</li>
+<li>"It's about spirit not ritual"</li>
+<li>"Keep as reference" or "adapt existing code"</li>
+<li>"Already spent X hours, deleting is wasteful"</li>
+<li>"TDD is dogmatic, I'm being pragmatic"</li>
+<li>"This is different because..."</li>
+</ul>
+<p><strong>All of these mean: Delete code. Start over with TDD.</strong></p>
+<h2>Example: Bug Fix</h2>
+<p><strong>Bug:</strong> Empty email accepted</p>
+<p><strong>RED</strong></p>
+<pre><code class="language-typescript">test('rejects empty email', async () =&gt; {
+  const result = await submitForm({ email: '' });
+  expect(result.error).toBe('Email required');
+});
+</code></pre>
+<p><strong>Verify RED</strong></p>
+<pre><code class="language-bash">$ npm test
+FAIL: expected 'Email required', got undefined
+</code></pre>
+<p><strong>GREEN</strong></p>
+<pre><code class="language-typescript">function submitForm(data: FormData) {
+  if (!data.email?.trim()) {
+    return { error: 'Email required' };
+  }
+  // ...
+}
+</code></pre>
+<p><strong>Verify GREEN</strong></p>
+<pre><code class="language-bash">$ npm test
+PASS
+</code></pre>
+<p><strong>REFACTOR</strong>
+Extract validation for multiple fields if needed.</p>
+<h2>Verification Checklist</h2>
+<p>Before marking work complete:</p>
+<ul>
+<li>[ ] Every new function/method has a test</li>
+<li>[ ] Watched each test fail before implementing</li>
+<li>[ ] Each test failed for expected reason (feature missing, not typo)</li>
+<li>[ ] Wrote minimal code to pass each test</li>
+<li>[ ] All tests pass</li>
+<li>[ ] Output pristine (no errors, warnings)</li>
+<li>[ ] Tests use real code (mocks only if unavoidable)</li>
+<li>[ ] Edge cases and errors covered</li>
+</ul>
+<p>Can't check all boxes? You skipped TDD. Start over.</p>
+<h2>When Stuck</h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Don't know how to test</td>
+<td>Write wished-for API. Write assertion first. Ask your human partner.</td>
+</tr>
+<tr>
+<td>Test too complicated</td>
+<td>Design too complicated. Simplify interface.</td>
+</tr>
+<tr>
+<td>Must mock everything</td>
+<td>Code too coupled. Use dependency injection.</td>
+</tr>
+<tr>
+<td>Test setup huge</td>
+<td>Extract helpers. Still complex? Simplify design.</td>
+</tr>
+</tbody>
+</table>
+<h2>Debugging Integration</h2>
+<p>Bug found? Write failing test reproducing it. Follow TDD cycle. Test proves fix and prevents regression.</p>
+<p>Never fix bugs without a test.</p>
+<h2>Testing Anti-Patterns</h2>
+<p>When adding mocks or test utilities, read @testing-anti-patterns.md to avoid common pitfalls:
+- Testing mock behavior instead of real behavior
+- Adding test-only methods to production classes
+- Mocking without understanding dependencies</p>
+<h2>Final Rule</h2>
+<pre><code>Production code → test exists and failed first
+Otherwise → not TDD
+</code></pre>
+<p>No exceptions without your human partner's permission.</p></div></div><button class="expand-btn">Show more</button></div></div>
+</div></div>
+<div class="index-item"><a href="page-002.html#msg-2026-03-27T21-16-59-387Z"><div class="index-item-header"><span class="index-item-number">#9</span><time datetime="2026-03-27T21:16:59.387Z" data-timestamp="2026-03-27T21:16:59.387Z">2026-03-27T21:16:59.387Z</time></div><div class="index-item-content"><p>[Request interrupted by user for tool use]</p></div></a></div>
+<div class="index-item"><a href="page-002.html#msg-2026-03-27T21-17-07-480Z"><div class="index-item-header"><span class="index-item-number">#10</span><time datetime="2026-03-27T21:17:07.480Z" data-timestamp="2026-03-27T21:17:07.480Z">2026-03-27T21:17:07.480Z</time></div><div class="index-item-content"><p>continue, my bad</p></div></a><div class="index-item-stats"><span>4 taskupdate · 2 bash · 1 edit</span>
+<div class="index-item-long-text"><div class="truncatable"><div class="truncatable-content"><div class="index-item-long-text-content"><p>All tests written and verified RED:</p>
+<ul>
+<li><strong><code>crypto_test.go</code></strong> — tests for <code>publicKeyFingerprint</code> (RSA, ECDSA, determinism, different-keys-differ) and <code>publicKeyRaw</code> (RSA modulus bytes, ECDSA point bytes, key-cert matching)</li>
+<li><strong><code>key_test.go</code></strong> — tests for <code>key inspect</code> command (RSA, ECDSA, <code>--raw</code>, stdin, no-args error, bad PEM error), <code>cert inspect</code> fingerprint output, and end-to-end key-cert fingerprint matching via the DB</li>
+</ul>
+<p>All fail with <code>undefined</code> errors because the production code doesn't exist yet. Ready for GREEN — want me to implement?</p></div></div><button class="expand-btn">Show more</button></div></div>
+</div></div>
+<div class="index-item"><a href="page-003.html#msg-2026-03-27T21-18-13-638Z"><div class="index-item-header"><span class="index-item-number">#11</span><time datetime="2026-03-27T21:18:13.638Z" data-timestamp="2026-03-27T21:18:13.638Z">2026-03-27T21:18:13.638Z</time></div><div class="index-item-content"><p>y</p></div></a><div class="index-item-stats"><span>12 bash · 8 taskupdate · 6 edit · 4 taskcreate · 1 write · 1 read</span>
+<div class="index-item-long-text"><div class="truncatable"><div class="truncatable-content"><div class="index-item-long-text-content"><p>Now add the fingerprint line to <code>printCertInfo</code> in cert.go. I need to also update it to write to <code>cmd.OutOrStdout()</code> so the test can capture output... let me check how it's currently called.</p>
+<p>The tests use <code>cmd.SetOut(&amp;buf)</code> but <code>printCertInfo</code> uses <code>fmt.Printf</code> (writes to stdout directly). I need to thread the writer through. But wait — the existing tests (<code>TestCertInspect_File</code>, <code>TestCertInspect_DB</code>) don't check output content, they only check for no error. My new test does check content. Let me update <code>printCertInfo</code> to accept a writer, and update <code>runCertInspect</code> to pass it.</p></div></div><button class="expand-btn">Show more</button></div></div>
+<div class="index-item-long-text"><div class="truncatable"><div class="truncatable-content"><div class="index-item-long-text-content"><p>The <code>Public Key SHA256</code> lines match between <code>cert inspect</code> and <code>key inspect</code> — <code>SHA256:b9:1a:98:d5:36:fa:cf:00:...</code>. That's the one-glance match.</p>
+<p><strong>Summary of changes:</strong></p>
+<ul>
+<li><strong><code>internal/cli/crypto.go</code></strong> — added <code>publicKeyFingerprint()</code> and <code>publicKeyRaw()</code> helpers</li>
+<li><strong><code>internal/cli/key.go</code></strong> — new <code>gossl key inspect</code> command with <code>--raw</code> flag</li>
+<li><strong><code>internal/cli/cert.go</code></strong> — added <code>Public Key SHA256:</code> line to <code>printCertInfo</code>, refactored to write to <code>io.Writer</code></li>
+<li><strong><code>internal/cli/root.go</code></strong> — registered <code>key</code> command</li>
+<li><strong><code>internal/cli/crypto_test.go</code></strong> — tests for fingerprint/raw helpers</li>
+<li><strong><code>internal/cli/key_test.go</code></strong> — tests for key inspect command, cert inspect fingerprint, and key-cert matching</li>
+</ul></div></div><button class="expand-btn">Show more</button></div></div>
+</div></div>
+<div class="index-item"><a href="page-003.html#msg-2026-03-27T21-21-53-831Z"><div class="index-item-header"><span class="index-item-number">#12</span><time datetime="2026-03-27T21:21:53.831Z" data-timestamp="2026-03-27T21:21:53.831Z">2026-03-27T21:21:53.831Z</time></div><div class="index-item-content"><p>add key export command for a cert</p></div></a><div class="index-item-stats"><span>2 read · 1 edit · 1 bash</span>
+</div></div>
+<div class="index-item"><a href="page-003.html#msg-2026-03-27T21-22-37-434Z"><div class="index-item-header"><span class="index-item-number">#13</span><time datetime="2026-03-27T21:22:37.434Z" data-timestamp="2026-03-27T21:22:37.434Z">2026-03-27T21:22:37.434Z</time></div><div class="index-item-content"><p>[Request interrupted by user for tool use]</p></div></a></div>
+<div class="index-item"><a href="page-003.html#msg-2026-03-27T21-23-01-205Z"><div class="index-item-header"><span class="index-item-number">#14</span><time datetime="2026-03-27T21:23:01.205Z" data-timestamp="2026-03-27T21:23:01.205Z">2026-03-27T21:23:01.205Z</time></div><div class="index-item-content"><p>continue</p></div></a><div class="index-item-stats"><span>7 bash · 5 edit · 1 grep</span>
+</div></div>
+<div class="index-item"><a href="page-003.html#msg-2026-03-27T21-30-16-923Z"><div class="index-item-header"><span class="index-item-number">#15</span><time datetime="2026-03-27T21:30:16.923Z" data-timestamp="2026-03-27T21:30:16.923Z">2026-03-27T21:30:16.923Z</time></div><div class="index-item-content"><p>perfect</p></div></a></div>
+<div class="index-item"><a href="page-004.html#msg-2026-03-27T21-49-22-397Z"><div class="index-item-header"><span class="index-item-number">#16</span><time datetime="2026-03-27T21:49:22.397Z" data-timestamp="2026-03-27T21:49:22.397Z">2026-03-27T21:49:22.397Z</time></div><div class="index-item-content"><p>update docs</p></div></a><div class="index-item-stats"><span>8 read · 7 edit · 2 bash · 1 agent · 1 write · 1 grep · 1 glob</span>
+<div class="index-item-long-text"><div class="truncatable"><div class="truncatable-content"><div class="index-item-long-text-content"><p>All docs updated:</p>
+<ul>
+<li><strong><code>README.md</code></strong> — added <code>key inspect</code>, <code>key inspect --raw</code>, key-cert matching, and <code>key export</code> examples</li>
+<li><strong><code>docs/001-gossl-cli-design.md</code></strong> — added Key Management section to the command surface table</li>
+<li><strong><code>docs/users/keys.md</code></strong> — new doc covering <code>key inspect</code>, <code>key export</code>, and key-cert matching</li>
+<li><strong><code>docs/users/certificates.md</code></strong> — noted <code>Public Key SHA256</code> in cert inspect output</li>
+<li><strong><code>docs/users/troubleshooting.md</code></strong> — added "Private Key Does Not Match Certificate" section</li>
+<li><strong><code>internal/cli/BUILD.bazel</code></strong> — added <code>keys.md</code> to embedded docs</li>
+<li><strong><code>internal/cli/docs.go</code></strong> — added <code>keys</code> to topic list</li>
+</ul></div></div><button class="expand-btn">Show more</button></div></div>
+</div></div>
+        
+
+<div class="pagination">
+<span class="current">Index</span>
+<span class="disabled">&larr; Prev</span>
+<a href="page-001.html">1</a>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-001.html">Next &rarr;</a>
+</div>
+
+
+        <dialog id="search-modal">
+            <div class="search-modal-header">
+                <input type="text" id="modal-search-input" placeholder="Search..." aria-label="Search transcripts">
+                <button id="modal-search-btn" type="button" aria-label="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+                </button>
+                <button id="modal-close-btn" type="button" aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                </button>
+            </div>
+            <div id="search-status"></div>
+            <div id="search-results"></div>
+        </dialog>
+        <script>
+(function() {
+    var totalPages = 4;
+    var searchBox = document.getElementById('search-box');
+    var searchInput = document.getElementById('search-input');
+    var searchBtn = document.getElementById('search-btn');
+    var modal = document.getElementById('search-modal');
+    var modalInput = document.getElementById('modal-search-input');
+    var modalSearchBtn = document.getElementById('modal-search-btn');
+    var modalCloseBtn = document.getElementById('modal-close-btn');
+    var searchStatus = document.getElementById('search-status');
+    var searchResults = document.getElementById('search-results');
+
+    if (!searchBox || !modal) return;
+
+    // Hide search on file:// protocol (doesn't work due to CORS restrictions)
+    if (window.location.protocol === 'file:') return;
+
+    // Show search box (progressive enhancement)
+    searchBox.style.display = 'flex';
+
+    // Gist preview support - detect if we're on gisthost.github.io or gistpreview.github.io
+    var hostname = window.location.hostname;
+    var isGistPreview = hostname === 'gisthost.github.io' || hostname === 'gistpreview.github.io';
+    var gistId = null;
+    var gistOwner = null;
+    var gistInfoLoaded = false;
+
+    if (isGistPreview) {
+        // Extract gist ID from URL query string like ?78a436a8a9e7a2e603738b8193b95410/index.html
+        var queryMatch = window.location.search.match(/^\?([a-f0-9]+)/i);
+        if (queryMatch) {
+            gistId = queryMatch[1];
+        }
+    }
+
+    async function loadGistInfo() {
+        if (!isGistPreview || !gistId || gistInfoLoaded) return;
+        try {
+            var response = await fetch('https://api.github.com/gists/' + gistId);
+            if (response.ok) {
+                var info = await response.json();
+                gistOwner = info.owner.login;
+                gistInfoLoaded = true;
+            }
+        } catch (e) {
+            console.error('Failed to load gist info:', e);
+        }
+    }
+
+    function getPageFetchUrl(pageFile) {
+        if (isGistPreview && gistOwner && gistId) {
+            // Use raw gist URL for fetching content
+            return 'https://gist.githubusercontent.com/' + gistOwner + '/' + gistId + '/raw/' + pageFile;
+        }
+        return pageFile;
+    }
+
+    function getPageLinkUrl(pageFile) {
+        if (isGistPreview && gistId) {
+            // Use gistpreview URL format for navigation links
+            return '?' + gistId + '/' + pageFile;
+        }
+        return pageFile;
+    }
+
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function openModal(query) {
+        modalInput.value = query || '';
+        searchResults.innerHTML = '';
+        searchStatus.textContent = '';
+        modal.showModal();
+        modalInput.focus();
+        if (query) {
+            performSearch(query);
+        }
+    }
+
+    function closeModal() {
+        modal.close();
+        // Update URL to remove search fragment, preserving path and query string
+        if (window.location.hash.startsWith('#search=')) {
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+    }
+
+    function updateUrlHash(query) {
+        if (query) {
+            // Preserve path and query string when adding hash
+            history.replaceState(null, '', window.location.pathname + window.location.search + '#search=' + encodeURIComponent(query));
+        }
+    }
+
+    function highlightTextNodes(element, searchTerm) {
+        var walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+        var nodesToReplace = [];
+
+        while (walker.nextNode()) {
+            var node = walker.currentNode;
+            if (node.nodeValue.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+                nodesToReplace.push(node);
+            }
+        }
+
+        nodesToReplace.forEach(function(node) {
+            var text = node.nodeValue;
+            var regex = new RegExp('(' + escapeRegex(searchTerm) + ')', 'gi');
+            var parts = text.split(regex);
+            if (parts.length > 1) {
+                var span = document.createElement('span');
+                parts.forEach(function(part) {
+                    if (part.toLowerCase() === searchTerm.toLowerCase()) {
+                        var mark = document.createElement('mark');
+                        mark.textContent = part;
+                        span.appendChild(mark);
+                    } else {
+                        span.appendChild(document.createTextNode(part));
+                    }
+                });
+                node.parentNode.replaceChild(span, node);
+            }
+        });
+    }
+
+    function fixInternalLinks(element, pageFile) {
+        // Update all internal anchor links to include the page file
+        var links = element.querySelectorAll('a[href^="#"]');
+        links.forEach(function(link) {
+            var href = link.getAttribute('href');
+            link.setAttribute('href', pageFile + href);
+        });
+    }
+
+    function processPage(pageFile, html, query) {
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(html, 'text/html');
+        var resultsFromPage = 0;
+
+        // Find all message blocks
+        var messages = doc.querySelectorAll('.message');
+        messages.forEach(function(msg) {
+            var text = msg.textContent || '';
+            if (text.toLowerCase().indexOf(query.toLowerCase()) !== -1) {
+                resultsFromPage++;
+
+                // Get the message ID for linking
+                var msgId = msg.id || '';
+                var pageLinkUrl = getPageLinkUrl(pageFile);
+                var link = pageLinkUrl + (msgId ? '#' + msgId : '');
+
+                // Clone the message HTML and highlight matches
+                var clone = msg.cloneNode(true);
+                // Fix internal links to include the page file
+                fixInternalLinks(clone, pageLinkUrl);
+                highlightTextNodes(clone, query);
+
+                var resultDiv = document.createElement('div');
+                resultDiv.className = 'search-result';
+                resultDiv.innerHTML = '<a href="' + link + '">' +
+                    '<div class="search-result-page">' + escapeHtml(pageFile) + '</div>' +
+                    '<div class="search-result-content">' + clone.innerHTML + '</div>' +
+                    '</a>';
+                searchResults.appendChild(resultDiv);
+            }
+        });
+
+        return resultsFromPage;
+    }
+
+    async function performSearch(query) {
+        if (!query.trim()) {
+            searchStatus.textContent = 'Enter a search term';
+            return;
+        }
+
+        updateUrlHash(query);
+        searchResults.innerHTML = '';
+        searchStatus.textContent = 'Searching...';
+
+        // Load gist info if on gistpreview (needed for constructing URLs)
+        if (isGistPreview && !gistInfoLoaded) {
+            searchStatus.textContent = 'Loading gist info...';
+            await loadGistInfo();
+            if (!gistOwner) {
+                searchStatus.textContent = 'Failed to load gist info. Search unavailable.';
+                return;
+            }
+        }
+
+        var resultsFound = 0;
+        var pagesSearched = 0;
+
+        // Build list of pages to fetch
+        var pagesToFetch = [];
+        for (var i = 1; i <= totalPages; i++) {
+            pagesToFetch.push('page-' + String(i).padStart(3, '0') + '.html');
+        }
+
+        searchStatus.textContent = 'Searching...';
+
+        // Process pages in batches of 3, but show results immediately as each completes
+        var batchSize = 3;
+        for (var i = 0; i < pagesToFetch.length; i += batchSize) {
+            var batch = pagesToFetch.slice(i, i + batchSize);
+
+            // Create promises that process results immediately when each fetch completes
+            var promises = batch.map(function(pageFile) {
+                return fetch(getPageFetchUrl(pageFile))
+                    .then(function(response) {
+                        if (!response.ok) throw new Error('Failed to fetch');
+                        return response.text();
+                    })
+                    .then(function(html) {
+                        // Process and display results immediately
+                        var count = processPage(pageFile, html, query);
+                        resultsFound += count;
+                        pagesSearched++;
+                        searchStatus.textContent = 'Found ' + resultsFound + ' result(s) in ' + pagesSearched + '/' + totalPages + ' pages...';
+                    })
+                    .catch(function() {
+                        pagesSearched++;
+                        searchStatus.textContent = 'Found ' + resultsFound + ' result(s) in ' + pagesSearched + '/' + totalPages + ' pages...';
+                    });
+            });
+
+            // Wait for this batch to complete before starting the next
+            await Promise.all(promises);
+        }
+
+        searchStatus.textContent = 'Found ' + resultsFound + ' result(s) in ' + totalPages + ' pages';
+    }
+
+    // Event listeners
+    searchBtn.addEventListener('click', function() {
+        openModal(searchInput.value);
+    });
+
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            openModal(searchInput.value);
+        }
+    });
+
+    modalSearchBtn.addEventListener('click', function() {
+        performSearch(modalInput.value);
+    });
+
+    modalInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            performSearch(modalInput.value);
+        }
+    });
+
+    modalCloseBtn.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Check for #search= in URL on page load
+    if (window.location.hash.startsWith('#search=')) {
+        var query = decodeURIComponent(window.location.hash.substring(8));
+        if (query) {
+            searchInput.value = query;
+            openModal(query);
+        }
+    }
+})();
+        </script>
+    </div>
+    <script>
+document.querySelectorAll('time[data-timestamp]').forEach(function(el) {
+    const timestamp = el.getAttribute('data-timestamp');
+    const date = new Date(timestamp);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    if (isToday) { el.textContent = timeStr; }
+    else { el.textContent = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + timeStr; }
+});
+document.querySelectorAll('pre.json').forEach(function(el) {
+    let text = el.textContent;
+    text = text.replace(/"([^"]+)":/g, '<span style="color: #ce93d8">"$1"</span>:');
+    text = text.replace(/: "([^"]*)"/g, ': <span style="color: #81d4fa">"$1"</span>');
+    text = text.replace(/: (\d+)/g, ': <span style="color: #ffcc80">$1</span>');
+    text = text.replace(/: (true|false|null)/g, ': <span style="color: #f48fb1">$1</span>');
+    el.innerHTML = text;
+});
+document.querySelectorAll('.truncatable').forEach(function(wrapper) {
+    const content = wrapper.querySelector('.truncatable-content');
+    const btn = wrapper.querySelector('.expand-btn');
+    if (content.scrollHeight > 250) {
+        wrapper.classList.add('truncated');
+        btn.addEventListener('click', function() {
+            if (wrapper.classList.contains('truncated')) { wrapper.classList.remove('truncated'); wrapper.classList.add('expanded'); btn.textContent = 'Show less'; }
+            else { wrapper.classList.remove('expanded'); wrapper.classList.add('truncated'); btn.textContent = 'Show more'; }
+        });
+    }
+});
+</script>
+</body>
+</html>

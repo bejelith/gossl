@@ -1,0 +1,8 @@
+Root CA [ROOT]
+├── Production
+│   ├── Prod US-East
+│   │   └── payments.us-east.example.com
+│   └── api.prod.example.com
+└── Staging
+    ├── web.staging.example.com [REVOKED]
+    └── api.staging.example.com

@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code transcript - page 11</title>
+    <style>
+:root { --bg-color: #f5f5f5; --card-bg: #ffffff; --user-bg: #e3f2fd; --user-border: #1976d2; --assistant-bg: #f5f5f5; --assistant-border: #9e9e9e; --thinking-bg: #fff8e1; --thinking-border: #ffc107; --thinking-text: #666; --tool-bg: #f3e5f5; --tool-border: #9c27b0; --tool-result-bg: #e8f5e9; --tool-error-bg: #ffebee; --text-color: #212121; --text-muted: #757575; --code-bg: #263238; --code-text: #aed581; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 16px; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 24px; padding-bottom: 8px; border-bottom: 2px solid var(--user-border); }
+.header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 2px solid var(--user-border); padding-bottom: 8px; margin-bottom: 24px; }
+.header-row h1 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; flex: 1; min-width: 200px; }
+.message { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.message.user { background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.message.assistant { background: var(--card-bg); border-left: 4px solid var(--assistant-border); }
+.message.tool-reply { background: #fff8e1; border-left: 4px solid #ff9800; }
+.tool-reply .role-label { color: #e65100; }
+.tool-reply .tool-result { background: transparent; padding: 0; margin: 0; }
+.tool-reply .tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.message-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.role-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.user .role-label { color: var(--user-border); }
+time { color: var(--text-muted); font-size: 0.8rem; }
+.timestamp-link { color: inherit; text-decoration: none; }
+.timestamp-link:hover { text-decoration: underline; }
+.message:target { animation: highlight 2s ease-out; }
+@keyframes highlight { 0% { background-color: rgba(25, 118, 210, 0.2); } 100% { background-color: transparent; } }
+.message-content { padding: 16px; }
+.message-content p { margin: 0 0 12px 0; }
+.message-content p:last-child { margin-bottom: 0; }
+.thinking { background: var(--thinking-bg); border: 1px solid var(--thinking-border); border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 0.9rem; color: var(--thinking-text); }
+.thinking-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #f57c00; margin-bottom: 8px; }
+.thinking p { margin: 8px 0; }
+.assistant-text { margin: 8px 0; }
+.tool-use { background: var(--tool-bg); border: 1px solid var(--tool-border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-header { font-weight: 600; color: var(--tool-border); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.tool-icon { font-size: 1.1rem; }
+.tool-description { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
+.tool-result { background: var(--tool-result-bg); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-result.tool-error { background: var(--tool-error-bg); }
+.file-tool { border-radius: 8px; padding: 12px; margin: 12px 0; }
+.write-tool { background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%); border: 1px solid #4caf50; }
+.edit-tool { background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); border: 1px solid #ff9800; }
+.file-tool-header { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.write-header { color: #2e7d32; }
+.edit-header { color: #e65100; }
+.file-tool-icon { font-size: 1rem; }
+.file-tool-path { font-family: monospace; background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 4px; }
+.file-tool-fullpath { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; word-break: break-all; }
+.file-content { margin: 0; }
+.edit-section { display: flex; margin: 4px 0; border-radius: 4px; overflow: hidden; }
+.edit-label { padding: 8px 12px; font-weight: bold; font-family: monospace; display: flex; align-items: flex-start; }
+.edit-old { background: #fce4ec; }
+.edit-old .edit-label { color: #b71c1c; background: #f8bbd9; }
+.edit-old .edit-content { color: #880e4f; }
+.edit-new { background: #e8f5e9; }
+.edit-new .edit-label { color: #1b5e20; background: #a5d6a7; }
+.edit-new .edit-content { color: #1b5e20; }
+.edit-content { margin: 0; flex: 1; background: transparent; font-size: 0.85rem; }
+.edit-replace-all { font-size: 0.75rem; font-weight: normal; color: var(--text-muted); }
+.write-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #e6f4ea); }
+.edit-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff0e5); }
+.todo-list { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border: 1px solid #81c784; border-radius: 8px; padding: 12px; margin: 12px 0; }
+.todo-header { font-weight: 600; color: #2e7d32; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.todo-items { list-style: none; margin: 0; padding: 0; }
+.todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 0.9rem; }
+.todo-item:last-child { border-bottom: none; }
+.todo-icon { flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; }
+.todo-completed .todo-icon { color: #2e7d32; background: rgba(46, 125, 50, 0.15); }
+.todo-completed .todo-content { color: #558b2f; text-decoration: line-through; }
+.todo-in-progress .todo-icon { color: #f57c00; background: rgba(245, 124, 0, 0.15); }
+.todo-in-progress .todo-content { color: #e65100; font-weight: 500; }
+.todo-pending .todo-icon { color: #757575; background: rgba(0,0,0,0.05); }
+.todo-pending .todo-content { color: #616161; }
+pre { background: var(--code-bg); color: var(--code-text); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; margin: 8px 0; white-space: pre-wrap; word-wrap: break-word; }
+pre.json { color: #e0e0e0; }
+code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre code { background: none; padding: 0; }
+.user-content { margin: 0; }
+.truncatable { position: relative; }
+.truncatable.truncated .truncatable-content { max-height: 200px; overflow: hidden; }
+.truncatable.truncated::after { content: ''; position: absolute; bottom: 32px; left: 0; right: 0; height: 60px; background: linear-gradient(to bottom, transparent, var(--card-bg)); pointer-events: none; }
+.message.user .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--user-bg)); }
+.message.tool-reply .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.tool-use .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-bg)); }
+.tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-result-bg)); }
+.expand-btn { display: none; width: 100%; padding: 8px 16px; margin-top: 4px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+.expand-btn:hover { background: rgba(0,0,0,0.1); }
+.truncatable.truncated .expand-btn, .truncatable.expanded .expand-btn { display: block; }
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; flex-wrap: wrap; }
+.pagination a, .pagination span { padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
+.pagination a { background: var(--card-bg); color: var(--user-border); border: 1px solid var(--user-border); }
+.pagination a:hover { background: var(--user-bg); }
+.pagination .current { background: var(--user-border); color: white; }
+.pagination .disabled { color: var(--text-muted); border: 1px solid #ddd; }
+.pagination .index-link { background: var(--user-border); color: white; }
+details.continuation { margin-bottom: 16px; }
+details.continuation summary { cursor: pointer; padding: 12px 16px; background: var(--user-bg); border-left: 4px solid var(--user-border); border-radius: 12px; font-weight: 500; color: var(--text-muted); }
+details.continuation summary:hover { background: rgba(25, 118, 210, 0.15); }
+details.continuation[open] summary { border-radius: 12px 12px 0 0; margin-bottom: 0; }
+.index-item { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.index-item a { display: block; text-decoration: none; color: inherit; }
+.index-item a:hover { background: rgba(25, 118, 210, 0.1); }
+.index-item-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.index-item-number { font-weight: 600; color: var(--user-border); }
+.index-item-content { padding: 16px; }
+.index-item-stats { padding: 8px 16px 12px 32px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid rgba(0,0,0,0.06); }
+.index-item-commit { margin-top: 6px; padding: 4px 8px; background: #fff3e0; border-radius: 4px; font-size: 0.85rem; color: #e65100; }
+.index-item-commit code { background: rgba(0,0,0,0.08); padding: 1px 4px; border-radius: 3px; font-size: 0.8rem; margin-right: 6px; }
+.commit-card { margin: 8px 0; padding: 10px 14px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 6px; }
+.commit-card a { text-decoration: none; color: #5d4037; display: block; }
+.commit-card a:hover { color: #e65100; }
+.commit-card-hash { font-family: monospace; color: #e65100; font-weight: 600; margin-right: 8px; }
+.index-commit { margin-bottom: 12px; padding: 10px 16px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.index-commit a { display: block; text-decoration: none; color: inherit; }
+.index-commit a:hover { background: rgba(255, 152, 0, 0.1); margin: -10px -16px; padding: 10px 16px; border-radius: 8px; }
+.index-commit-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
+.index-commit-hash { font-family: monospace; color: #e65100; font-weight: 600; }
+.index-commit-msg { color: #5d4037; }
+.index-item-long-text { margin-top: 8px; padding: 12px; background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--assistant-border); }
+.index-item-long-text .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--card-bg)); }
+.index-item-long-text-content { color: var(--text-color); }
+#search-box { display: none; align-items: center; gap: 8px; }
+#search-box input { padding: 6px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; width: 180px; }
+#search-box button, #modal-search-btn, #modal-close-btn { background: var(--user-border); color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#search-box button:hover, #modal-search-btn:hover { background: #1565c0; }
+#modal-close-btn { background: var(--text-muted); margin-left: 8px; }
+#modal-close-btn:hover { background: #616161; }
+#search-modal[open] { border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); padding: 0; width: 90vw; max-width: 900px; height: 80vh; max-height: 80vh; display: flex; flex-direction: column; }
+#search-modal::backdrop { background: rgba(0,0,0,0.5); }
+.search-modal-header { display: flex; align-items: center; gap: 8px; padding: 16px; border-bottom: 1px solid var(--assistant-border); background: var(--bg-color); border-radius: 12px 12px 0 0; }
+.search-modal-header input { flex: 1; padding: 8px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; }
+#search-status { padding: 8px 16px; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+#search-results { flex: 1; overflow-y: auto; padding: 16px; }
+.search-result { margin-bottom: 16px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.search-result a { display: block; text-decoration: none; color: inherit; }
+.search-result a:hover { background: rgba(25, 118, 210, 0.05); }
+.search-result-page { padding: 6px 12px; background: rgba(0,0,0,0.03); font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.search-result-content { padding: 12px; }
+.search-result mark { background: #fff59d; padding: 1px 2px; border-radius: 2px; }
+@media (max-width: 600px) { body { padding: 8px; } .message, .index-item { border-radius: 8px; } .message-content, .index-item-content { padding: 12px; } pre { font-size: 0.8rem; padding: 8px; } #search-box input { width: 120px; } #search-modal[open] { width: 95vw; height: 90vh; } }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Claude Code transcript</a> - page 11/28</h1>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-010.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-005.html">5</a>
+<a href="page-006.html">6</a>
+<a href="page-007.html">7</a>
+<a href="page-008.html">8</a>
+<a href="page-009.html">9</a>
+<a href="page-010.html">10</a>
+<span class="current">11</span>
+<a href="page-012.html">12</a>
+<a href="page-013.html">13</a>
+<a href="page-014.html">14</a>
+<a href="page-015.html">15</a>
+<a href="page-016.html">16</a>
+<a href="page-017.html">17</a>
+<a href="page-018.html">18</a>
+<a href="page-019.html">19</a>
+<a href="page-020.html">20</a>
+<a href="page-021.html">21</a>
+<a href="page-022.html">22</a>
+<a href="page-023.html">23</a>
+<a href="page-024.html">24</a>
+<a href="page-025.html">25</a>
+<a href="page-026.html">26</a>
+<a href="page-027.html">27</a>
+<a href="page-028.html">28</a>
+<a href="page-012.html">Next &rarr;</a>
+</div>
+
+        
+<div class="message user" id="msg-2026-03-26T19-25-02-305Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T19-25-02-305Z" class="timestamp-link"><time datetime="2026-03-26T19:25:02.305Z" data-timestamp="2026-03-26T19:25:02.305Z">2026-03-26T19:25:02.305Z</time></a></div><div class="message-content">
+<div class="user-content"><p>ok can we move to sqlc?</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-25-12-955Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-25-12-955Z" class="timestamp-link"><time datetime="2026-03-26T19:25:12.955Z" data-timestamp="2026-03-26T19:25:12.955Z">2026-03-26T19:25:12.955Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-25-17-115Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-25-17-115Z" class="timestamp-link"><time datetime="2026-03-26T19:25:17.115Z" data-timestamp="2026-03-26T19:25:17.115Z">2026-03-26T19:25:17.115Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Before jumping in, there's a design decision. sqlc generates its own model types (e.g., <code>Ca</code>, <code>Intermediate</code>, <code>Cert</code>). These will conflict with our domain types in <code>internal/ca/store.go</code>. Two approaches:</p>
+<p><strong>A. sqlc in a sub-package</strong> — Generate into <code>internal/store/sqlcgen/</code>, use it as an internal detail. <code>certstore.go</code> and <code>keystore.go</code> map between sqlc types and <code>ca.*</code> types. Clean separation, but mapping boilerplate.</p>
+<p><strong>B. sqlc as the source of truth</strong> — Generate into <code>internal/store/</code>, drop our hand-written SQL, and map sqlc types to <code>ca.*</code> types at the boundary. Same mapping boilerplate, flatter structure.</p>
+<p>I'd recommend <strong>A</strong> — keeps the generated code isolated and makes it obvious what's hand-written vs generated. Which do you prefer?</p></div></div></div>
+<div class="message user" id="msg-2026-03-26T19-25-55-011Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T19-25-55-011Z" class="timestamp-link"><time datetime="2026-03-26T19:25:55.011Z" data-timestamp="2026-03-26T19:25:55.011Z">2026-03-26T19:25:55.011Z</time></a></div><div class="message-content">
+<div class="user-content"><p>B</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-25-59-383Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-25-59-383Z" class="timestamp-link"><time datetime="2026-03-26T19:25:59.383Z" data-timestamp="2026-03-26T19:25:59.383Z">2026-03-26T19:25:59.383Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_016Xq5ZPbT3ivsXivFdoFsLL"><div class="tool-header"><span class="tool-icon">⚙</span> Skill</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;skill&#34;: &#34;superpowers:writing-plans&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-25-59-421Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-25-59-421Z" class="timestamp-link"><time datetime="2026-03-26T19:25:59.421Z" data-timestamp="2026-03-26T19:25:59.421Z">2026-03-26T19:25:59.421Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Launching skill: superpowers:writing-plans</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message user" id="msg-2026-03-26T19-25-59-420Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T19-25-59-420Z" class="timestamp-link"><time datetime="2026-03-26T19:25:59.420Z" data-timestamp="2026-03-26T19:25:59.420Z">2026-03-26T19:25:59.420Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Base directory for this skill: /Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.5/skills/writing-plans</p>
+<h1>Writing Plans</h1>
+<h2>Overview</h2>
+<p>Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.</p>
+<p>Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.</p>
+<p><strong>Announce at start:</strong> "I'm using the writing-plans skill to create the implementation plan."</p>
+<p><strong>Context:</strong> This should be run in a dedicated worktree (created by brainstorming skill).</p>
+<p><strong>Save plans to:</strong> <code>docs/superpowers/plans/YYYY-MM-DD-&lt;feature-name&gt;.md</code>
+- (User preferences for plan location override this default)</p>
+<h2>Scope Check</h2>
+<p>If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during brainstorming. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.</p>
+<h2>File Structure</h2>
+<p>Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.</p>
+<ul>
+<li>Design units with clear boundaries and well-defined interfaces. Each file should have one clear responsibility.</li>
+<li>You reason best about code you can hold in context at once, and your edits are more reliable when files are focused. Prefer smaller, focused files over large ones that do too much.</li>
+<li>Files that change together should live together. Split by responsibility, not by technical layer.</li>
+<li>In existing codebases, follow established patterns. If the codebase uses large files, don't unilaterally restructure - but if a file you're modifying has grown unwieldy, including a split in the plan is reasonable.</li>
+</ul>
+<p>This structure informs the task decomposition. Each task should produce self-contained changes that make sense independently.</p>
+<h2>Bite-Sized Task Granularity</h2>
+<p><strong>Each step is one action (2-5 minutes):</strong>
+- "Write the failing test" - step
+- "Run it to make sure it fails" - step
+- "Implement the minimal code to make the test pass" - step
+- "Run the tests and make sure they pass" - step
+- "Commit" - step</p>
+<h2>Plan Document Header</h2>
+<p><strong>Every plan MUST start with this header:</strong></p>
+<pre><code class="language-markdown"># [Feature Name] Implementation Plan
+
+&gt; **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** [One sentence describing what this builds]
+
+**Architecture:** [2-3 sentences about approach]
+
+**Tech Stack:** [Key technologies/libraries]
+
+---
+</code></pre>
+<h2>Task Structure</h2>
+<pre><code class="language-markdown">### Task N: [Component Name]
+
+**Files:**
+- Create: `exact/path/to/file.py`
+- Modify: `exact/path/to/existing.py:123-145`
+- Test: `tests/exact/path/to/test.py`
+
+- [ ] **Step 1: Write the failing test**
+
+```python
+def test_specific_behavior():
+    result = function(input)
+    assert result == expected
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/path/test.py::test_name -v`
+Expected: FAIL with &quot;function not defined&quot;
+
+- [ ] **Step 3: Write minimal implementation**
+
+```python
+def function(input):
+    return expected
+```
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `pytest tests/path/test.py::test_name -v`
+Expected: PASS
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add tests/path/test.py src/path/file.py
+git commit -m &quot;feat: add specific feature&quot;
+```
+</code></pre>
+<h2>Remember</h2>
+<ul>
+<li>Exact file paths always</li>
+<li>Complete code in plan (not "add validation")</li>
+<li>Exact commands with expected output</li>
+<li>Reference relevant skills with @ syntax</li>
+<li>DRY, YAGNI, TDD, frequent commits</li>
+</ul>
+<h2>Plan Review Loop</h2>
+<p>After writing the complete plan:</p>
+<ol>
+<li>Dispatch a single plan-document-reviewer subagent (see plan-document-reviewer-prompt.md) with precisely crafted review context — never your session history. This keeps the reviewer focused on the plan, not your thought process.</li>
+<li>Provide: path to the plan document, path to spec document</li>
+<li>If ❌ Issues Found: fix the issues, re-dispatch reviewer for the whole plan</li>
+<li>If ✅ Approved: proceed to execution handoff</li>
+</ol>
+<p><strong>Review loop guidance:</strong>
+- Same agent that wrote the plan fixes it (preserves context)
+- If loop exceeds 3 iterations, surface to human for guidance
+- Reviewers are advisory — explain disagreements if you believe feedback is incorrect</p>
+<h2>Execution Handoff</h2>
+<p>After saving the plan, offer execution choice:</p>
+<p><strong>"Plan complete and saved to <code>docs/superpowers/plans/&lt;filename&gt;.md</code>. Two execution options:</strong></p>
+<p><strong>1. Subagent-Driven (recommended)</strong> - I dispatch a fresh subagent per task, review between tasks, fast iteration</p>
+<p><strong>2. Inline Execution</strong> - Execute tasks in this session using executing-plans, batch execution with checkpoints</p>
+<p><strong>Which approach?"</strong></p>
+<p><strong>If Subagent-Driven chosen:</strong>
+- <strong>REQUIRED SUB-SKILL:</strong> Use superpowers:subagent-driven-development
+- Fresh subagent per task + two-stage review</p>
+<p><strong>If Inline Execution chosen:</strong>
+- <strong>REQUIRED SUB-SKILL:</strong> Use superpowers:executing-plans
+- Batch execution with checkpoints for review</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-26-03-969Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-26-03-969Z" class="timestamp-link"><time datetime="2026-03-26T19:26:03.969Z" data-timestamp="2026-03-26T19:26:03.969Z">2026-03-26T19:26:03.969Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>I'm using the writing-plans skill to create the implementation plan.</p>
+<p>Let me first check the current state and understand what sqlc needs.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-26-04-265Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-26-04-265Z" class="timestamp-link"><time datetime="2026-03-26T19:26:04.265Z" data-timestamp="2026-03-26T19:26:04.265Z">2026-03-26T19:26:04.265Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_014cWuEC94svFFH2qKwLd5FN"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/store/certstore.go&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-26-04-296Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-26-04-296Z" class="timestamp-link"><time datetime="2026-03-26T19:26:04.296Z" data-timestamp="2026-03-26T19:26:04.296Z">2026-03-26T19:26:04.296Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→package store
+     2→
+     3→import (
+     4→	&quot;context&quot;
+     5→	&quot;database/sql&quot;
+     6→	&quot;fmt&quot;
+     7→	&quot;time&quot;
+     8→
+     9→	&quot;github.com/bejelith/gossl/internal/ca&quot;
+    10→)
+    11→
+    12→// SQLiteCertStore implements ca.CertStore backed by SQLite.
+    13→type SQLiteCertStore struct {
+    14→	db *DB
+    15→}
+    16→
+    17→// NewCertStore creates a new SQLite-backed CertStore.
+    18→func NewCertStore(db *DB) *SQLiteCertStore {
+    19→	return &amp;SQLiteCertStore{db: db}
+    20→}
+    21→
+    22→func (s *SQLiteCertStore) CreateCA(ctx context.Context, c ca.CACert) (ca.CACert, error) {
+    23→	_, err := s.db.SqlDB().ExecContext(ctx,
+    24→		`INSERT INTO ca (id, common_name, serial, key_algo, cert_pem, not_before, not_after, created_at)
+    25→		 VALUES (1, ?, ?, ?, ?, ?, ?, ?)`,
+    26→		c.CommonName, c.Serial, c.KeyAlgo, c.CertPEM, c.NotBefore, c.NotAfter, c.CreatedAt,
+    27→	)
+    28→	if err != nil {
+    29→		return ca.CACert{}, fmt.Errorf(&quot;creating CA: %w&quot;, err)
+    30→	}
+    31→	c.ID = 1
+    32→	return c, nil
+    33→}
+    34→
+    35→func (s *SQLiteCertStore) GetCA(ctx context.Context) (ca.CACert, error) {
+    36→	row := s.db.SqlDB().QueryRowContext(ctx,
+    37→		`SELECT id, common_name, serial, key_algo, cert_pem, not_before, not_after, created_at FROM ca WHERE id = 1`)
+    38→	var c ca.CACert
+    39→	err := row.Scan(&amp;c.ID, &amp;c.CommonName, &amp;c.Serial, &amp;c.KeyAlgo, &amp;c.CertPEM, &amp;c.NotBefore, &amp;c.NotAfter, &amp;c.CreatedAt)
+    40→	if err == sql.ErrNoRows {
+    41→		return ca.CACert{}, fmt.Errorf(&quot;no CA found&quot;)
+    42→	}
+    43→	if err != nil {
+    44→		return ca.CACert{}, fmt.Errorf(&quot;getting CA: %w&quot;, err)
+    45→	}
+    46→	return c, nil
+    47→}
+    48→
+    49→func (s *SQLiteCertStore) CreateIntermediate(ctx context.Context, c ca.IntermediateCert) (ca.IntermediateCert, error) {
+    50→	res, err := s.db.SqlDB().ExecContext(ctx,
+    51→		`INSERT INTO intermediate (ca_id, common_name, serial, key_algo, cert_pem, not_before, not_after, created_at)
+    52→		 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    53→		c.CAID, c.CommonName, c.Serial, c.KeyAlgo, c.CertPEM, c.NotBefore, c.NotAfter, c.CreatedAt,
+    54→	)
+    55→	if err != nil {
+    56→		return ca.IntermediateCert{}, fmt.Errorf(&quot;creating intermediate: %w&quot;, err)
+    57→	}
+    58→	id, _ := res.LastInsertId()
+    59→	c.ID = id
+    60→	return c, nil
+    61→}
+    62→
+    63→func (s *SQLiteCertStore) GetIntermediate(ctx context.Context, id int64) (ca.IntermediateCert, error) {
+    64→	row := s.db.SqlDB().QueryRowContext(ctx,
+    65→		`SELECT id, ca_id, common_name, serial, key_algo, cert_pem, not_before, not_after, created_at
+    66→		 FROM intermediate WHERE id = ?`, id)
+    67→	return scanIntermediate(row)
+    68→}
+    69→
+    70→func (s *SQLiteCertStore) GetIntermediateBySerial(ctx context.Context, serial string) (ca.IntermediateCert, error) {
+    71→	row := s.db.SqlDB().QueryRowContext(ctx,
+    72→		`SELECT id, ca_id, common_name, serial, key_algo, cert_pem, not_before, not_after, created_at
+    73→		 FROM intermediate WHERE serial = ?`, serial)
+    74→	return scanIntermediate(row)
+    75→}
+    76→
+    77→func (s *SQLiteCertStore) GetIntermediateByCN(ctx context.Context, cn string) (ca.IntermediateCert, error) {
+    78→	row := s.db.SqlDB().QueryRowContext(ctx,
+    79→		`SELECT id, ca_id, common_name, serial, key_algo, cert_pem, not_before, not_after, created_at
+    80→		 FROM intermediate WHERE common_name = ?`, cn)
+    81→	return scanIntermediate(row)
+    82→}
+    83→
+    84→func (s *SQLiteCertStore) ListIntermediates(ctx context.Context) ([]ca.IntermediateCert, error) {
+    85→	rows, err := s.db.SqlDB().QueryContext(ctx,
+    86→		`SELECT id, ca_id, common_name, serial, key_algo, cert_pem, not_before, not_after, created_at
+    87→		 FROM intermediate ORDER BY created_at DESC`)
+    88→	if err != nil {
+    89→		return nil, fmt.Errorf(&quot;listing intermediates: %w&quot;, err)
+    90→	}
+    91→	defer rows.Close()
+    92→
+    93→	var result []ca.IntermediateCert
+    94→	for rows.Next() {
+    95→		var c ca.IntermediateCert
+    96→		if err := rows.Scan(&amp;c.ID, &amp;c.CAID, &amp;c.CommonName, &amp;c.Serial, &amp;c.KeyAlgo, &amp;c.CertPEM, &amp;c.NotBefore, &amp;c.NotAfter, &amp;c.CreatedAt); err != nil {
+    97→			return nil, fmt.Errorf(&quot;scanning intermediate: %w&quot;, err)
+    98→		}
+    99→		result = append(result, c)
+   100→	}
+   101→	return result, rows.Err()
+   102→}
+   103→
+   104→func (s *SQLiteCertStore) CreateCert(ctx context.Context, c ca.Cert) (ca.Cert, error) {
+   105→	res, err := s.db.SqlDB().ExecContext(ctx,
+   106→		`INSERT INTO cert (intermediate_id, common_name, serial, key_algo, cert_pem, not_before, not_after, created_at)
+   107→		 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+   108→		c.IntermediateID, c.CommonName, c.Serial, c.KeyAlgo, c.CertPEM, c.NotBefore, c.NotAfter, c.CreatedAt,
+   109→	)
+   110→	if err != nil {
+   111→		return ca.Cert{}, fmt.Errorf(&quot;creating cert: %w&quot;, err)
+   112→	}
+   113→	id, _ := res.LastInsertId()
+   114→	c.ID = id
+   115→	return c, nil
+   116→}
+   117→
+   118→func (s *SQLiteCertStore) GetCert(ctx context.Context, id int64) (ca.Cert, error) {
+   119→	row := s.db.SqlDB().QueryRowContext(ctx,
+   120→		`SELECT id, intermediate_id, common_name, serial, key_algo, cert_pem, not_before, not_after, revoked_at, created_at
+   121→		 FROM cert WHERE id = ?`, id)
+   122→	return scanCert(row)
+   123→}
+   124→
+   125→func (s *SQLiteCertStore) GetCertBySerial(ctx context.Context, serial string) (ca.Cert, error) {
+   126→	row := s.db.SqlDB().QueryRowContext(ctx,
+   127→		`SELECT id, intermediate_id, common_name, serial, key_algo, cert_pem, not_before, not_after, revoked_at, created_at
+   128→		 FROM cert WHERE serial = ?`, serial)
+   129→	return scanCert(row)
+   130→}
+   131→
+   132→func (s *SQLiteCertStore) GetCertByCN(ctx context.Context, cn string) (ca.Cert, error) {
+   133→	row := s.db.SqlDB().QueryRowContext(ctx,
+   134→		`SELECT id, intermediate_id, common_name, serial, key_algo, cert_pem, not_before, not_after, revoked_at, created_at
+   135→		 FROM cert WHERE common_name = ?`, cn)
+   136→	return scanCert(row)
+   137→}
+   138→
+   139→func (s *SQLiteCertStore) ListCerts(ctx context.Context) ([]ca.Cert, error) {
+   140→	return s.queryCerts(ctx,
+   141→		`SELECT id, intermediate_id, common_name, serial, key_algo, cert_pem, not_before, not_after, revoked_at, created_at
+   142→		 FROM cert ORDER BY created_at DESC`)
+   143→}
+   144→
+   145→func (s *SQLiteCertStore) ListCertsByIntermediate(ctx context.Context, intermediateID int64) ([]ca.Cert, error) {
+   146→	return s.queryCerts(ctx,
+   147→		`SELECT id, intermediate_id, common_name, serial, key_algo, cert_pem, not_before, not_after, revoked_at, created_at
+   148→		 FROM cert WHERE intermediate_id = ? ORDER BY created_at DESC`, intermediateID)
+   149→}
+   150→
+   151→func (s *SQLiteCertStore) RevokeCert(ctx context.Context, serial string, revokedAt time.Time) error {
+   152→	res, err := s.db.SqlDB().ExecContext(ctx, `UPDATE cert SET revoked_at = ? WHERE serial = ?`, revokedAt, serial)
+   153→	if err != nil {
+   154→		return fmt.Errorf(&quot;revoking cert %s: %w&quot;, serial, err)
+   155→	}
+   156→	rows, err := res.RowsAffected()
+   157→	if err != nil {
+   158→		return fmt.Errorf(&quot;revoking cert %s: %w&quot;, serial, err)
+   159→	}
+   160→	if rows == 0 {
+   161→		return fmt.Errorf(&quot;cert %s not found&quot;, serial)
+   162→	}
+   163→	return nil
+   164→}
+   165→
+   166→// Helpers
+   167→
+   168→func (s *SQLiteCertStore) queryCerts(ctx context.Context, query string, args ...any) ([]ca.Cert, error) {
+   169→	rows, err := s.db.SqlDB().QueryContext(ctx, query, args...)
+   170→	if err != nil {
+   171→		return nil, fmt.Errorf(&quot;listing certs: %w&quot;, err)
+   172→	}
+   173→	defer rows.Close()
+   174→
+   175→	var result []ca.Cert
+   176→	for rows.Next() {
+   177→		var c ca.Cert
+   178→		if err := rows.Scan(&amp;c.ID, &amp;c.IntermediateID, &amp;c.CommonName, &amp;c.Serial, &amp;c.KeyAlgo, &amp;c.CertPEM, &amp;c.NotBefore, &amp;c.NotAfter, &amp;c.RevokedAt, &amp;c.CreatedAt); err != nil {
+   179→			return nil, fmt.Errorf(&quot;scanning cert: %w&quot;, err)
+   180→		}
+   181→		result = append(result, c)
+   182→	}
+   183→	return result, rows.Err()
+   184→}
+   185→
+   186→func scanIntermediate(row *sql.Row) (ca.IntermediateCert, error) {
+   187→	var c ca.IntermediateCert
+   188→	err := row.Scan(&amp;c.ID, &amp;c.CAID, &amp;c.CommonName, &amp;c.Serial, &amp;c.KeyAlgo, &amp;c.CertPEM, &amp;c.NotBefore, &amp;c.NotAfter, &amp;c.CreatedAt)
+   189→	if err == sql.ErrNoRows {
+   190→		return ca.IntermediateCert{}, fmt.Errorf(&quot;intermediate not found&quot;)
+   191→	}
+   192→	if err != nil {
+   193→		return ca.IntermediateCert{}, fmt.Errorf(&quot;getting intermediate: %w&quot;, err)
+   194→	}
+   195→	return c, nil
+   196→}
+   197→
+   198→func scanCert(row *sql.Row) (ca.Cert, error) {
+   199→	var c ca.Cert
+   200→	err := row.Scan(&amp;c.ID, &amp;c.IntermediateID, &amp;c.CommonName, &amp;c.Serial, &amp;c.KeyAlgo, &amp;c.CertPEM, &amp;c.NotBefore, &amp;c.NotAfter, &amp;c.RevokedAt, &amp;c.CreatedAt)
+   201→	if err == sql.ErrNoRows {
+   202→		return ca.Cert{}, fmt.Errorf(&quot;cert not found&quot;)
+   203→	}
+   204→	if err != nil {
+   205→		return ca.Cert{}, fmt.Errorf(&quot;getting cert: %w&quot;, err)
+   206→	}
+   207→	return c, nil
+   208→}
+   209→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-26-08-162Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-26-08-162Z" class="timestamp-link"><time datetime="2026-03-26T19:26:08.162Z" data-timestamp="2026-03-26T19:26:08.162Z">2026-03-26T19:26:08.162Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_0183SZBYHAqnqTknHzWzVXC3"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/store/keystore.go&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-26-08-185Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-26-08-185Z" class="timestamp-link"><time datetime="2026-03-26T19:26:08.185Z" data-timestamp="2026-03-26T19:26:08.185Z">2026-03-26T19:26:08.185Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→package store
+     2→
+     3→import (
+     4→	&quot;context&quot;
+     5→	&quot;database/sql&quot;
+     6→	&quot;fmt&quot;
+     7→)
+     8→
+     9→// SQLiteKeyStore implements ca.KeyStore backed by SQLite.
+    10→type SQLiteKeyStore struct {
+    11→	db *DB
+    12→}
+    13→
+    14→// NewKeyStore creates a new SQLite-backed KeyStore.
+    15→func NewKeyStore(db *DB) *SQLiteKeyStore {
+    16→	return &amp;SQLiteKeyStore{db: db}
+    17→}
+    18→
+    19→// Store saves a private key PEM by ID.
+    20→func (ks *SQLiteKeyStore) Store(ctx context.Context, id string, keyPEM []byte) error {
+    21→	_, err := ks.db.SqlDB().ExecContext(ctx, &quot;INSERT INTO keystore (id, key_pem) VALUES (?, ?)&quot;, id, keyPEM)
+    22→	if err != nil {
+    23→		return fmt.Errorf(&quot;storing key %s: %w&quot;, id, err)
+    24→	}
+    25→	return nil
+    26→}
+    27→
+    28→// Load retrieves a private key PEM by ID.
+    29→func (ks *SQLiteKeyStore) Load(ctx context.Context, id string) ([]byte, error) {
+    30→	var keyPEM []byte
+    31→	err := ks.db.SqlDB().QueryRowContext(ctx, &quot;SELECT key_pem FROM keystore WHERE id = ?&quot;, id).Scan(&amp;keyPEM)
+    32→	if err == sql.ErrNoRows {
+    33→		return nil, fmt.Errorf(&quot;key %s not found&quot;, id)
+    34→	}
+    35→	if err != nil {
+    36→		return nil, fmt.Errorf(&quot;loading key %s: %w&quot;, id, err)
+    37→	}
+    38→	return keyPEM, nil
+    39→}
+    40→
+    41→// Delete removes a private key by ID.
+    42→func (ks *SQLiteKeyStore) Delete(ctx context.Context, id string) error {
+    43→	res, err := ks.db.SqlDB().ExecContext(ctx, &quot;DELETE FROM keystore WHERE id = ?&quot;, id)
+    44→	if err != nil {
+    45→		return fmt.Errorf(&quot;deleting key %s: %w&quot;, id, err)
+    46→	}
+    47→	rows, err := res.RowsAffected()
+    48→	if err != nil {
+    49→		return fmt.Errorf(&quot;deleting key %s: %w&quot;, id, err)
+    50→	}
+    51→	if rows == 0 {
+    52→		return fmt.Errorf(&quot;key %s not found&quot;, id)
+    53→	}
+    54→	return nil
+    55→}
+    56→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-26-08-643Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-26-08-643Z" class="timestamp-link"><time datetime="2026-03-26T19:26:08.643Z" data-timestamp="2026-03-26T19:26:08.643Z">2026-03-26T19:26:08.643Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01KTMAfCS14qFXrg7n79qQcB"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/store/db.go&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-26-08-667Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-26-08-667Z" class="timestamp-link"><time datetime="2026-03-26T19:26:08.667Z" data-timestamp="2026-03-26T19:26:08.667Z">2026-03-26T19:26:08.667Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→// Package store provides SQLite-backed storage implementations.
+     2→package store
+     3→
+     4→import (
+     5→	&quot;context&quot;
+     6→	&quot;database/sql&quot;
+     7→	_ &quot;embed&quot;
+     8→	&quot;fmt&quot;
+     9→
+    10→	_ &quot;modernc.org/sqlite&quot;
+    11→)
+    12→
+    13→//go:embed schema.sql
+    14→var schemaSQL string
+    15→
+    16→// SchemaVersion is the current database schema version.
+    17→const SchemaVersion = 1
+    18→
+    19→// DB wraps a sql.DB connection with schema management.
+    20→type DB struct {
+    21→	db *sql.DB
+    22→}
+    23→
+    24→// OpenDB opens a SQLite database and ensures the schema is initialized.
+    25→// Use &quot;:memory:&quot; for in-memory databases (testing).
+    26→func OpenDB(ctx context.Context, path string) (*DB, error) {
+    27→	sqlDB, err := sql.Open(&quot;sqlite&quot;, path)
+    28→	if err != nil {
+    29→		return nil, fmt.Errorf(&quot;opening database: %w&quot;, err)
+    30→	}
+    31→
+    32→	if err := sqlDB.PingContext(ctx); err != nil {
+    33→		sqlDB.Close()
+    34→		return nil, fmt.Errorf(&quot;connecting to database: %w&quot;, err)
+    35→	}
+    36→
+    37→	if _, err := sqlDB.ExecContext(ctx, &quot;PRAGMA foreign_keys = ON&quot;); err != nil {
+    38→		sqlDB.Close()
+    39→		return nil, fmt.Errorf(&quot;enabling foreign keys: %w&quot;, err)
+    40→	}
+    41→
+    42→	var version int
+    43→	if err := sqlDB.QueryRowContext(ctx, &quot;PRAGMA user_version&quot;).Scan(&amp;version); err != nil {
+    44→		sqlDB.Close()
+    45→		return nil, fmt.Errorf(&quot;reading schema version: %w&quot;, err)
+    46→	}
+    47→
+    48→	if version == 0 {
+    49→		if _, err := sqlDB.ExecContext(ctx, schemaSQL); err != nil {
+    50→			sqlDB.Close()
+    51→			return nil, fmt.Errorf(&quot;initializing schema: %w&quot;, err)
+    52→		}
+    53→		if _, err := sqlDB.ExecContext(ctx, fmt.Sprintf(&quot;PRAGMA user_version = %d&quot;, SchemaVersion)); err != nil {
+    54→			sqlDB.Close()
+    55→			return nil, fmt.Errorf(&quot;setting schema version: %w&quot;, err)
+    56→		}
+    57→	} else if version != SchemaVersion {
+    58→		sqlDB.Close()
+    59→		return nil, fmt.Errorf(&quot;unsupported schema version %d (expected %d)&quot;, version, SchemaVersion)
+    60→	}
+    61→
+    62→	return &amp;DB{db: sqlDB}, nil
+    63→}
+    64→
+    65→// Close closes the underlying database connection.
+    66→func (d *DB) Close() error {
+    67→	return d.db.Close()
+    68→}
+    69→
+    70→// SqlDB returns the underlying *sql.DB for query execution.
+    71→func (d *DB) SqlDB() *sql.DB {
+    72→	return d.db
+    73→}
+    74→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-26-09-130Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-26-09-130Z" class="timestamp-link"><time datetime="2026-03-26T19:26:09.130Z" data-timestamp="2026-03-26T19:26:09.130Z">2026-03-26T19:26:09.130Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01CMCfXCJZKtCSuFF42kekVM"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/internal/store/BUILD.bazel&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-26-09-152Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-26-09-152Z" class="timestamp-link"><time datetime="2026-03-26T19:26:09.152Z" data-timestamp="2026-03-26T19:26:09.152Z">2026-03-26T19:26:09.152Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→load(&quot;@rules_go//go:def.bzl&quot;, &quot;go_library&quot;, &quot;go_test&quot;)
+     2→
+     3→go_library(
+     4→    name = &quot;store&quot;,
+     5→    srcs = [
+     6→        &quot;certstore.go&quot;,
+     7→        &quot;db.go&quot;,
+     8→        &quot;keystore.go&quot;,
+     9→    ],
+    10→    embedsrcs = [&quot;schema.sql&quot;],
+    11→    importpath = &quot;github.com/bejelith/gossl/internal/store&quot;,
+    12→    visibility = [&quot;//:__subpackages__&quot;],
+    13→    deps = [
+    14→        &quot;//internal/ca&quot;,
+    15→        &quot;@org_modernc_sqlite//:sqlite&quot;,
+    16→    ],
+    17→)
+    18→
+    19→go_test(
+    20→    name = &quot;store_test&quot;,
+    21→    srcs = [
+    22→        &quot;certstore_test.go&quot;,
+    23→        &quot;db_test.go&quot;,
+    24→        &quot;keystore_test.go&quot;,
+    25→    ],
+    26→    embed = [&quot;:store&quot;],
+    27→    deps = [&quot;//internal/ca&quot;],
+    28→)
+    29→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-26-17-967Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-26-17-967Z" class="timestamp-link"><time datetime="2026-03-26T19:26:17.967Z" data-timestamp="2026-03-26T19:26:17.967Z">2026-03-26T19:26:17.967Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Now let me understand the sqlc genrule challenge. The key issue is: sqlc generates into the same package, producing <code>models.go</code>, <code>db.go</code>, and <code>querier.go</code>/<code>queries.sql.go</code>. We already have a <code>db.go</code>. And sqlc's generated <code>models.go</code> will have its own types that overlap with <code>ca.*</code> types.</p>
+<p>The approach for option B: sqlc generates into <code>internal/store/</code>, we use sqlc's <code>Queries</code> struct in our store implementations, and we map sqlc model types to <code>ca.*</code> types. We need to handle the <code>db.go</code> filename conflict — sqlc can be configured to use a different name.</p>
+<p>Let me check sqlc's config options.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-26-18-711Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-26-18-711Z" class="timestamp-link"><time datetime="2026-03-26T19:26:18.711Z" data-timestamp="2026-03-26T19:26:18.711Z">2026-03-26T19:26:18.711Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_0195RLMfSGSqSJCLFaLkWSmN"><div class="tool-header"><span class="tool-icon">⚙</span> Read</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;file_path&#34;: &#34;/Users/scaruso/dev/gossl/.multitool.lock.json&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-26-18-750Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-26-18-750Z" class="timestamp-link"><time datetime="2026-03-26T19:26:18.750Z" data-timestamp="2026-03-26T19:26:18.750Z">2026-03-26T19:26:18.750Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     1→{
+     2→  &quot;$schema&quot;: &quot;https://raw.githubusercontent.com/theoremlp/rules_multitool/main/lockfile.schema.json&quot;,
+     3→  &quot;gofumpt&quot;: {
+     4→    &quot;binaries&quot;: [
+     5→      {
+     6→        &quot;kind&quot;: &quot;file&quot;,
+     7→        &quot;url&quot;: &quot;https://github.com/mvdan/gofumpt/releases/download/v0.9.2/gofumpt_v0.9.2_linux_amd64&quot;,
+     8→        &quot;sha256&quot;: &quot;72cf61b12fef91eab6df6db4a4284f30616b5ead330112e28a1fa1cb15e57339&quot;,
+     9→        &quot;os&quot;: &quot;linux&quot;,
+    10→        &quot;cpu&quot;: &quot;x86_64&quot;
+    11→      },
+    12→      {
+    13→        &quot;kind&quot;: &quot;file&quot;,
+    14→        &quot;url&quot;: &quot;https://github.com/mvdan/gofumpt/releases/download/v0.9.2/gofumpt_v0.9.2_linux_arm64&quot;,
+    15→        &quot;sha256&quot;: &quot;5acaa5a554050f55fc81ef02a8b0d14ab6b3c058a84513885286dc52d3451645&quot;,
+    16→        &quot;os&quot;: &quot;linux&quot;,
+    17→        &quot;cpu&quot;: &quot;arm64&quot;
+    18→      },
+    19→      {
+    20→        &quot;kind&quot;: &quot;file&quot;,
+    21→        &quot;url&quot;: &quot;https://github.com/mvdan/gofumpt/releases/download/v0.9.2/gofumpt_v0.9.2_darwin_amd64&quot;,
+    22→        &quot;sha256&quot;: &quot;4172b912ec514038605f334fef9ed7b3f12ca3e40024cb0a622eab3073a55e57&quot;,
+    23→        &quot;os&quot;: &quot;macos&quot;,
+    24→        &quot;cpu&quot;: &quot;x86_64&quot;
+    25→      },
+    26→      {
+    27→        &quot;kind&quot;: &quot;file&quot;,
+    28→        &quot;url&quot;: &quot;https://github.com/mvdan/gofumpt/releases/download/v0.9.2/gofumpt_v0.9.2_darwin_arm64&quot;,
+    29→        &quot;sha256&quot;: &quot;c241fb742599a6cb0563d7377f59def65d451b23dd718dbc6ddf4ab5e695e8f1&quot;,
+    30→        &quot;os&quot;: &quot;macos&quot;,
+    31→        &quot;cpu&quot;: &quot;arm64&quot;
+    32→      }
+    33→    ]
+    34→  },
+    35→  &quot;yamlfmt&quot;: {
+    36→    &quot;binaries&quot;: [
+    37→      {
+    38→        &quot;kind&quot;: &quot;archive&quot;,
+    39→        &quot;url&quot;: &quot;https://github.com/google/yamlfmt/releases/download/v0.21.0/yamlfmt_0.21.0_Linux_x86_64.tar.gz&quot;,
+    40→        &quot;sha256&quot;: &quot;1f300d9257b232bb3b541d7fb1b0e6b3c121bcbab381c86cd38cb8722be8a566&quot;,
+    41→        &quot;file&quot;: &quot;yamlfmt&quot;,
+    42→        &quot;os&quot;: &quot;linux&quot;,
+    43→        &quot;cpu&quot;: &quot;x86_64&quot;
+    44→      },
+    45→      {
+    46→        &quot;kind&quot;: &quot;archive&quot;,
+    47→        &quot;url&quot;: &quot;https://github.com/google/yamlfmt/releases/download/v0.21.0/yamlfmt_0.21.0_Linux_arm64.tar.gz&quot;,
+    48→        &quot;sha256&quot;: &quot;5b2689c963b177271330c5ce8ca7396751107e5a826be46f03d2cb9b6f0c7784&quot;,
+    49→        &quot;file&quot;: &quot;yamlfmt&quot;,
+    50→        &quot;os&quot;: &quot;linux&quot;,
+    51→        &quot;cpu&quot;: &quot;arm64&quot;
+    52→      },
+    53→      {
+    54→        &quot;kind&quot;: &quot;archive&quot;,
+    55→        &quot;url&quot;: &quot;https://github.com/google/yamlfmt/releases/download/v0.21.0/yamlfmt_0.21.0_Darwin_x86_64.tar.gz&quot;,
+    56→        &quot;sha256&quot;: &quot;060e943bcb8583c456810eb1ff4721b4f46c4a0c1a4432449d5dc3bbfe29a22b&quot;,
+    57→        &quot;file&quot;: &quot;yamlfmt&quot;,
+    58→        &quot;os&quot;: &quot;macos&quot;,
+    59→        &quot;cpu&quot;: &quot;x86_64&quot;
+    60→      },
+    61→      {
+    62→        &quot;kind&quot;: &quot;archive&quot;,
+    63→        &quot;url&quot;: &quot;https://github.com/google/yamlfmt/releases/download/v0.21.0/yamlfmt_0.21.0_Darwin_arm64.tar.gz&quot;,
+    64→        &quot;sha256&quot;: &quot;4b417ecb94339d57e4c122ecc948c1a00fe328b5853266de9806e652a92858fa&quot;,
+    65→        &quot;file&quot;: &quot;yamlfmt&quot;,
+    66→        &quot;os&quot;: &quot;macos&quot;,
+    67→        &quot;cpu&quot;: &quot;arm64&quot;
+    68→      }
+    69→    ]
+    70→  }
+    71→}
+    72→</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-26-54-967Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-26-54-967Z" class="timestamp-link"><time datetime="2026-03-26T19:26:54.967Z" data-timestamp="2026-03-26T19:26:54.967Z">2026-03-26T19:26:54.967Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-26-55-511Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-26-55-511Z" class="timestamp-link"><time datetime="2026-03-26T19:26:55.511Z" data-timestamp="2026-03-26T19:26:55.511Z">2026-03-26T19:26:55.511Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Let me get the sqlc checksums and then write the plan.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-26-58-518Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-26-58-518Z" class="timestamp-link"><time datetime="2026-03-26T19:26:58.518Z" data-timestamp="2026-03-26T19:26:58.518Z">2026-03-26T19:26:58.518Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01CEgisJsTdCsbE4cbMjfzeG">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Compute sqlc sha256 checksums</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">for arch in linux_amd64 linux_arm64 darwin_amd64 darwin_arm64; do
+  url=&#34;https://github.com/sqlc-dev/sqlc/releases/download/v1.30.0/sqlc_1.30.0_${arch}.tar.gz&#34;
+  echo -n &#34;sqlc_${arch}: &#34;
+  curl -sL &#34;$url&#34; | shasum -a 256 | cut -d&#39; &#39; -f1
+done</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-27-01-925Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-27-01-925Z" class="timestamp-link"><time datetime="2026-03-26T19:27:01.925Z" data-timestamp="2026-03-26T19:27:01.925Z">2026-03-26T19:27:01.925Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>sqlc_linux_amd64: 468aecee071bfe55e97fcbcac52ea0208eeca444f67736f3b8f0f3d6a106132e
+sqlc_linux_arm64: dd9ab43b022ba3b3402054f99d7ae6e5efea33c949e869c3c66b214415e0c82d
+sqlc_darwin_amd64: eb065ca44f02a9500f8e51cb63594a6bbd2486af04d18c0f81efadf7eadf5e29
+sqlc_darwin_arm64: ff18793b97715d08dde364446f43082a06da87b7797b9ec79ef2b31aeb0894e5</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-27-06-171Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-27-06-171Z" class="timestamp-link"><time datetime="2026-03-26T19:27:06.171Z" data-timestamp="2026-03-26T19:27:06.171Z">2026-03-26T19:27:06.171Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Good. Now let me write the plan.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-28-24-233Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-28-24-233Z" class="timestamp-link"><time datetime="2026-03-26T19:28:24.233Z" data-timestamp="2026-03-26T19:28:24.233Z">2026-03-26T19:28:24.233Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_01FZA17dGYqXp21VA8No7fpR">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">2026-03-26-sqlc-migration-plan.md</span></div>
+<div class="file-tool-fullpath">/Users/scaruso/dev/gossl/docs/2026-03-26-sqlc-migration-plan.md</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content"># sqlc Migration Implementation Plan
+
+&gt; **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Replace hand-written SQL in `internal/store/` with sqlc-generated query code, built via Bazel genrule using multitool.
+
+**Architecture:** sqlc generates into `internal/store/` (same package). It produces a `Queries` struct with type-safe methods and its own model types (`Ca`, `Intermediate`, `Cert`, `Keystore`). Our `certstore.go` and `keystore.go` use the generated `Queries` struct internally and map between sqlc model types and `ca.*` domain types at the boundary. Existing tests remain unchanged — they validate behavior through the `ca.CertStore`/`ca.KeyStore` interfaces.
+
+**Tech Stack:** sqlc v1.30.0 (via multitool), Bazel genrule
+
+---
+
+## File Structure
+
+```
+internal/store/
+  schema.sql              # existing — DDL (unchanged)
+  queries.sql             # NEW — sqlc named queries
+  sqlc.yaml               # NEW — sqlc configuration
+  db.go                   # existing — DB open/close (unchanged)
+  db_test.go              # existing (unchanged)
+  certstore.go            # REWRITE — use sqlc Queries instead of raw SQL
+  certstore_test.go       # existing (unchanged — tests interface behavior)
+  keystore.go             # REWRITE — use sqlc Queries instead of raw SQL
+  keystore_test.go        # existing (unchanged)
+  # Generated by sqlc (via Bazel genrule, not committed):
+  sqlc_db.go              # DBTX interface + New() constructor
+  sqlc_models.go          # Ca, Intermediate, Cert, Keystore model structs
+  queries.sql.go          # query methods on *Queries
+```
+
+---
+
+### Task 1: Add sqlc to multitool
+
+**Files:**
+- Modify: `.multitool.lock.json`
+
+- [ ] **Step 1: Add sqlc v1.30.0 to `.multitool.lock.json`**
+
+Add this entry after the `yamlfmt` entry:
+
+```json
+&#34;sqlc&#34;: {
+  &#34;binaries&#34;: [
+    {
+      &#34;kind&#34;: &#34;archive&#34;,
+      &#34;url&#34;: &#34;https://github.com/sqlc-dev/sqlc/releases/download/v1.30.0/sqlc_1.30.0_linux_amd64.tar.gz&#34;,
+      &#34;sha256&#34;: &#34;468aecee071bfe55e97fcbcac52ea0208eeca444f67736f3b8f0f3d6a106132e&#34;,
+      &#34;file&#34;: &#34;sqlc&#34;,
+      &#34;os&#34;: &#34;linux&#34;,
+      &#34;cpu&#34;: &#34;x86_64&#34;
+    },
+    {
+      &#34;kind&#34;: &#34;archive&#34;,
+      &#34;url&#34;: &#34;https://github.com/sqlc-dev/sqlc/releases/download/v1.30.0/sqlc_1.30.0_linux_arm64.tar.gz&#34;,
+      &#34;sha256&#34;: &#34;dd9ab43b022ba3b3402054f99d7ae6e5efea33c949e869c3c66b214415e0c82d&#34;,
+      &#34;file&#34;: &#34;sqlc&#34;,
+      &#34;os&#34;: &#34;linux&#34;,
+      &#34;cpu&#34;: &#34;arm64&#34;
+    },
+    {
+      &#34;kind&#34;: &#34;archive&#34;,
+      &#34;url&#34;: &#34;https://github.com/sqlc-dev/sqlc/releases/download/v1.30.0/sqlc_1.30.0_darwin_amd64.tar.gz&#34;,
+      &#34;sha256&#34;: &#34;eb065ca44f02a9500f8e51cb63594a6bbd2486af04d18c0f81efadf7eadf5e29&#34;,
+      &#34;file&#34;: &#34;sqlc&#34;,
+      &#34;os&#34;: &#34;macos&#34;,
+      &#34;cpu&#34;: &#34;x86_64&#34;
+    },
+    {
+      &#34;kind&#34;: &#34;archive&#34;,
+      &#34;url&#34;: &#34;https://github.com/sqlc-dev/sqlc/releases/download/v1.30.0/sqlc_1.30.0_darwin_arm64.tar.gz&#34;,
+      &#34;sha256&#34;: &#34;ff18793b97715d08dde364446f43082a06da87b7797b9ec79ef2b31aeb0894e5&#34;,
+      &#34;file&#34;: &#34;sqlc&#34;,
+      &#34;os&#34;: &#34;macos&#34;,
+      &#34;cpu&#34;: &#34;arm64&#34;
+    }
+  ]
+}
+```
+
+- [ ] **Step 2: Verify multitool resolves sqlc**
+
+Run: `bazel build @multitool//tools/sqlc`
+Expected: builds successfully, downloads sqlc binary
+
+- [ ] **Step 3: Commit**
+
+```
+git add .multitool.lock.json
+git commit -m &#34;chore: add sqlc v1.30.0 to multitool&#34;
+```
+
+---
+
+### Task 2: Create sqlc config, queries, and Bazel genrule
+
+**Files:**
+- Create: `internal/store/queries.sql`
+- Create: `internal/store/sqlc.yaml`
+- Modify: `internal/store/BUILD.bazel`
+
+- [ ] **Step 1: Create `internal/store/queries.sql`**
+
+```sql
+-- name: CreateCA :one
+INSERT INTO ca (id, common_name, serial, key_algo, cert_pem, not_before, not_after, created_at)
+VALUES (1, ?, ?, ?, ?, ?, ?, ?)
+RETURNING *;
+
+-- name: GetCA :one
+SELECT * FROM ca WHERE id = 1;
+
+-- name: CreateIntermediate :one
+INSERT INTO intermediate (ca_id, common_name, serial, key_algo, cert_pem, not_before, not_after, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING *;
+
+-- name: GetIntermediate :one
+SELECT * FROM intermediate WHERE id = ?;
+
+-- name: GetIntermediateBySerial :one
+SELECT * FROM intermediate WHERE serial = ?;
+
+-- name: GetIntermediateByCN :one
+SELECT * FROM intermediate WHERE common_name = ?;
+
+-- name: ListIntermediates :many
+SELECT * FROM intermediate ORDER BY created_at DESC;
+
+-- name: CreateCert :one
+INSERT INTO cert (intermediate_id, common_name, serial, key_algo, cert_pem, not_before, not_after, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING *;
+
+-- name: GetCert :one
+SELECT * FROM cert WHERE id = ?;
+
+-- name: GetCertBySerial :one
+SELECT * FROM cert WHERE serial = ?;
+
+-- name: GetCertByCN :one
+SELECT * FROM cert WHERE common_name = ?;
+
+-- name: ListCerts :many
+SELECT * FROM cert ORDER BY created_at DESC;
+
+-- name: ListCertsByIntermediate :many
+SELECT * FROM cert WHERE intermediate_id = ? ORDER BY created_at DESC;
+
+-- name: RevokeCert :exec
+UPDATE cert SET revoked_at = ? WHERE serial = ?;
+
+-- name: StoreKey :exec
+INSERT INTO keystore (id, key_pem) VALUES (?, ?);
+
+-- name: LoadKey :one
+SELECT key_pem FROM keystore WHERE id = ?;
+
+-- name: DeleteKey :exec
+DELETE FROM keystore WHERE id = ?;
+```
+
+- [ ] **Step 2: Create `internal/store/sqlc.yaml`**
+
+```yaml
+version: &#34;2&#34;
+sql:
+  - engine: &#34;sqlite&#34;
+    queries: &#34;queries.sql&#34;
+    schema: &#34;schema.sql&#34;
+    gen:
+      go:
+        package: &#34;store&#34;
+        out: &#34;.&#34;
+        output_db_file_name: &#34;sqlc_db.go&#34;
+        output_models_file_name: &#34;sqlc_models.go&#34;
+```
+
+This generates three files:
+- `sqlc_db.go` — `DBTX` interface and `New()` constructor (avoids conflict with our `db.go`)
+- `sqlc_models.go` — model structs
+- `queries.sql.go` — query methods on `*Queries`
+
+- [ ] **Step 3: Write the Bazel genrule in `internal/store/BUILD.bazel`**
+
+Replace the entire BUILD.bazel with:
+
+```starlark
+load(&#34;@rules_go//go:def.bzl&#34;, &#34;go_library&#34;, &#34;go_test&#34;)
+
+genrule(
+    name = &#34;sqlc_generate&#34;,
+    srcs = [
+        &#34;schema.sql&#34;,
+        &#34;queries.sql&#34;,
+        &#34;sqlc.yaml&#34;,
+    ],
+    outs = [
+        &#34;sqlc_db.go&#34;,
+        &#34;sqlc_models.go&#34;,
+        &#34;queries.sql.go&#34;,
+    ],
+    cmd = &#34; &amp;&amp; &#34;.join([
+        &#34;WORK=$$(mktemp -d)&#34;,
+        &#34;cp $(location schema.sql) $$WORK/&#34;,
+        &#34;cp $(location queries.sql) $$WORK/&#34;,
+        &#34;cp $(location sqlc.yaml) $$WORK/&#34;,
+        &#34;cd $$WORK&#34;,
+        &#34;$(execpath @multitool//tools/sqlc) generate&#34;,
+        &#34;cp $$WORK/sqlc_db.go $(location sqlc_db.go)&#34;,
+        &#34;cp $$WORK/sqlc_models.go $(location sqlc_models.go)&#34;,
+        &#34;cp $$WORK/queries.sql.go $(location queries.sql.go)&#34;,
+    ]),
+    tools = [&#34;@multitool//tools/sqlc&#34;],
+)
+
+go_library(
+    name = &#34;store&#34;,
+    srcs = [
+        &#34;certstore.go&#34;,
+        &#34;db.go&#34;,
+        &#34;keystore.go&#34;,
+        &#34;:sqlc_generate&#34;,
+    ],
+    embedsrcs = [&#34;schema.sql&#34;],
+    importpath = &#34;github.com/bejelith/gossl/internal/store&#34;,
+    visibility = [&#34;//:__subpackages__&#34;],
+    deps = [
+        &#34;//internal/ca&#34;,
+        &#34;@org_modernc_sqlite//:sqlite&#34;,
+    ],
+)
+
+go_test(
+    name = &#34;store_test&#34;,
+    srcs = [
+        &#34;certstore_test.go&#34;,
+        &#34;db_test.go&#34;,
+        &#34;keystore_test.go&#34;,
+    ],
+    embed = [&#34;:store&#34;],
+    deps = [&#34;//internal/ca&#34;],
+)
+```
+
+Key points:
+- Generated files are referenced via `:sqlc_generate` label in `srcs`, so Bazel knows the dependency.
+- The genrule copies inputs to a temp dir, runs sqlc there, then copies outputs back to Bazel&#39;s output locations.
+
+- [ ] **Step 4: Verify sqlc generation builds**
+
+Run: `bazel build //internal/store:sqlc_generate`
+Expected: generates three files successfully
+
+If it fails, debug by checking:
+- `bazel build //internal/store:sqlc_generate --sandbox_debug`
+- The `cmd` may need adjustments for your platform
+
+- [ ] **Step 5: Verify the full library builds (will fail with duplicate symbols — that&#39;s expected)**
+
+Run: `bazel build //internal/store:store`
+Expected: MAY fail because `certstore.go` and `keystore.go` still use raw SQL alongside the new generated code. The generated `queries.sql.go` defines methods that won&#39;t conflict since they&#39;re on the `*Queries` type, but `sqlc_models.go` types may cause issues if there are name collisions. If it builds, great — if not, that&#39;s fine, we fix it in Task 3.
+
+- [ ] **Step 6: Commit**
+
+```
+git add internal/store/queries.sql internal/store/sqlc.yaml internal/store/BUILD.bazel
+git commit -m &#34;feat(store): add sqlc config and Bazel genrule&#34;
+```
+
+---
+
+### Task 3: Rewrite certstore.go to use sqlc-generated queries
+
+**Files:**
+- Modify: `internal/store/certstore.go`
+
+The existing tests in `certstore_test.go` remain unchanged — they test through the `ca.CertStore` interface and don&#39;t care about the internal implementation.
+
+- [ ] **Step 1: Rewrite `internal/store/certstore.go`**
+
+The new implementation uses `*Queries` (from sqlc-generated code) internally and maps between sqlc model types and `ca.*` domain types.
+
+```go
+package store
+
+import (
+	&#34;context&#34;
+	&#34;database/sql&#34;
+	&#34;fmt&#34;
+	&#34;time&#34;
+
+	&#34;github.com/bejelith/gossl/internal/ca&#34;
+)
+
+// SQLiteCertStore implements ca.CertStore backed by SQLite.
+type SQLiteCertStore struct {
+	q *Queries
+}
+
+// NewCertStore creates a new SQLite-backed CertStore.
+func NewCertStore(db *DB) *SQLiteCertStore {
+	return &amp;SQLiteCertStore{q: New(db.SqlDB())}
+}
+
+func (s *SQLiteCertStore) CreateCA(ctx context.Context, c ca.CACert) (ca.CACert, error) {
+	row, err := s.q.CreateCA(ctx, CreateCAParams{
+		CommonName: c.CommonName,
+		Serial:     c.Serial,
+		KeyAlgo:    c.KeyAlgo,
+		CertPem:    c.CertPEM,
+		NotBefore:  c.NotBefore,
+		NotAfter:   c.NotAfter,
+		CreatedAt:  c.CreatedAt,
+	})
+	if err != nil {
+		return ca.CACert{}, fmt.Errorf(&#34;creating CA: %w&#34;, err)
+	}
+	return caFromRow(row), nil
+}
+
+func (s *SQLiteCertStore) GetCA(ctx context.Context) (ca.CACert, error) {
+	row, err := s.q.GetCA(ctx)
+	if err == sql.ErrNoRows {
+		return ca.CACert{}, fmt.Errorf(&#34;no CA found&#34;)
+	}
+	if err != nil {
+		return ca.CACert{}, fmt.Errorf(&#34;getting CA: %w&#34;, err)
+	}
+	return caFromRow(row), nil
+}
+
+func (s *SQLiteCertStore) CreateIntermediate(ctx context.Context, c ca.IntermediateCert) (ca.IntermediateCert, error) {
+	row, err := s.q.CreateIntermediate(ctx, CreateIntermediateParams{
+		CaID:       c.CAID,
+		CommonName: c.CommonName,
+		Serial:     c.Serial,
+		KeyAlgo:    c.KeyAlgo,
+		CertPem:    c.CertPEM,
+		NotBefore:  c.NotBefore,
+		NotAfter:   c.NotAfter,
+		CreatedAt:  c.CreatedAt,
+	})
+	if err != nil {
+		return ca.IntermediateCert{}, fmt.Errorf(&#34;creating intermediate: %w&#34;, err)
+	}
+	return intermediateFromRow(row), nil
+}
+
+func (s *SQLiteCertStore) GetIntermediate(ctx context.Context, id int64) (ca.IntermediateCert, error) {
+	row, err := s.q.GetIntermediate(ctx, id)
+	if err == sql.ErrNoRows {
+		return ca.IntermediateCert{}, fmt.Errorf(&#34;intermediate not found&#34;)
+	}
+	if err != nil {
+		return ca.IntermediateCert{}, fmt.Errorf(&#34;getting intermediate: %w&#34;, err)
+	}
+	return intermediateFromRow(row), nil
+}
+
+func (s *SQLiteCertStore) GetIntermediateBySerial(ctx context.Context, serial string) (ca.IntermediateCert, error) {
+	row, err := s.q.GetIntermediateBySerial(ctx, serial)
+	if err == sql.ErrNoRows {
+		return ca.IntermediateCert{}, fmt.Errorf(&#34;intermediate not found&#34;)
+	}
+	if err != nil {
+		return ca.IntermediateCert{}, fmt.Errorf(&#34;getting intermediate: %w&#34;, err)
+	}
+	return intermediateFromRow(row), nil
+}
+
+func (s *SQLiteCertStore) GetIntermediateByCN(ctx context.Context, cn string) (ca.IntermediateCert, error) {
+	row, err := s.q.GetIntermediateByCN(ctx, cn)
+	if err == sql.ErrNoRows {
+		return ca.IntermediateCert{}, fmt.Errorf(&#34;intermediate not found&#34;)
+	}
+	if err != nil {
+		return ca.IntermediateCert{}, fmt.Errorf(&#34;getting intermediate: %w&#34;, err)
+	}
+	return intermediateFromRow(row), nil
+}
+
+func (s *SQLiteCertStore) ListIntermediates(ctx context.Context) ([]ca.IntermediateCert, error) {
+	rows, err := s.q.ListIntermediates(ctx)
+	if err != nil {
+		return nil, fmt.Errorf(&#34;listing intermediates: %w&#34;, err)
+	}
+	result := make([]ca.IntermediateCert, len(rows))
+	for i, row := range rows {
+		result[i] = intermediateFromRow(row)
+	}
+	return result, nil
+}
+
+func (s *SQLiteCertStore) CreateCert(ctx context.Context, c ca.Cert) (ca.Cert, error) {
+	row, err := s.q.CreateCert(ctx, CreateCertParams{
+		IntermediateID: c.IntermediateID,
+		CommonName:     c.CommonName,
+		Serial:         c.Serial,
+		KeyAlgo:        c.KeyAlgo,
+		CertPem:        c.CertPEM,
+		NotBefore:      c.NotBefore,
+		NotAfter:       c.NotAfter,
+		CreatedAt:      c.CreatedAt,
+	})
+	if err != nil {
+		return ca.Cert{}, fmt.Errorf(&#34;creating cert: %w&#34;, err)
+	}
+	return certFromRow(row), nil
+}
+
+func (s *SQLiteCertStore) GetCert(ctx context.Context, id int64) (ca.Cert, error) {
+	row, err := s.q.GetCert(ctx, id)
+	if err == sql.ErrNoRows {
+		return ca.Cert{}, fmt.Errorf(&#34;cert not found&#34;)
+	}
+	if err != nil {
+		return ca.Cert{}, fmt.Errorf(&#34;getting cert: %w&#34;, err)
+	}
+	return certFromRow(row), nil
+}
+
+func (s *SQLiteCertStore) GetCertBySerial(ctx context.Context, serial string) (ca.Cert, error) {
+	row, err := s.q.GetCertBySerial(ctx, serial)
+	if err == sql.ErrNoRows {
+		return ca.Cert{}, fmt.Errorf(&#34;cert not found&#34;)
+	}
+	if err != nil {
+		return ca.Cert{}, fmt.Errorf(&#34;getting cert: %w&#34;, err)
+	}
+	return certFromRow(row), nil
+}
+
+func (s *SQLiteCertStore) GetCertByCN(ctx context.Context, cn string) (ca.Cert, error) {
+	row, err := s.q.GetCertByCN(ctx, cn)
+	if err == sql.ErrNoRows {
+		return ca.Cert{}, fmt.Errorf(&#34;cert not found&#34;)
+	}
+	if err != nil {
+		return ca.Cert{}, fmt.Errorf(&#34;getting cert: %w&#34;, err)
+	}
+	return certFromRow(row), nil
+}
+
+func (s *SQLiteCertStore) ListCerts(ctx context.Context) ([]ca.Cert, error) {
+	rows, err := s.q.ListCerts(ctx)
+	if err != nil {
+		return nil, fmt.Errorf(&#34;listing certs: %w&#34;, err)
+	}
+	result := make([]ca.Cert, len(rows))
+	for i, row := range rows {
+		result[i] = certFromRow(row)
+	}
+	return result, nil
+}
+
+func (s *SQLiteCertStore) ListCertsByIntermediate(ctx context.Context, intermediateID int64) ([]ca.Cert, error) {
+	rows, err := s.q.ListCertsByIntermediate(ctx, intermediateID)
+	if err != nil {
+		return nil, fmt.Errorf(&#34;listing certs: %w&#34;, err)
+	}
+	result := make([]ca.Cert, len(rows))
+	for i, row := range rows {
+		result[i] = certFromRow(row)
+	}
+	return result, nil
+}
+
+func (s *SQLiteCertStore) RevokeCert(ctx context.Context, serial string, revokedAt time.Time) error {
+	err := s.q.RevokeCert(ctx, RevokeCertParams{
+		RevokedAt: &amp;revokedAt,
+		Serial:    serial,
+	})
+	if err != nil {
+		return fmt.Errorf(&#34;revoking cert %s: %w&#34;, serial, err)
+	}
+	return nil
+}
+
+// Mapping helpers — convert sqlc model types to ca domain types.
+
+func caFromRow(row Ca) ca.CACert {
+	return ca.CACert{
+		ID:         row.ID,
+		CommonName: row.CommonName,
+		Serial:     row.Serial,
+		KeyAlgo:    row.KeyAlgo,
+		CertPEM:    row.CertPem,
+		NotBefore:  row.NotBefore,
+		NotAfter:   row.NotAfter,
+		CreatedAt:  row.CreatedAt,
+	}
+}
+
+func intermediateFromRow(row Intermediate) ca.IntermediateCert {
+	return ca.IntermediateCert{
+		ID:         row.ID,
+		CAID:       row.CaID,
+		CommonName: row.CommonName,
+		Serial:     row.Serial,
+		KeyAlgo:    row.KeyAlgo,
+		CertPEM:    row.CertPem,
+		NotBefore:  row.NotBefore,
+		NotAfter:   row.NotAfter,
+		CreatedAt:  row.CreatedAt,
+	}
+}
+
+func certFromRow(row Cert) ca.Cert {
+	return ca.Cert{
+		ID:             row.ID,
+		IntermediateID: row.IntermediateID,
+		CommonName:     row.CommonName,
+		Serial:         row.Serial,
+		KeyAlgo:        row.KeyAlgo,
+		CertPEM:        row.CertPem,
+		NotBefore:      row.NotBefore,
+		NotAfter:       row.NotAfter,
+		RevokedAt:      row.RevokedAt,
+		CreatedAt:      row.CreatedAt,
+	}
+}
+```
+
+**IMPORTANT:** The exact field names on sqlc-generated types (`Ca`, `Intermediate`, `Cert`, `CreateCAParams`, etc.) depend on what sqlc actually generates. The names above are best guesses based on sqlc&#39;s naming conventions (snake_case SQL → CamelCase Go). After sqlc generation succeeds in Task 2, **read the generated files** to verify the exact type and field names before writing this code. Adjust the mapping code accordingly.
+
+**IMPORTANT:** `RevokeCert` uses sqlc&#39;s `:exec` which doesn&#39;t return rows affected. The current hand-written version checks `RowsAffected() == 0` to detect not-found. With sqlc&#39;s `:exec`, we lose that check. If the `TestCertStore_RevokeCertNotFound` test fails because of this, use `:execrows` instead of `:exec` in queries.sql for `RevokeCert`, which returns the number of affected rows. Then check the count in the Go code.
+
+- [ ] **Step 2: Run tests**
+
+Run: `bazel test //internal/store:store_test`
+Expected: ALL tests PASS (unchanged tests validate same behavior through interface)
+
+- [ ] **Step 3: Commit**
+
+```
+git add internal/store/certstore.go
+git commit -m &#34;refactor(store): rewrite CertStore to use sqlc-generated queries&#34;
+```
+
+---
+
+### Task 4: Rewrite keystore.go to use sqlc-generated queries
+
+**Files:**
+- Modify: `internal/store/keystore.go`
+
+- [ ] **Step 1: Rewrite `internal/store/keystore.go`**
+
+```go
+package store
+
+import (
+	&#34;context&#34;
+	&#34;database/sql&#34;
+	&#34;fmt&#34;
+)
+
+// SQLiteKeyStore implements ca.KeyStore backed by SQLite.
+type SQLiteKeyStore struct {
+	q *Queries
+}
+
+// NewKeyStore creates a new SQLite-backed KeyStore.
+func NewKeyStore(db *DB) *SQLiteKeyStore {
+	return &amp;SQLiteKeyStore{q: New(db.SqlDB())}
+}
+
+// Store saves a private key PEM by ID.
+func (ks *SQLiteKeyStore) Store(ctx context.Context, id string, keyPEM []byte) error {
+	err := ks.q.StoreKey(ctx, StoreKeyParams{
+		ID:     id,
+		KeyPem: keyPEM,
+	})
+	if err != nil {
+		return fmt.Errorf(&#34;storing key %s: %w&#34;, id, err)
+	}
+	return nil
+}
+
+// Load retrieves a private key PEM by ID.
+func (ks *SQLiteKeyStore) Load(ctx context.Context, id string) ([]byte, error) {
+	keyPEM, err := ks.q.LoadKey(ctx, id)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf(&#34;key %s not found&#34;, id)
+	}
+	if err != nil {
+		return nil, fmt.Errorf(&#34;loading key %s: %w&#34;, id, err)
+	}
+	return keyPEM, nil
+}
+
+// Delete removes a private key by ID.
+func (ks *SQLiteKeyStore) Delete(ctx context.Context, id string) error {
+	err := ks.q.DeleteKey(ctx, id)
+	if err != nil {
+		return fmt.Errorf(&#34;deleting key %s: %w&#34;, id, err)
+	}
+	return nil
+}
+```
+
+**IMPORTANT:** The hand-written `Delete` checked `RowsAffected() == 0` for not-found. sqlc&#39;s `:exec` doesn&#39;t expose this. If `TestKeyStore_DeleteNotFound` fails, change `DeleteKey` in queries.sql to `:execrows` and check the count. Same approach as RevokeCert in Task 3.
+
+**IMPORTANT:** Same caveat as Task 3 — verify generated field names before writing. `StoreKeyParams` field names depend on sqlc output.
+
+- [ ] **Step 2: Run tests**
+
+Run: `bazel test //internal/store:store_test`
+Expected: ALL tests PASS
+
+- [ ] **Step 3: Commit**
+
+```
+git add internal/store/keystore.go
+git commit -m &#34;refactor(store): rewrite KeyStore to use sqlc-generated queries&#34;
+```
+
+---
+
+### Task 5: Final verification
+
+- [ ] **Step 1: Build everything**
+
+Run: `bazel build //...`
+Expected: PASS
+
+- [ ] **Step 2: Run all tests**
+
+Run: `bazel test //...`
+Expected: ALL tests PASS
+
+- [ ] **Step 3: Commit any remaining changes**
+
+```
+git add -A
+git commit -m &#34;chore: sqlc migration cleanup&#34;
+```
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-28-24-261Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-28-24-261Z" class="timestamp-link"><time datetime="2026-03-26T19:28:24.261Z" data-timestamp="2026-03-26T19:28:24.261Z">2026-03-26T19:28:24.261Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>File created successfully at: /Users/scaruso/dev/gossl/docs/2026-03-26-sqlc-migration-plan.md</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-28-29-923Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-28-29-923Z" class="timestamp-link"><time datetime="2026-03-26T19:28:29.923Z" data-timestamp="2026-03-26T19:28:29.923Z">2026-03-26T19:28:29.923Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Plan saved to <code>docs/2026-03-26-sqlc-migration-plan.md</code>. Two execution options:</p>
+<p><strong>1. Subagent-Driven (recommended)</strong> — fresh subagent per task, review between tasks</p>
+<p><strong>2. Inline Execution</strong> — execute in this session with checkpoints</p>
+<p>Which approach?</p></div></div></div>
+<div class="message user" id="msg-2026-03-26T19-28-54-960Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T19-28-54-960Z" class="timestamp-link"><time datetime="2026-03-26T19:28:54.960Z" data-timestamp="2026-03-26T19:28:54.960Z">2026-03-26T19:28:54.960Z</time></a></div><div class="message-content">
+<div class="user-content"><p>2</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-28-59-341Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-28-59-341Z" class="timestamp-link"><time datetime="2026-03-26T19:28:59.341Z" data-timestamp="2026-03-26T19:28:59.341Z">2026-03-26T19:28:59.341Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01LfRJrDD2pF5Sc7KiUMyt5B"><div class="tool-header"><span class="tool-icon">⚙</span> Skill</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;skill&#34;: &#34;superpowers:executing-plans&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-28-59-364Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-28-59-364Z" class="timestamp-link"><time datetime="2026-03-26T19:28:59.364Z" data-timestamp="2026-03-26T19:28:59.364Z">2026-03-26T19:28:59.364Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Launching skill: superpowers:executing-plans</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message user" id="msg-2026-03-26T19-28-59-363Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-03-26T19-28-59-363Z" class="timestamp-link"><time datetime="2026-03-26T19:28:59.363Z" data-timestamp="2026-03-26T19:28:59.363Z">2026-03-26T19:28:59.363Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Base directory for this skill: /Users/scaruso/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.5/skills/executing-plans</p>
+<h1>Executing Plans</h1>
+<h2>Overview</h2>
+<p>Load plan, review critically, execute all tasks, report when complete.</p>
+<p><strong>Announce at start:</strong> "I'm using the executing-plans skill to implement this plan."</p>
+<p><strong>Note:</strong> Tell your human partner that Superpowers works much better with access to subagents. The quality of its work will be significantly higher if run on a platform with subagent support (such as Claude Code or Codex). If subagents are available, use superpowers:subagent-driven-development instead of this skill.</p>
+<h2>The Process</h2>
+<h3>Step 1: Load and Review Plan</h3>
+<ol>
+<li>Read plan file</li>
+<li>Review critically - identify any questions or concerns about the plan</li>
+<li>If concerns: Raise them with your human partner before starting</li>
+<li>If no concerns: Create TodoWrite and proceed</li>
+</ol>
+<h3>Step 2: Execute Tasks</h3>
+<p>For each task:
+1. Mark as in_progress
+2. Follow each step exactly (plan has bite-sized steps)
+3. Run verifications as specified
+4. Mark as completed</p>
+<h3>Step 3: Complete Development</h3>
+<p>After all tasks complete and verified:
+- Announce: "I'm using the finishing-a-development-branch skill to complete this work."
+- <strong>REQUIRED SUB-SKILL:</strong> Use superpowers:finishing-a-development-branch
+- Follow that skill to verify tests, present options, execute choice</p>
+<h2>When to Stop and Ask for Help</h2>
+<p><strong>STOP executing immediately when:</strong>
+- Hit a blocker (missing dependency, test fails, instruction unclear)
+- Plan has critical gaps preventing starting
+- You don't understand an instruction
+- Verification fails repeatedly</p>
+<p><strong>Ask for clarification rather than guessing.</strong></p>
+<h2>When to Revisit Earlier Steps</h2>
+<p><strong>Return to Review (Step 1) when:</strong>
+- Partner updates the plan based on your feedback
+- Fundamental approach needs rethinking</p>
+<p><strong>Don't force through blockers</strong> - stop and ask.</p>
+<h2>Remember</h2>
+<ul>
+<li>Review plan critically first</li>
+<li>Follow plan steps exactly</li>
+<li>Don't skip verifications</li>
+<li>Reference skills when plan says to</li>
+<li>Stop when blocked, don't guess</li>
+<li>Never start implementation on main/master branch without explicit user consent</li>
+</ul>
+<h2>Integration</h2>
+<p><strong>Required workflow skills:</strong>
+- <strong>superpowers:using-git-worktrees</strong> - REQUIRED: Set up isolated workspace before starting
+- <strong>superpowers:writing-plans</strong> - Creates the plan this skill executes
+- <strong>superpowers:finishing-a-development-branch</strong> - Complete development after all tasks</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-29-05-013Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-29-05-013Z" class="timestamp-link"><time datetime="2026-03-26T19:29:05.013Z" data-timestamp="2026-03-26T19:29:05.013Z">2026-03-26T19:29:05.013Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>I'm using the executing-plans skill to implement this plan.</p>
+<p>The plan looks solid. One concern: the exact sqlc-generated type/field names are uncertain until we see the output. I'll handle this by running the genrule first, reading the generated code, then adapting the rewrite. Let me start.</p></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-29-06-343Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-29-06-343Z" class="timestamp-link"><time datetime="2026-03-26T19:29:06.343Z" data-timestamp="2026-03-26T19:29:06.343Z">2026-03-26T19:29:06.343Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01EVm9bfJRa6qd2PKRHiKy8R"><div class="tool-header"><span class="tool-icon">⚙</span> TaskCreate</div><div class="tool-description">Add sqlc v1.30.0 to .multitool.lock.json, verify build</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subject&#34;: &#34;sqlc Task 1: Add sqlc to multitool&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-29-06-385Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-29-06-385Z" class="timestamp-link"><time datetime="2026-03-26T19:29:06.385Z" data-timestamp="2026-03-26T19:29:06.385Z">2026-03-26T19:29:06.385Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Task #12 created successfully: sqlc Task 1: Add sqlc to multitool</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-29-07-655Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-29-07-655Z" class="timestamp-link"><time datetime="2026-03-26T19:29:07.655Z" data-timestamp="2026-03-26T19:29:07.655Z">2026-03-26T19:29:07.655Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01B5cRtEgTsfxkNk7qibVyDd"><div class="tool-header"><span class="tool-icon">⚙</span> TaskCreate</div><div class="tool-description">Create queries.sql, sqlc.yaml, update BUILD.bazel with genrule</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subject&#34;: &#34;sqlc Task 2: Create sqlc config, queries, genrule&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-29-07-689Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-29-07-689Z" class="timestamp-link"><time datetime="2026-03-26T19:29:07.689Z" data-timestamp="2026-03-26T19:29:07.689Z">2026-03-26T19:29:07.689Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Task #13 created successfully: sqlc Task 2: Create sqlc config, queries, genrule</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-29-08-562Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-29-08-562Z" class="timestamp-link"><time datetime="2026-03-26T19:29:08.562Z" data-timestamp="2026-03-26T19:29:08.562Z">2026-03-26T19:29:08.562Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_013u1d21z7ZpGSRr8KSLy4LP"><div class="tool-header"><span class="tool-icon">⚙</span> TaskCreate</div><div class="tool-description">Replace hand-written SQL with sqlc Queries, map types</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subject&#34;: &#34;sqlc Task 3: Rewrite certstore.go with sqlc&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-29-08-604Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-29-08-604Z" class="timestamp-link"><time datetime="2026-03-26T19:29:08.604Z" data-timestamp="2026-03-26T19:29:08.604Z">2026-03-26T19:29:08.604Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Task #14 created successfully: sqlc Task 3: Rewrite certstore.go with sqlc</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-29-09-078Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-29-09-078Z" class="timestamp-link"><time datetime="2026-03-26T19:29:09.078Z" data-timestamp="2026-03-26T19:29:09.078Z">2026-03-26T19:29:09.078Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_015AaE8HYUJnSNjmNuVLLQEM"><div class="tool-header"><span class="tool-icon">⚙</span> TaskCreate</div><div class="tool-description">Replace hand-written SQL with sqlc Queries</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subject&#34;: &#34;sqlc Task 4: Rewrite keystore.go with sqlc&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-29-09-108Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-29-09-108Z" class="timestamp-link"><time datetime="2026-03-26T19:29:09.108Z" data-timestamp="2026-03-26T19:29:09.108Z">2026-03-26T19:29:09.108Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Task #15 created successfully: sqlc Task 4: Rewrite keystore.go with sqlc</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-29-09-713Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-29-09-713Z" class="timestamp-link"><time datetime="2026-03-26T19:29:09.713Z" data-timestamp="2026-03-26T19:29:09.713Z">2026-03-26T19:29:09.713Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01DiunzgGGCVZzz6mXYGJF1F"><div class="tool-header"><span class="tool-icon">⚙</span> TaskCreate</div><div class="tool-description">Build all, test all, commit cleanup</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;subject&#34;: &#34;sqlc Task 5: Final verification&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-29-09-756Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-29-09-756Z" class="timestamp-link"><time datetime="2026-03-26T19:29:09.756Z" data-timestamp="2026-03-26T19:29:09.756Z">2026-03-26T19:29:09.756Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Task #16 created successfully: sqlc Task 5: Final verification</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-03-26T19-29-13-993Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-03-26T19-29-13-993Z" class="timestamp-link"><time datetime="2026-03-26T19:29:13.993Z" data-timestamp="2026-03-26T19:29:13.993Z">2026-03-26T19:29:13.993Z</time></a></div><div class="message-content">
+<div class="tool-use" data-tool-id="toolu_01W1XMnz7RCY94tAaAfkgjqW"><div class="tool-header"><span class="tool-icon">⚙</span> TaskUpdate</div><div class="truncatable"><div class="truncatable-content"><pre class="json">{
+  &#34;taskId&#34;: &#34;12&#34;,
+  &#34;status&#34;: &#34;in_progress&#34;
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-03-26T19-29-14-023Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-03-26T19-29-14-023Z" class="timestamp-link"><time datetime="2026-03-26T19:29:14.023Z" data-timestamp="2026-03-26T19:29:14.023Z">2026-03-26T19:29:14.023Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>Updated task #12 status</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-010.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-005.html">5</a>
+<a href="page-006.html">6</a>
+<a href="page-007.html">7</a>
+<a href="page-008.html">8</a>
+<a href="page-009.html">9</a>
+<a href="page-010.html">10</a>
+<span class="current">11</span>
+<a href="page-012.html">12</a>
+<a href="page-013.html">13</a>
+<a href="page-014.html">14</a>
+<a href="page-015.html">15</a>
+<a href="page-016.html">16</a>
+<a href="page-017.html">17</a>
+<a href="page-018.html">18</a>
+<a href="page-019.html">19</a>
+<a href="page-020.html">20</a>
+<a href="page-021.html">21</a>
+<a href="page-022.html">22</a>
+<a href="page-023.html">23</a>
+<a href="page-024.html">24</a>
+<a href="page-025.html">25</a>
+<a href="page-026.html">26</a>
+<a href="page-027.html">27</a>
+<a href="page-028.html">28</a>
+<a href="page-012.html">Next &rarr;</a>
+</div>
+
+    </div>
+    <script>
+document.querySelectorAll('time[data-timestamp]').forEach(function(el) {
+    const timestamp = el.getAttribute('data-timestamp');
+    const date = new Date(timestamp);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    if (isToday) { el.textContent = timeStr; }
+    else { el.textContent = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + timeStr; }
+});
+document.querySelectorAll('pre.json').forEach(function(el) {
+    let text = el.textContent;
+    text = text.replace(/"([^"]+)":/g, '<span style="color: #ce93d8">"$1"</span>:');
+    text = text.replace(/: "([^"]*)"/g, ': <span style="color: #81d4fa">"$1"</span>');
+    text = text.replace(/: (\d+)/g, ': <span style="color: #ffcc80">$1</span>');
+    text = text.replace(/: (true|false|null)/g, ': <span style="color: #f48fb1">$1</span>');
+    el.innerHTML = text;
+});
+document.querySelectorAll('.truncatable').forEach(function(wrapper) {
+    const content = wrapper.querySelector('.truncatable-content');
+    const btn = wrapper.querySelector('.expand-btn');
+    if (content.scrollHeight > 250) {
+        wrapper.classList.add('truncated');
+        btn.addEventListener('click', function() {
+            if (wrapper.classList.contains('truncated')) { wrapper.classList.remove('truncated'); wrapper.classList.add('expanded'); btn.textContent = 'Show less'; }
+            else { wrapper.classList.remove('expanded'); wrapper.classList.add('truncated'); btn.textContent = 'Show more'; }
+        });
+    }
+});
+</script>
+</body>
+</html>

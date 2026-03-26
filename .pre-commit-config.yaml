@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: format-check
+        name: bazel format check
+        entry: bazel run //tools/format:format.check
+        language: system
+        pass_filenames: false
+        always_run: true
